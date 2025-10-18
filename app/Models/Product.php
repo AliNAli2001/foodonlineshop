@@ -33,6 +33,7 @@ class Product extends Model
      */
     public function inventory(): HasOne
     {
+      
         return $this->hasOne(Inventory::class, 'product_id');
     }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Inventory;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -16,6 +17,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with(['inventory', 'categories'])->paginate(15);
+      
         return view('admin.products.index', compact('products'));
     }
 
@@ -44,6 +46,8 @@ class ProductController extends Controller
             'categories' => 'array',
             'stock_quantity' => 'required|integer|min:0',
             'minimum_alert_quantity' => 'required|integer|min:0',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $product = Product::create([
@@ -66,6 +70,18 @@ class ProductController extends Controller
         // Attach categories
         if (!empty($validated['categories'])) {
             $product->categories()->attach($validated['categories']);
+        }
+
+        // Store images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $imagePath = $image->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url' => $imagePath,
+                    'is_primary' => $index === 0,
+                ]);
+            }
         }
 
         return redirect()->route('admin.products.index')
@@ -99,6 +115,8 @@ class ProductController extends Controller
             'featured' => 'boolean',
             'categories' => 'array',
             'minimum_alert_quantity' => 'required|integer|min:0',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $product->update([
@@ -119,8 +137,29 @@ class ProductController extends Controller
         // Sync categories
         $product->categories()->sync($validated['categories'] ?? []);
 
+        // Store new images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePath = $image->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url' => $imagePath,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')
             ->with('success', 'Product updated successfully.');
+    }
+
+    /**
+     * Show product details.
+     */
+    public function show($productId)
+    {
+        $product = Product::with(['inventory', 'categories', 'images'])->findOrFail($productId);
+
+        return view('admin.products.show', compact('product'));
     }
 
     /**

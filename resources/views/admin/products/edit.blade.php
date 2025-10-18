@@ -21,7 +21,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.products.update', $product->id) }}" method="POST">
+                <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -100,6 +100,34 @@
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Current Images</label>
+                        @if ($product->images->count() > 0)
+                            <div class="row">
+                                @foreach ($product->images as $image)
+                                    <div class="col-md-3 mb-2">
+                                        <img src="{{ asset('storage/' . $image->image_url) }}" alt="Product Image" style="max-width: 100%; max-height: 150px;">
+                                        @if ($image->is_primary)
+                                            <span class="badge bg-primary">Primary</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-muted">No images yet</p>
+                        @endif
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="images" class="form-label">Add More Product Images</label>
+                        <input type="file" class="form-control @error('images') is-invalid @enderror"
+                               id="images" name="images[]" accept="image/*" multiple>
+                        <small class="form-text text-muted">You can select multiple images to add to this product.</small>
+                        @error('images')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="mb-3">

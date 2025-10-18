@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('delivery_personnel', function (Blueprint $table) {
+        Schema::create('delivery', function (Blueprint $table) {
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('phone')->unique();
-            $table->string('vehicle_type')->nullable();
-            $table->string('vehicle_plate')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
+            $table->string('email')->unique()->nullable();
+            $table->enum('status', ['available', 'busy', 'inactive'])->default('available');
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->index('phone');
         });
     }
 
@@ -28,7 +29,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('delivery_personnel');
+        Schema::dropIfExists('delivery');
     }
 };
 

@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Category extends Model
@@ -15,6 +13,8 @@ class Category extends Model
         'name_ar',
         'name_en',
         'featured',
+        'type',
+        'category_image',
     ];
 
     protected $casts = [
@@ -23,13 +23,10 @@ class Category extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Get the image for this category.
-     */
-    public function image(): HasOne
-    {
-        return $this->hasOne(CategoryImage::class, 'category_id');
-    }
+    const TYPES = [
+        'company' => 'Company',
+        'class' => 'Class',
+    ];
 
     /**
      * Get all products in this category.

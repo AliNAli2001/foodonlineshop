@@ -16,6 +16,7 @@
                     <th>ID</th>
                     <th>Name (EN)</th>
                     <th>Name (AR)</th>
+                    <th>Type</th>
                     <th>Featured</th>
                     <th>Actions</th>
                 </tr>
@@ -26,6 +27,7 @@
                         <td>{{ $category->id }}</td>
                         <td>{{ $category->name_en }}</td>
                         <td>{{ $category->name_ar }}</td>
+                        <td><span class="badge bg-info">{{ ucfirst($category->type) }}</span></td>
                         <td>
                             @if ($category->featured)
                                 <span class="badge bg-success">Yes</span>
@@ -34,6 +36,7 @@
                             @endif
                         </td>
                         <td>
+                            <a href="{{ route('admin.categories.show', $category->id) }}" class="btn btn-sm btn-info">View</a>
                             <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-warning">Edit</a>
                             <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" style="display:inline;">
                                 @csrf
@@ -44,7 +47,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">No categories found.</td>
+                        <td colspan="6" class="text-center">No categories found.</td>
                     </tr>
                 @endforelse
             </tbody>

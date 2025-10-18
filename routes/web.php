@@ -15,10 +15,20 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\MessageTemplateController;
+use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\ProductDetailsController;
+use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\ReturnsController;
+use App\Http\Controllers\Admin\DamagedGoodsController;
+use App\Models\Product;
+use App\Models\Category;
+
 
 // Home page
 Route::get('/', function () {
-    return view('home');
+    $featuredProducts = Product::where('featured', true)->get();
+    $featuredCategories = Category::where('featured', true)->get();
+    return view('home', compact('featuredProducts', 'featuredCategories'));
 })->name('home');
 
 // Client Authentication Routes
@@ -77,6 +87,8 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
     // Products
     Route::resource('products', AdminProductController::class);
+    Route::get('/products/{product}/categories', [ProductCategoryController::class, 'index'])->name('products.categories.index');
+    Route::put('/products/{product}/categories', [ProductCategoryController::class, 'update'])->name('products.categories.update');
 
     // Categories
     Route::resource('categories', AdminCategoryController::class);
@@ -98,4 +110,24 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
     // Message Templates
     Route::resource('messages', MessageTemplateController::class);
+
+    // Inventory
+    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/{product}', [InventoryController::class, 'show'])->name('inventory.show');
+    Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+    Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
+
+    // Returns
+    Route::get('/returns', [ReturnsController::class, 'index'])->name('returns.index');
+    Route::get('/returns/create/{order}', [ReturnsController::class, 'create'])->name('returns.create');
+    Route::post('/returns', [ReturnsController::class, 'store'])->name('returns.store');
+    Route::get('/returns/{return}', [ReturnsController::class, 'show'])->name('returns.show');
+    Route::delete('/returns/{return}', [ReturnsController::class, 'destroy'])->name('returns.destroy');
+
+    // Damaged Goods
+    Route::get('/damaged-goods', [DamagedGoodsController::class, 'index'])->name('damaged-goods.index');
+    Route::get('/damaged-goods/create', [DamagedGoodsController::class, 'create'])->name('damaged-goods.create');
+    Route::post('/damaged-goods', [DamagedGoodsController::class, 'store'])->name('damaged-goods.store');
+    Route::get('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'show'])->name('damaged-goods.show');
+    Route::delete('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'destroy'])->name('damaged-goods.destroy');
 });

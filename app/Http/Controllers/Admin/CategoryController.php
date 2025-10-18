@@ -13,7 +13,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::with('image')->paginate(15);
+        $categories = Category::paginate(15);
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -34,12 +34,21 @@ class CategoryController extends Controller
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'featured' => 'boolean',
+            'type' => 'required|in:company,class',
+            'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        $imagePath = null;
+        if ($request->hasFile('category_image')) {
+            $imagePath = $request->file('category_image')->store('categories', 'public');
+        }
 
         Category::create([
             'name_ar' => $validated['name_ar'],
             'name_en' => $validated['name_en'],
             'featured' => $validated['featured'] ?? false,
+            'type' => $validated['type'],
+            'category_image' => $imagePath,
         ]);
 
         return redirect()->route('admin.categories.index')
@@ -51,8 +60,19 @@ class CategoryController extends Controller
      */
     public function edit($categoryId)
     {
-        $category = Category::with('image')->findOrFail($categoryId);
+        $category = Category::findOrFail($categoryId);
         return view('admin.categories.edit', compact('category'));
+    }
+
+    /**
+     * Show category details with products.
+     */
+    public function show($categoryId)
+    {
+        $category = Category::with('products')->findOrFail($categoryId);
+        $products = $category->products()->paginate(15);
+
+        return view('admin.categories.show', compact('category', 'products'));
     }
 
     /**
@@ -66,12 +86,21 @@ class CategoryController extends Controller
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'featured' => 'boolean',
+            'type' => 'required|in:company,class',
+            'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        $imagePath = $category->category_image;
+        if ($request->hasFile('category_image')) {
+            $imagePath = $request->file('category_image')->store('categories', 'public');
+        }
 
         $category->update([
             'name_ar' => $validated['name_ar'],
             'name_en' => $validated['name_en'],
             'featured' => $validated['featured'] ?? false,
+            'type' => $validated['type'],
+            'category_image' => $imagePath,
         ]);
 
         return redirect()->route('admin.categories.index')

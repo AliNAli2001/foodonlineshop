@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('super_admins', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('admin_id')->unique()->constrained('admins')->onDelete('cascade');
+        Schema::table('inventory', function (Blueprint $table) {
+            $table->dropColumn('updated_at');
             $table->timestamps();
         });
     }
@@ -23,7 +22,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('super_admins');
+        Schema::table('inventory', function (Blueprint $table) {
+            $table->dropTimestamps();
+            $table->timestamp('updated_at');
+            
+        });
     }
 };
-

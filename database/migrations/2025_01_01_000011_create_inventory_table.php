@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->unique()->constrained('products')->onDelete('cascade');
-            $table->integer('quantity_in_stock');
-            $table->integer('quantity_reserved')->default(0);
-            $table->integer('version')->default(0);
-            $table->timestamps();
+            $table->integer('stock_quantity')->default(0);
+            $table->integer('reserved_quantity')->default(0);
+            $table->integer('minimum_alert_quantity')->default(5);
+            $table->integer('version')->default(1);
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->index('product_id');
         });
     }
 

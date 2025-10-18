@@ -21,7 +21,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.products.store') }}" method="POST">
+                <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="row mb-3">
@@ -107,6 +107,16 @@
                                 <option value="{{ $category->id }}">{{ $category->name_en }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="images" class="form-label">Product Images</label>
+                        <input type="file" class="form-control @error('images') is-invalid @enderror"
+                               id="images" name="images[]" accept="image/*" multiple>
+                        <small class="form-text text-muted">You can select multiple images. The first image will be set as primary.</small>
+                        @error('images')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="mb-3">

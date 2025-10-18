@@ -16,14 +16,18 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
-            $table->string('password_hash');
-            $table->string('phone')->unique();
+            $table->string('password_hash')->nullable();
+            $table->string('phone')->nullable();
             $table->boolean('email_verified')->default(false);
             $table->boolean('phone_verified')->default(false);
             $table->text('address_details')->nullable();
             $table->boolean('promo_consent')->default(false);
             $table->enum('language_preference', ['ar', 'en'])->default('ar');
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->index('email');
+            $table->index('email_verified');
+            $table->index('phone_verified');
         });
     }
 

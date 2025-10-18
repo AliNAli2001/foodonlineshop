@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('code');
             $table->enum('type', ['email', 'phone']);
             $table->timestamp('expires_at');
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
+            $table->index('client_id');
         });
     }
 

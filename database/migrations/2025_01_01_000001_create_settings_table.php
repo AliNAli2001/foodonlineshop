@@ -17,16 +17,15 @@ return new class extends Migration
             $table->decimal('dollar_exchange_rate', 10, 4)->default(1.0000);
             $table->integer('general_minimum_alert_quantity')->default(10);
             $table->integer('max_order_items')->default(50);
-            $table->timestamps();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
 
         // Insert default settings
         DB::table('settings')->insert([
-            'dollar_exchange_rate' => 3.75,
+            'id' => 1,
+            'dollar_exchange_rate' => 1.0000,
             'general_minimum_alert_quantity' => 10,
             'max_order_items' => 50,
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
     }
 

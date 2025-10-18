@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->enum('type', ['reserve', 'release', 'confirm', 'adjust']);
-            $table->integer('quantity');
-            $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('set null');
-            $table->text('notes')->nullable();
-            $table->timestamps();
+            $table->integer('quantity_change');
+            $table->integer('reserved_change')->default(0);
+            $table->enum('transaction_type', ['sale', 'restock', 'reservation', 'adjustment']);
+            $table->text('reason')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->index('product_id');
+            $table->index('transaction_type');
         });
     }
 

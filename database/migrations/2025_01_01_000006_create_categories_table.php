@@ -15,12 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name_ar');
             $table->string('name_en');
-            $table->text('description_ar')->nullable();
-            $table->text('description_en')->nullable();
-            $table->string('image_path')->nullable();
-            $table->boolean('is_featured')->default(false);
-            $table->integer('display_order')->default(0);
-            $table->timestamps();
+            $table->boolean('featured')->default(false);
+            $table->enum('type', ['company', 'class'])->default('class');
+            $table->string('category_image')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->index('name_ar');
+            $table->index('name_en');
+            $table->index('featured');
+            $table->index('type');
         });
     }
 

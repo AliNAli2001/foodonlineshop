@@ -21,12 +21,12 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.categories.store') }}" method="POST">
+                <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="mb-3">
                         <label for="name_ar" class="form-label">Name (Arabic)</label>
-                        <input type="text" class="form-control @error('name_ar') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('name_ar') is-invalid @enderror"
                                id="name_ar" name="name_ar" value="{{ old('name_ar') }}" required>
                         @error('name_ar')
                             <span class="invalid-feedback">{{ $message }}</span>
@@ -35,9 +35,30 @@
 
                     <div class="mb-3">
                         <label for="name_en" class="form-label">Name (English)</label>
-                        <input type="text" class="form-control @error('name_en') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('name_en') is-invalid @enderror"
                                id="name_en" name="name_en" value="{{ old('name_en') }}" required>
                         @error('name_en')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Type</label>
+                        <select class="form-control @error('type') is-invalid @enderror" id="type" name="type" required>
+                            <option value="">-- Select Type --</option>
+                            <option value="company" {{ old('type') == 'company' ? 'selected' : '' }}>Company</option>
+                            <option value="class" {{ old('type') == 'class' ? 'selected' : '' }}>Class</option>
+                        </select>
+                        @error('type')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="category_image" class="form-label">Category Image</label>
+                        <input type="file" class="form-control @error('category_image') is-invalid @enderror"
+                               id="category_image" name="category_image" accept="image/*">
+                        @error('category_image')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>

@@ -36,7 +36,9 @@
                             @endif
                         </td>
                         <td>
+                            <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-sm btn-info">Details</a>
                             <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('admin.products.categories.index', $product->id) }}" class="btn btn-sm btn-secondary">Categories</a>
                             <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
