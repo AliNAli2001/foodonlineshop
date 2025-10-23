@@ -27,7 +27,7 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $product = Product::with('inventory')->findOrFail($validated['product_id']);
+        $product = Product::with('inventories')->findOrFail($validated['product_id']);
         $maxOrderItems = Setting::get('max_order_items', 50);
         $maxPerProduct = $product->max_order_item ?? $maxOrderItems;
 
@@ -38,31 +38,24 @@ class CartController extends Controller
             ], 422);
         }
 
-        if ($validated['quantity'] > $product->getAvailableStock()) {
+        // Check total available stock across all expiry dates
+        if ($validated['quantity'] > $product->getTotalAvailableStock()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Insufficient stock',
             ], 422);
         }
 
-        $cart = session()->get('cart', []);
-        $productId = $validated['product_id'];
-
-        if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] += $validated['quantity'];
-        } else {
-            $cart[$productId] = [
-                'quantity' => $validated['quantity'],
-                'price' => $product->price,
-            ];
-        }
-
-        session(['cart' => $cart]);
-
+        // Return product data for localStorage storage
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart',
-            'cartCount' => count($cart),
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name_en,
+                'price' => $product->price,
+                'quantity' => $validated['quantity'],
+            ],
         ]);
     }
 

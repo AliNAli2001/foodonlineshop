@@ -93,7 +93,12 @@
                         @foreach ($recentOrders as $order)
                             <tr>
                                 <td>#{{ $order->id }}</td>
-                                <td>{{ $order->client->first_name }} {{ $order->client->last_name }}</td>
+                                @if ($order->client)
+                                <td>{{ $order->client->first_name }} {{ $order->client->last_name }}</td>    
+                                @else
+                                    <td>By Admin</td>
+                                @endif
+                                
                                 <td>${{ number_format($order->total_amount, 2) }}</td>
                                 <td><span class="badge bg-info">{{ ucfirst($order->status) }}</span></td>
                             </tr>

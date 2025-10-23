@@ -22,28 +22,11 @@ class OrderController extends Controller
             return redirect()->route('login');
         }
 
-        $cart = session()->get('cart', []);
-        if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Cart is empty.');
-        }
-
         $client = Client::find($clientId);
-        $items = [];
-        $total = 0;
 
-        foreach ($cart as $productId => $cartItem) {
-            $product = Product::find($productId);
-            $subtotal = $product->price * $cartItem['quantity'];
-            $items[] = [
-                'product' => $product,
-                'quantity' => $cartItem['quantity'],
-                'unit_price' => $product->price,
-                'subtotal' => $subtotal,
-            ];
-            $total += $subtotal;
-        }
-
-        return view('orders.checkout', compact('client', 'items', 'total'));
+        // Cart is now handled via localStorage on the frontend
+        // We just need to pass the client info
+        return view('orders.checkout', compact('client'));
     }
 
     /**
@@ -64,11 +47,21 @@ class OrderController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
             'shipping_notes' => 'nullable|string',
             'general_notes' => 'nullable|string',
+            'cart_data' => 'required|json',
         ]);
 
-        $cart = session()->get('cart', []);
-        if (empty($cart)) {
+        // Parse cart data from localStorage
+        $cartData = json_decode($validated['cart_data'], true);
+        if (empty($cartData)) {
             return redirect()->route('cart.index')->with('error', 'Cart is empty.');
+        }
+
+        $cart = [];
+        foreach ($cartData as $productId => $item) {
+            $cart[$productId] = [
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ];
         }
 
         $client = Client::find($clientId);
@@ -89,7 +82,7 @@ class OrderController extends Controller
 
         // Create order items and update inventory
         foreach ($cart as $productId => $cartItem) {
-            $product = Product::with('inventory')->find($productId);
+            $product = Product::with('inventories')->find($productId);
             $subtotal = $product->price * $cartItem['quantity'];
 
             OrderItem::create([
@@ -99,31 +92,47 @@ class OrderController extends Controller
                 'unit_price' => $product->price,
             ]);
 
-            // Reserve inventory
-            $inventory = $product->inventory;
-            $inventory->update([
-                'reserved_quantity' => $inventory->reserved_quantity + $cartItem['quantity'],
-            ]);
+            // Reserve inventory using FIFO (First In First Out) - prioritize items expiring soon
+            $quantityToReserve = $cartItem['quantity'];
+            $inventories = $product->getInventoriesByExpiry(); // Sorted by expiry date
 
-            // Log transaction
-            InventoryTransaction::create([
-                'product_id' => $productId,
-                'quantity_change' => 0,
-                'reserved_change' => $cartItem['quantity'],
-                'transaction_type' => 'reservation',
-                'reason' => "Order #{$order->id} created",
-            ]);
+            foreach ($inventories as $inventory) {
+                if ($quantityToReserve <= 0) {
+                    break;
+                }
+
+                $availableToReserve = $inventory->stock_quantity - $inventory->reserved_quantity;
+                $reserveAmount = min($quantityToReserve, $availableToReserve);
+
+                if ($reserveAmount > 0) {
+                    $inventory->update([
+                        'reserved_quantity' => $inventory->reserved_quantity + $reserveAmount,
+                    ]);
+
+                    // Log transaction
+                    InventoryTransaction::create([
+                        'product_id' => $productId,
+                        'quantity_change' => 0,
+                        'reserved_change' => $reserveAmount,
+                        'transaction_type' => 'reservation',
+                        'reason' => "Order #{$order->id} created",
+                        'expiry_date' => $inventory->expiry_date,
+                        'batch_number' => $inventory->batch_number,
+                    ]);
+
+                    $quantityToReserve -= $reserveAmount;
+                }
+            }
 
             $totalAmount += $subtotal;
         }
 
         $order->update(['total_amount' => $totalAmount]);
 
-        // Clear cart
-        session()->forget('cart');
-
+        // Return success with JavaScript to clear localStorage
         return redirect()->route('client.order-details', $order->id)
-            ->with('success', 'Order created successfully. Awaiting admin confirmation.');
+            ->with('success', 'Order created successfully. Awaiting admin confirmation.')
+            ->with('clearCart', true);
     }
 }
 

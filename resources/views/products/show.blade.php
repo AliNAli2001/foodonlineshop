@@ -56,9 +56,9 @@
 <script>
     document.getElementById('addToCartForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        const quantity = document.getElementById('quantity').value;
-        
+
+        const quantity = parseInt(document.getElementById('quantity').value);
+
         fetch('{{ route("cart.add") }}', {
             method: 'POST',
             headers: {
@@ -67,12 +67,28 @@
             },
             body: JSON.stringify({
                 product_id: {{ $product->id }},
-                quantity: parseInt(quantity)
+                quantity: quantity
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Add to localStorage
+                const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+                const productId = data.product.id.toString();
+
+                if (cart[productId]) {
+                    cart[productId].quantity += data.product.quantity;
+                } else {
+                    cart[productId] = {
+                        id: data.product.id,
+                        name: data.product.name,
+                        price: data.product.price,
+                        quantity: data.product.quantity
+                    };
+                }
+
+                localStorage.setItem('cart', JSON.stringify(cart));
                 alert(data.message);
                 window.location.href = '{{ route("cart.index") }}';
             } else {

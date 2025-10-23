@@ -14,6 +14,7 @@ class DamagedGoods extends Model
         'quantity',
         'source',
         'return_item_id',
+        'inventory_transaction_id',
         'reason',
     ];
 
@@ -42,6 +43,14 @@ class DamagedGoods extends Model
     public function returnItem(): BelongsTo
     {
         return $this->belongsTo(ReturnItem::class, 'return_item_id');
+    }
+
+    /**
+     * Get the inventory transaction associated with this damaged goods record.
+     */
+    public function inventoryTransaction(): BelongsTo
+    {
+        return $this->belongsTo(InventoryTransaction::class, 'inventory_transaction_id');
     }
 }
 

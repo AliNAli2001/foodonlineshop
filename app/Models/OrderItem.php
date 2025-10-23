@@ -17,6 +17,12 @@ class OrderItem extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'status',
+    ];
+
+    public const STATUSES = [
+        'normal' => 'Normal',
+        'returned' => 'Returned',
     ];
 
     protected $casts = [

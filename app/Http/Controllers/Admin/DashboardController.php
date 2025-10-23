@@ -19,9 +19,9 @@ class DashboardController extends Controller
         $pendingOrders = Order::where('status', 'pending')->count();
         $totalProducts = Product::count();
         $totalClients = Client::count();
-        $lowStockProducts = Inventory::where('stock_quantity', '<=', 'minimum_alert_quantity')
-            ->with('product')
-            ->get();
+        $lowStockProducts = Inventory::whereColumn('stock_quantity', '<=', 'minimum_alert_quantity')->with('product')->get();
+
+
 
         $recentOrders = Order::latest()->take(5)->with('client')->get();
 
@@ -35,4 +35,3 @@ class DashboardController extends Controller
         ));
     }
 }
-

@@ -14,14 +14,28 @@
                 <h5>Order Information</h5>
             </div>
             <div class="card-body">
-                <p><strong>Client:</strong> {{ $order->client->first_name }} {{ $order->client->last_name }}</p>
+                @if ($order->client_id)
+                    <p><strong>Client:</strong> {{ $order->client->first_name }} {{ $order->client->last_name }}</p>
+                    <p><strong>Client Phone:</strong> {{ $order->client->phone }}</p>
+                @else
+                    <p><strong>Order Type:</strong> <span class="badge bg-warning">Admin Created</span></p>
+                    @if ($order->createdByAdmin)
+                        <p><strong>Created By:</strong> {{ $order->createdByAdmin->first_name }} {{ $order->createdByAdmin->last_name }}</p>
+                    @endif
+                @endif
                 <p><strong>Status:</strong> <span class="badge bg-info">{{ ucfirst($order->status) }}</span></p>
-                <p><strong>Order Date:</strong> {{ $order->created_at->format('Y-m-d H:i') }}</p>
+                <p><strong>Order Date:</strong> {{ $order->order_date->format('Y-m-d H:i') }}</p>
                 <p><strong>Order Source:</strong> {{ ucfirst(str_replace('_', ' ', $order->order_source)) }}</p>
                 <p><strong>Delivery Method:</strong> {{ ucfirst(str_replace('_', ' ', $order->delivery_method)) }}</p>
                 <p><strong>Address:</strong> {{ $order->address_details }}</p>
                 @if ($order->latitude && $order->longitude)
                     <p><strong>Location:</strong> {{ $order->latitude }}, {{ $order->longitude }}</p>
+                @endif
+                @if ($order->shipping_notes)
+                    <p><strong>Shipping Notes:</strong> {{ $order->shipping_notes }}</p>
+                @endif
+                @if ($order->admin_order_client_notes)
+                    <p><strong>Admin Notes:</strong> {{ $order->admin_order_client_notes }}</p>
                 @endif
             </div>
         </div>
@@ -38,15 +52,21 @@
                             <th>Unit Price</th>
                             <th>Quantity</th>
                             <th>Subtotal</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($items as $item)
+                        @foreach ($order->items as $item)
                             <tr>
                                 <td>{{ $item->product->name_en }}</td>
                                 <td>${{ number_format($item->unit_price, 2) }}</td>
                                 <td>{{ $item->quantity }}</td>
                                 <td>${{ number_format($item->unit_price * $item->quantity, 2) }}</td>
+                                <td>
+                                    <span class="badge {{ $item->status === 'normal' ? 'bg-success' : 'bg-warning' }}">
+                                        {{ ucfirst($item->status) }}
+                                    </span>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -54,45 +74,132 @@
             </div>
         </div>
 
-        @if ($order->status === 'pending')
-            <div class="card">
-                <div class="card-header">
-                    <h5>Actions</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-success">Confirm Order</button>
-                    </form>
-                    <form action="{{ route('admin.orders.reject', $order->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Reject Order</button>
-                    </form>
-                </div>
+        <!-- Status Management Section -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Order Status Management</h5>
             </div>
-        @endif
+            <div class="card-body">
+                <p class="mb-3"><strong>Current Status:</strong> <span class="badge bg-info">{{ ucfirst($order->status) }}</span></p>
 
-        @if ($order->status === 'confirmed' && !$order->delivery_id)
+                @if ($order->status === 'pending')
+                    <div class="btn-group" role="group">
+                        <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-success">Confirm Order</button>
+                        </form>
+                        <form action="{{ route('admin.orders.reject', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Reject Order</button>
+                        </form>
+                    </div>
+                @elseif ($order->status === 'confirmed')
+                    <div class="btn-group" role="group">
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="status" value="shipped">
+                            <button type="submit" class="btn btn-primary">Mark as Shipped</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="status" value="canceled">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Cancel Order</button>
+                        </form>
+                    </div>
+                @elseif ($order->status === 'shipped')
+                    <div class="btn-group" role="group">
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="status" value="delivered">
+                            <button type="submit" class="btn btn-primary">Mark as Delivered</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="status" value="done">
+                            <button type="submit" class="btn btn-success">Mark as Done</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="status" value="canceled">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Cancel Order</button>
+                        </form>
+                    </div>
+                @elseif ($order->status === 'delivered')
+                    <div class="btn-group" role="group">
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="status" value="done">
+                            <button type="submit" class="btn btn-success">Mark as Done</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <input type="hidden" name="status" value="canceled">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Cancel Order</button>
+                        </form>
+                    </div>
+                @elseif ($order->status === 'done' || $order->status === 'canceled')
+                    <p class="text-muted">This order is {{ $order->status }}. No further actions available.</p>
+                @endif
+            </div>
+        </div>
+
+        @if ($order->status === 'confirmed')
             <div class="card mt-3">
                 <div class="card-header">
-                    <h5>Assign Delivery</h5>
+                    <h5>Delivery Method & Assignment</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.orders.assign-delivery', $order->id) }}" method="POST">
+                    <form action="{{ route('admin.orders.update-delivery-method', $order->id) }}" method="POST">
                         @csrf
+                        @method('PUT')
+
                         <div class="mb-3">
+                            <label for="delivery_method" class="form-label">Delivery Method</label>
+                            <select class="form-control" id="delivery_method" name="delivery_method" required onchange="toggleDeliveryFields()">
+                                <option value="">-- Select Delivery Method --</option>
+                                <option value="delivery" {{ $order->delivery_method === 'delivery' ? 'selected' : '' }}>Delivery (Select Delivery Person)</option>
+                                <option value="hand_delivered" {{ $order->delivery_method === 'hand_delivered' ? 'selected' : '' }}>Hand Delivered (Inside City)</option>
+                                <option value="shipping" {{ $order->delivery_method === 'shipping' ? 'selected' : '' }}>Shipping (Outside City)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="deliveryPersonField" style="display: {{ $order->delivery_method === 'delivery' ? 'block' : 'none' }};">
                             <label for="delivery_id" class="form-label">Delivery Person</label>
-                            <select class="form-control" id="delivery_id" name="delivery_id" required>
-                                <option value="">Select...</option>
+                            <select class="form-control" id="delivery_id" name="delivery_id">
+                                <option value="">-- Select Delivery Person --</option>
                                 @foreach ($deliveryPersons as $delivery)
-                                    <option value="{{ $delivery->id }}">{{ $delivery->first_name }} {{ $delivery->last_name }}</option>
+                                    <option value="{{ $delivery->id }}" {{ $order->delivery_id === $delivery->id ? 'selected' : '' }}>
+                                        {{ $delivery->first_name }} {{ $delivery->last_name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Assign</button>
+
+                        <div class="mb-3">
+                            <label for="shipping_notes" class="form-label">Shipping Notes (Optional)</label>
+                            <textarea class="form-control" id="shipping_notes" name="shipping_notes" rows="3">{{ $order->shipping_notes }}</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update Delivery Method</button>
                     </form>
                 </div>
             </div>
+
+            <script>
+                function toggleDeliveryFields() {
+                    const method = document.getElementById('delivery_method').value;
+                    const deliveryField = document.getElementById('deliveryPersonField');
+                    const deliverySelect = document.getElementById('delivery_id');
+
+                    if (method === 'delivery') {
+                        deliveryField.style.display = 'block';
+                        deliverySelect.required = true;
+                    } else {
+                        deliveryField.style.display = 'none';
+                        deliverySelect.required = false;
+                    }
+                }
+            </script>
         @endif
 
         @if ($order->delivery_id)

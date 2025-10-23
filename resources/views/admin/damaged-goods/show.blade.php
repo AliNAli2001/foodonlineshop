@@ -23,6 +23,12 @@
             @if ($damagedGoods->returnItem)
                 <p><strong>Related Return:</strong> <a href="{{ route('admin.returns.show', $damagedGoods->returnItem->id) }}">Return #{{ $damagedGoods->returnItem->id }}</a></p>
             @endif
+            @if ($damagedGoods->inventoryTransaction)
+                <p><strong>Inventory Transaction:</strong>
+                    <span class="badge bg-success">{{ $damagedGoods->inventoryTransaction->transaction_type }}</span>
+                    (ID: {{ $damagedGoods->inventoryTransaction->id }})
+                </p>
+            @endif
             <p><strong>Date:</strong> {{ $damagedGoods->created_at->format('Y-m-d H:i') }}</p>
         </div>
     </div>

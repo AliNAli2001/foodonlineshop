@@ -60,13 +60,16 @@
                     <label class="form-label">Source</label>
                     <select name="source" class="form-control @error('source') is-invalid @enderror" required>
                         <option value="">-- Select Source --</option>
-                        <option value="inventory" {{ old('source') == 'inventory' ? 'selected' : '' }}>Inventory</option>
+                        <option value="inventory" {{ old('source') == 'inventory' ? 'selected' : '' }}>Inventory (will create transaction)</option>
                         <option value="external" {{ old('source') == 'external' ? 'selected' : '' }}>External</option>
                         <option value="returned" {{ old('source') == 'returned' ? 'selected' : '' }}>Returned</option>
                     </select>
                     @error('source')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                    <small class="form-text text-muted">
+                        Selecting "Inventory" will automatically create an inventory transaction record and deduct from stock.
+                    </small>
                 </div>
 
                 <div class="mb-3">

@@ -7,7 +7,9 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Inventory;
 use App\Models\ProductImage;
+use App\Models\InventoryTransaction;
 use Illuminate\Http\Request;
+
 
 class ProductController extends Controller
 {
@@ -60,11 +62,23 @@ class ProductController extends Controller
             'featured' => $validated['featured'] ?? false,
         ]);
 
-        // Create inventory
+        // Create inventory (without expiry date for initial stock)
         Inventory::create([
             'product_id' => $product->id,
             'stock_quantity' => $validated['stock_quantity'],
             'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+            'expiry_date' => null,
+            'batch_number' => null,
+        ]);
+
+        // Log transaction
+        InventoryTransaction::create([
+            'product_id' => $product->id,
+            'quantity_change' => $validated['stock_quantity'],
+            'transaction_type' => 'restock',
+            'reason' => 'Initial stock',
+            'expiry_date' => null,
+            'batch_number' => null,
         ]);
 
         // Attach categories

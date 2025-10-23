@@ -2,8 +2,11 @@
 
 @section('content')
 <div class="row mb-4">
-    <div class="col-md-12">
+    <div class="col-md-8">
         <h1>Orders</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ route('admin.orders.create') }}" class="btn btn-primary">+ Create Order</a>
     </div>
 </div>
 
@@ -25,11 +28,17 @@
                 @forelse ($orders as $order)
                     <tr>
                         <td>#{{ $order->id }}</td>
-                        <td>{{ $order->client->first_name }} {{ $order->client->last_name }}</td>
+                        <td>
+                            @if ($order->client_id)
+                                {{ $order->client->first_name }} {{ $order->client->last_name }}
+                            @else
+                                <span class="badge bg-warning">Admin Order</span>
+                            @endif
+                        </td>
                         <td>${{ number_format($order->total_amount, 2) }}</td>
                         <td><span class="badge bg-info">{{ ucfirst($order->status) }}</span></td>
                         <td>{{ $order->delivery ? $order->delivery->first_name . ' ' . $order->delivery->last_name : 'Not Assigned' }}</td>
-                        <td>{{ $order->created_at->format('Y-m-d H:i') }}</td>
+                        <td>{{ $order->order_date->format('Y-m-d H:i') }}</td>
                         <td>
                             <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-primary">View</a>
                         </td>

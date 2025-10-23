@@ -16,10 +16,14 @@ class Inventory extends Model
         'reserved_quantity',
         'minimum_alert_quantity',
         'version',
+        'expiry_date',
+        'batch_number',
     ];
 
     protected $casts = [
         'updated_at' => 'datetime',
+        'created_at' => 'datetime',
+        'expiry_date' => 'date',
     ];
 
     /**
@@ -52,6 +56,40 @@ class Inventory extends Model
     public function isBelowMinimum(): bool
     {
         return $this->stock_quantity <= $this->minimum_alert_quantity;
+    }
+
+    /**
+     * Check if inventory has expired.
+     */
+    public function isExpired(): bool
+    {
+        if (!$this->expiry_date) {
+            return false;
+        }
+        return now()->toDate() > $this->expiry_date;
+    }
+
+    /**
+     * Check if inventory is expiring soon (within 7 days).
+     */
+    public function isExpiringsoon(): bool
+    {
+        if (!$this->expiry_date) {
+            return false;
+        }
+        $daysUntilExpiry = now()->diffInDays($this->expiry_date, false);
+        return $daysUntilExpiry <= 7 && $daysUntilExpiry > 0;
+    }
+
+    /**
+     * Get days until expiry.
+     */
+    public function getDaysUntilExpiry(): ?int
+    {
+        if (!$this->expiry_date) {
+            return null;
+        }
+        return now()->diffInDays($this->expiry_date, false);
     }
 }
 

@@ -1,5 +1,23 @@
 @extends('layouts.app')
 
+@section('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<style>
+    #map {
+        height: 400px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    .map-info {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="row mb-4">
     <div class="col-md-12">
@@ -14,26 +32,9 @@
                 <h5>Order Items</h5>
             </div>
             <div class="card-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Unit Price</th>
-                            <th>Quantity</th>
-                            <th>Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($items as $item)
-                            <tr>
-                                <td>{{ $item['product']->name_en }}</td>
-                                <td>${{ number_format($item['unit_price'], 2) }}</td>
-                                <td>{{ $item['quantity'] }}</td>
-                                <td>${{ number_format($item['subtotal'], 2) }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div id="orderItemsContainer">
+                    <p>Loading items from cart...</p>
+                </div>
             </div>
         </div>
 
@@ -42,8 +43,9 @@
                 <h5>Delivery Information</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('order.store') }}" method="POST">
+                <form action="{{ route('order.store') }}" method="POST" id="checkoutForm">
                     @csrf
+                    <input type="hidden" id="cartData" name="cart_data" value="">
 
                     <div class="mb-3">
                         <label for="order_source" class="form-label">Order Source</label>
@@ -79,6 +81,16 @@
                         @error('address_details')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Location on Map (Optional)</label>
+                        <div id="map"></div>
+                        <div class="map-info">
+                            <p><strong>Click on the map to select your delivery location</strong></p>
+                            <p>Latitude: <span id="mapLatitude">-</span></p>
+                            <p>Longitude: <span id="mapLongitude">-</span></p>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -118,5 +130,148 @@
         </div>
     </div>
 </div>
+
+@section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+    // Load cart items from localStorage
+    function loadCheckoutItems() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+        const container = document.getElementById('orderItemsContainer');
+
+        if (Object.keys(cart).length === 0) {
+            container.innerHTML = '<p class="text-danger">Your cart is empty. <a href="{{ route("cart.index") }}">Go back to cart</a></p>';
+            document.querySelector('button[type="submit"]').disabled = true;
+            return;
+        }
+
+        let html = '<table class="table"><thead><tr><th>Product</th><th>Unit Price</th><th>Quantity</th><th>Subtotal</th></tr></thead><tbody>';
+        let totalAmount = 0;
+
+        Object.entries(cart).forEach(([productId, item]) => {
+            const subtotal = item.price * item.quantity;
+            totalAmount += subtotal;
+
+            html += `<tr>
+                <td>${item.name}</td>
+                <td>$${item.price.toFixed(2)}</td>
+                <td>${item.quantity}</td>
+                <td>$${subtotal.toFixed(2)}</td>
+            </tr>`;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    // Handle form submission
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+
+        if (Object.keys(cart).length === 0) {
+            e.preventDefault();
+            alert('Your cart is empty!');
+            return false;
+        }
+
+        // Store cart data in hidden field
+        document.getElementById('cartData').value = JSON.stringify(cart);
+    });
+
+    let map;
+    let marker;
+    const defaultLat = 31.9454; // Default to Egypt center
+    const defaultLng = 35.9284;
+
+    function initMap() {
+        // Initialize map
+        map = L.map('map').setView([defaultLat, defaultLng], 13);
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Handle map clicks
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+
+            // Remove existing marker
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            // Add new marker
+            marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup(`<b>Selected Location</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+
+            // Update input fields
+            document.getElementById('latitude').value = lat.toFixed(6);
+            document.getElementById('longitude').value = lng.toFixed(6);
+            document.getElementById('mapLatitude').textContent = lat.toFixed(6);
+            document.getElementById('mapLongitude').textContent = lng.toFixed(6);
+        });
+
+        // Check if there are existing coordinates
+        const existingLat = document.getElementById('latitude').value;
+        const existingLng = document.getElementById('longitude').value;
+
+        if (existingLat && existingLng) {
+            const lat = parseFloat(existingLat);
+            const lng = parseFloat(existingLng);
+            map.setView([lat, lng], 13);
+            marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup(`<b>Selected Location</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+            document.getElementById('mapLatitude').textContent = lat.toFixed(6);
+            document.getElementById('mapLongitude').textContent = lng.toFixed(6);
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCheckoutItems();
+        initMap();
+    });
+
+    // Update map when latitude/longitude inputs change
+    document.getElementById('latitude').addEventListener('change', function() {
+        const lat = parseFloat(this.value);
+        const lng = parseFloat(document.getElementById('longitude').value);
+
+        if (lat && lng && map) {
+            map.setView([lat, lng], 13);
+
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup(`<b>Selected Location</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+            document.getElementById('mapLatitude').textContent = lat.toFixed(6);
+            document.getElementById('mapLongitude').textContent = lng.toFixed(6);
+        }
+    });
+
+    document.getElementById('longitude').addEventListener('change', function() {
+        const lat = parseFloat(document.getElementById('latitude').value);
+        const lng = parseFloat(this.value);
+
+        if (lat && lng && map) {
+            map.setView([lat, lng], 13);
+
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup(`<b>Selected Location</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+            document.getElementById('mapLatitude').textContent = lat.toFixed(6);
+            document.getElementById('mapLongitude').textContent = lng.toFixed(6);
+        }
+    });
+</script>
+@endsection
 @endsection
 

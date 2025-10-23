@@ -29,7 +29,16 @@
                         <a class="nav-link" href="{{ route('admin.categories.index') }}">Categories</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.inventory.index') }}">Inventory</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.orders.index') }}">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.returns.index') }}">Returns</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.damaged-goods.index') }}">Damaged Goods</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.delivery.index') }}">Delivery</a>

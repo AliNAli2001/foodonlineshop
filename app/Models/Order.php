@@ -22,6 +22,7 @@ class Order extends Model
         'longitude',
         'address_details',
         'general_notes',
+        'admin_order_client_notes',
         'delivery_id',
     ];
 
@@ -39,8 +40,8 @@ class Order extends Model
         'confirmed' => 'Confirmed',
         'shipped' => 'Shipped',
         'delivered' => 'Delivered',
+        'done' => 'Done',
         'canceled' => 'Canceled',
-        'returned' => 'Returned',
     ];
 
     const SOURCES = [

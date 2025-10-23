@@ -17,10 +17,13 @@ class InventoryTransaction extends Model
         'reserved_change',
         'transaction_type',
         'reason',
+        'expiry_date',
+        'batch_number',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
+        'expiry_date' => 'date',
     ];
 
     const TYPES = [
@@ -28,6 +31,7 @@ class InventoryTransaction extends Model
         'restock' => 'Restock',
         'reservation' => 'Reservation',
         'adjustment' => 'Adjustment',
+        'damaged' => 'Damaged',
     ];
 
     /**
@@ -36,6 +40,14 @@ class InventoryTransaction extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    /**
+     * Get the damaged goods record associated with this transaction.
+     */
+    public function damagedGoods()
+    {
+        return $this->hasOne(DamagedGoods::class, 'inventory_transaction_id');
     }
 }
 

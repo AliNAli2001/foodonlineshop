@@ -27,14 +27,18 @@ class InventoryController extends Controller
     public function show($productId)
     {
         $product = Product::findOrFail($productId);
-        $inventory = Inventory::where('product_id', $productId)->firstOrFail();
+
+        // Get all inventory records for this product (grouped by expiry date)
+        $inventories = Inventory::where('product_id', $productId)
+            ->orderBy('expiry_date', 'asc')
+            ->get();
 
         // Get recent transactions
         $transactions = InventoryTransaction::where('product_id', $productId)
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return view('admin.inventory.show', compact('product', 'inventory', 'transactions'));
+        return view('admin.inventory.show', compact('product', 'inventories', 'transactions'));
     }
 
     /**
@@ -54,30 +58,64 @@ class InventoryController extends Controller
     public function update(Request $request, $productId)
     {
         $product = Product::findOrFail($productId);
-        $inventory = Inventory::where('product_id', $productId)->firstOrFail();
 
         $validated = $request->validate([
             'stock_quantity' => 'required|integer|min:0',
             'minimum_alert_quantity' => 'required|integer|min:0',
+            'expiry_date' => 'nullable|date|after_or_equal:today',
+            'batch_number' => 'nullable|string|max:100',
             'reason' => 'nullable|string|max:255',
         ]);
 
-        $oldStock = $inventory->stock_quantity;
-        $newStock = $validated['stock_quantity'];
-        $quantityChange = $newStock - $oldStock;
+        // Check if inventory with same expiry_date and batch_number exists
+        $expiryDate = $validated['expiry_date'] ?? null;
+        $batchNumber = $validated['batch_number'] ?? null;
 
-        $inventory->update([
-            'stock_quantity' => $newStock,
-            'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
-        ]);
+        $inventory = Inventory::where('product_id', $productId)
+            ->where('expiry_date', $expiryDate)
+            ->where('batch_number', $batchNumber)
+            ->first();
 
-        // Record transaction
-        if ($quantityChange != 0) {
+        if ($inventory) {
+            // Update existing inventory record
+            $oldStock = $inventory->stock_quantity;
+            $newStock = $validated['stock_quantity'];
+            $quantityChange = $newStock - $oldStock;
+
+            $inventory->update([
+                'stock_quantity' => $newStock,
+                'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+            ]);
+
+            // Record transaction
+            if ($quantityChange != 0) {
+                InventoryTransaction::create([
+                    'product_id' => $productId,
+                    'quantity_change' => $quantityChange,
+                    'transaction_type' => 'adjustment',
+                    'reason' => $validated['reason'] ?? 'Manual adjustment',
+                    'expiry_date' => $expiryDate,
+                    'batch_number' => $batchNumber,
+                ]);
+            }
+        } else {
+            // Create new inventory record with expiry date
+            $inventory = Inventory::create([
+                'product_id' => $productId,
+                'stock_quantity' => $validated['stock_quantity'],
+                'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+                'expiry_date' => $expiryDate,
+                'batch_number' => $batchNumber,
+            ]);
+
+            // Record transaction
             InventoryTransaction::create([
                 'product_id' => $productId,
-                'quantity_change' => $quantityChange,
-                'transaction_type' => 'adjustment',
-                'reason' => $validated['reason'] ?? 'Manual adjustment',
+                'quantity_change' => $validated['stock_quantity'],
+                'transaction_type' => 'restock',
+                'reason' => $validated['reason'] ?? 'New inventory batch',
+                'expiry_date' => $expiryDate,
+                'batch_number' => $batchNumber,
             ]);
         }
 

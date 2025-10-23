@@ -98,5 +98,14 @@
         </div>
     </div>
 </div>
+
+@section('scripts')
+<script>
+    // Clear cart from localStorage after successful order creation
+    @if (session('clearCart'))
+        localStorage.removeItem('cart');
+    @endif
+</script>
+@endsection
 @endsection
 

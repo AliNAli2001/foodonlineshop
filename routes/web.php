@@ -95,10 +95,13 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('orders.confirm');
     Route::post('/orders/{order}/reject', [AdminOrderController::class, 'reject'])->name('orders.reject');
     Route::post('/orders/{order}/assign-delivery', [AdminOrderController::class, 'assignDelivery'])->name('orders.assign-delivery');
+    Route::put('/orders/{order}/update-delivery-method', [AdminOrderController::class, 'updateDeliveryMethod'])->name('orders.update-delivery-method');
     Route::post('/orders/{order}/update-status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
 
     // Delivery
@@ -116,6 +119,7 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/inventory/{product}', [InventoryController::class, 'show'])->name('inventory.show');
     Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
+    
 
     // Returns
     Route::get('/returns', [ReturnsController::class, 'index'])->name('returns.index');
