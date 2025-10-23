@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Inventory;
 use App\Models\ProductImage;
 use App\Models\InventoryTransaction;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 
@@ -29,7 +30,10 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.products.create', compact('categories'));
+        
+        $maxOrderItems = Setting::get('max_order_items');
+        $generalMinimumAlertQuantity = Setting::get('general_minimum_alert_quantity');
+        return view('admin.products.create', compact('categories', 'maxOrderItems', 'generalMinimumAlertQuantity'));
     }
 
     /**
@@ -47,6 +51,8 @@ class ProductController extends Controller
             'featured' => 'boolean',
             'categories' => 'array',
             'stock_quantity' => 'required|integer|min:0',
+            'expiry_date' => 'nullable|date|after_or_equal:today',
+            'batch_number' => 'nullable|string|max:100',
             'minimum_alert_quantity' => 'required|integer|min:0',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -59,6 +65,7 @@ class ProductController extends Controller
             'description_en' => $validated['description_en'],
             'price' => $validated['price'],
             'max_order_item' => $validated['max_order_item'],
+
             'featured' => $validated['featured'] ?? false,
         ]);
 
@@ -67,8 +74,8 @@ class ProductController extends Controller
             'product_id' => $product->id,
             'stock_quantity' => $validated['stock_quantity'],
             'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
-            'expiry_date' => null,
-            'batch_number' => null,
+            'expiry_date' => $validated['expiry_date'] ?? null,
+            'batch_number' =>  $validated['batch_number'] ?? null,
         ]);
 
         // Log transaction
@@ -77,8 +84,8 @@ class ProductController extends Controller
             'quantity_change' => $validated['stock_quantity'],
             'transaction_type' => 'restock',
             'reason' => 'Initial stock',
-            'expiry_date' => null,
-            'batch_number' => null,
+            'expiry_date' => $validated['expiry_date'] ?? null,
+            'batch_number' =>  $validated['batch_number'] ?? null,
         ]);
 
         // Attach categories

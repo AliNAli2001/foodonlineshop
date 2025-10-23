@@ -74,7 +74,7 @@
                             <div class="col-md-6">
                                 <label for="max_order_item" class="form-label">Max Order Item</label>
                                 <input type="number" class="form-control @error('max_order_item') is-invalid @enderror"
-                                    id="max_order_item" name="max_order_item" value="{{ old('max_order_item') }}">
+                                    id="max_order_item" name="max_order_item" value="{{ old('max_order_item', $maxOrderItems) }}">
                                 @error('max_order_item')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -95,13 +95,37 @@
                                 <input type="number"
                                     class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
                                     id="minimum_alert_quantity" name="minimum_alert_quantity"
-                                    value="{{ old('minimum_alert_quantity') }}" required>
+                                    value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}" required>
                                 @error('minimum_alert_quantity')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
                             </div>
+                            
                         </div>
 
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="expiry_date"
+                                    class="form-label">
+                                    Expiry Date
+                                </label>
+                                <input type="date" class="form-control @error('expiry_date') is-invalid @enderror"
+                                    id="expiry_date" name="expiry_date" value="{{ old('expiry_date') }}">
+                                @error('expiry_date')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="batch_number" class="form-label">
+                                    Batch Number
+                                </label>
+                                <input type="text" class="form-control @error('batch_number') is-invalid @enderror"
+                                    id="batch_number" name="batch_number" value="{{ old('batch_number') }}">
+                                @error('batch_number')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label for="categories" class="form-label">Categories</label>
                             <div>
