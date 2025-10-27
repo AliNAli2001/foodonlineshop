@@ -111,14 +111,13 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
-    // Message Templates
-    Route::resource('messages', MessageTemplateController::class);
 
     // Inventory
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/{product}', [InventoryController::class, 'show'])->name('inventory.show');
     Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::get('/inventory/{product}/batches', [InventoryController::class, 'product'])->name('inventory.product');
     
 
     // Returns

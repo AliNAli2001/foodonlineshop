@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 class Product extends Model
 {
     protected $table = 'products';
+    static $i = 0;
 
     protected $fillable = [
         'name_ar',
@@ -23,7 +24,7 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'price' => 'decimal:3',
         'featured' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -34,15 +35,22 @@ class Product extends Model
      */
     public function inventories(): HasMany
     {
-        return $this->hasMany(Inventory::class, 'product_id');
+         return $this->hasMany(Inventory::class, 'product_id', 'id');
     }
 
-    /**
-     * Get the primary inventory record (for backward compatibility).
+   /**
+     * Get all inventory transactions for this product.
      */
-    public function inventory(): HasOne
+    public function transactions()
     {
-        return $this->hasOne(Inventory::class, 'product_id');
+        return $this->hasManyThrough(
+            InventoryTransaction::class, // Target model
+            Inventory::class,           // Intermediate model
+            'product_id',               // Foreign key on Inventory table
+            'inventory_id',             // Foreign key on InventoryTransaction table
+            'id',                       // Local key on Product table
+            'id'                        // Local key on Inventory table
+        );
     }
 
     /**
@@ -96,31 +104,52 @@ class Product extends Model
     /**
      * Get total available stock quantity across all expiry dates (excluding expired).
      */
-    public function getTotalAvailableStock(): int
+    public function getTotalAvailableStockAttribute(): int
     {
-        return $this->inventories()
-            ->where(function ($query) {
-                $query->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now()->toDate());
+        // Use the loaded inventories relationship if available
+        $inventories = $this->getRelation('inventories') ?? $this->inventories()->get();
+
+        return $inventories
+            ->filter(function ($inventory) {
+                return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
             })
-            ->sum(DB::raw('stock_quantity - reserved_quantity'));
+            ->sum(function ($inventory) {
+                return $inventory->stock_quantity - $inventory->reserved_quantity;
+            });
+    }
+
+    /**
+     * Get total reserved stock quantity across all expiry dates (excluding expired).
+     */
+    public function getTotalReservedStockAttribute(): int
+    {
+        // Use the loaded inventories relationship if available
+        $inventories = $this->getRelation('inventories') ?? $this->inventories()->get();
+
+        return $inventories
+            ->filter(function ($inventory) {
+                return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
+            })
+            ->sum('reserved_quantity');
     }
 
     /**
      * Get total stock quantity across all expiry dates (excluding expired).
      */
-    public function getTotalStock(): int
+    public function getTotalStockAttribute(): int
     {
-        return $this->inventories()
-            ->where(function ($query) {
-                $query->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now()->toDate());
+        $inventories = $this->getRelation('inventories') ?? $this->inventories()->get();
+
+        return $inventories
+            ->filter(function ($inventory) {
+                return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
             })
             ->sum('stock_quantity');
     }
 
     /**
-     * Get total reserved quantity across all expiry dates.
+     * Get total reserved quantity across all expiry dates. for delete (we optimized on above)
+     * optimized version getTotalReservedStockAttribute
      */
     public function getTotalReserved(): int
     {
@@ -171,5 +200,6 @@ class Product extends Model
             ->where('expiry_date', '<', now()->toDate())
             ->get();
     }
+
 }
 

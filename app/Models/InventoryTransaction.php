@@ -12,16 +12,18 @@ class InventoryTransaction extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'product_id',
+        'inventory_id',
         'quantity_change',
         'reserved_change',
         'transaction_type',
         'reason',
         'expiry_date',
         'batch_number',
+        'cost_price',
     ];
 
     protected $casts = [
+        'cost_price' => 'decimal:3',
         'created_at' => 'datetime',
         'expiry_date' => 'date',
     ];
@@ -37,9 +39,16 @@ class InventoryTransaction extends Model
     /**
      * Get the product this transaction belongs to.
      */
-    public function product(): BelongsTo
+    public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->hasOneThrough(
+            Product::class,            // Target model
+            Inventory::class,          // Intermediate model
+            'id',                      // Foreign key on Inventory table
+            'id',                      // Foreign key on Product table
+            'inventory_id',            // Local key on InventoryTransaction table
+            'product_id'               // Local key on Inventory table
+        );
     }
 
     /**
@@ -48,6 +57,14 @@ class InventoryTransaction extends Model
     public function damagedGoods()
     {
         return $this->hasOne(DamagedGoods::class, 'inventory_transaction_id');
+    }
+
+    /**
+     * Get the inventory record associated with this transaction.
+     */
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class, 'inventory_transaction_id');
     }
 }
 

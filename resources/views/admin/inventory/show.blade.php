@@ -8,7 +8,7 @@
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('admin.inventory.index') }}" class="btn btn-secondary">Back</a>
-            <a href="{{ route('admin.inventory.edit', $product->id) }}" class="btn btn-warning">Edit</a>
+            <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-warning">Edit</a>
         </div>
     </div>
 

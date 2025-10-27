@@ -83,15 +83,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="minimum_alert_quantity" class="form-label">Minimum Alert Quantity</label>
-                            <input type="number" class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
-                                id="minimum_alert_quantity" name="minimum_alert_quantity"
-                                value="{{ $product->inventory->minimum_alert_quantity }}" required>
-                            @error('minimum_alert_quantity')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
+                        
 
                         <div class="mb-3">
                             <label for="categories" class="form-label">Categories</label>
@@ -119,6 +111,11 @@
                                             @if ($image->is_primary)
                                                 <span class="badge bg-primary">Primary</span>
                                             @endif
+                                            <div class="form-check mt-2">
+                                                <input class="form-check-input" type="checkbox" name="image_ids_to_delete[]"
+                                                    id="image_{{ $image->id }}" value="{{ $image->id }}">
+                                                <label class="form-check-label" for="image_{{ $image->id }}">Delete this image</label>
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>

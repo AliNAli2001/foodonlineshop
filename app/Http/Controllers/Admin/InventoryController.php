@@ -11,43 +11,56 @@ use Illuminate\Http\Request;
 class InventoryController extends Controller
 {
     /**
-     * Show all inventory.
+     * Show all inventory grouped by product.
      */
     public function index()
     {
-        $inventory = Inventory::with('product')
-            ->paginate(15);
+        // Get all products with their inventories
+        $products = Product::with(['inventories' => function ($query) {
+            $query->orderBy('expiry_date', 'asc');
+        }])
+            ->whereHas('inventories')
+            ->paginate(10);
 
-        return view('admin.inventory.index', compact('inventory'));
+        return view('admin.inventory.index', compact('products'));
     }
 
     /**
-     * Show inventory for a specific product.
+     * Show inventories for a specific product.
      */
-    public function show($productId)
+    public function product($productId)
     {
-        $product = Product::findOrFail($productId);
+        $product = Product::with('inventories')->findOrFail($productId);
+        $transactions = $product->transactions()->orderByDesc('created_at')->paginate(15);
 
-        // Get all inventory records for this product (grouped by expiry date)
-        $inventories = Inventory::where('product_id', $productId)
-            ->orderBy('expiry_date', 'asc')
-            ->get();
 
+        return view('admin.inventory.product.show', [
+            'product' => $product,
+            'inventories' => $product->inventories,
+            'transactions' => $transactions,
+        ]);
+    }
+
+    public function show($inventoryId)
+    {
+        $inventory = Inventory::findOrFail($inventoryId);
+
+        $product = $inventory->product;
         // Get recent transactions
-        $transactions = InventoryTransaction::where('product_id', $productId)
+        $transactions = $inventory->transactions()
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return view('admin.inventory.show', compact('product', 'inventories', 'transactions'));
+        return view('admin.inventory.show', compact('product', 'inventory', 'transactions'));
     }
 
     /**
      * Show form to adjust inventory.
      */
-    public function edit($productId)
+    public function edit($inventoryId)
     {
-        $product = Product::findOrFail($productId);
-        $inventory = Inventory::where('product_id', $productId)->firstOrFail();
+        $inventory = Inventory::findOrFail($inventoryId);
+        $product = $inventory->product;
 
         return view('admin.inventory.edit', compact('product', 'inventory'));
     }
@@ -55,25 +68,18 @@ class InventoryController extends Controller
     /**
      * Update inventory.
      */
-    public function update(Request $request, $productId)
+    public function update(Request $request, $inventoryId)
     {
-        $product = Product::findOrFail($productId);
+        $inventory = Inventory::findOrFail($inventoryId);
 
         $validated = $request->validate([
             'stock_quantity' => 'required|integer|min:0',
             'minimum_alert_quantity' => 'required|integer|min:0',
-            'expiry_date' => 'nullable|date|after_or_equal:today',
-            'batch_number' => 'nullable|string|max:100',
             'reason' => 'nullable|string|max:255',
         ]);
 
-        // Check if inventory with same expiry_date and batch_number exists
-        $expiryDate = $validated['expiry_date'] ?? null;
-        $batchNumber = $validated['batch_number'] ?? null;
 
-        $inventory = Inventory::where('product_id', $productId)
-            ->where('expiry_date', $expiryDate)
-            ->where('batch_number', $batchNumber)
+        $inventory = Inventory::findOrFail($inventoryId)
             ->first();
 
         if ($inventory) {
@@ -89,38 +95,120 @@ class InventoryController extends Controller
 
             // Record transaction
             if ($quantityChange != 0) {
-                InventoryTransaction::create([
-                    'product_id' => $productId,
+
+                $inventoryTransaction = InventoryTransaction::create([
+                    'inventory_id' => $inventory->id,
                     'quantity_change' => $quantityChange,
                     'transaction_type' => 'adjustment',
                     'reason' => $validated['reason'] ?? 'Manual adjustment',
-                    'expiry_date' => $expiryDate,
-                    'batch_number' => $batchNumber,
+                    'expiry_date' => $inventory->expiryDate,
+                    'batch_number' => $inventory->batchNumber,
                 ]);
             }
-        } else {
-            // Create new inventory record with expiry date
-            $inventory = Inventory::create([
-                'product_id' => $productId,
-                'stock_quantity' => $validated['stock_quantity'],
-                'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
-                'expiry_date' => $expiryDate,
-                'batch_number' => $batchNumber,
-            ]);
-
-            // Record transaction
-            InventoryTransaction::create([
-                'product_id' => $productId,
-                'quantity_change' => $validated['stock_quantity'],
-                'transaction_type' => 'restock',
-                'reason' => $validated['reason'] ?? 'New inventory batch',
-                'expiry_date' => $expiryDate,
-                'batch_number' => $batchNumber,
-            ]);
         }
+        // else {
+        //     // Create new inventory record with expiry date
+        //     $inventory = Inventory::create([
+        //         'product_id' => $productId,
+        //         'stock_quantity' => $validated['stock_quantity'],
+        //         'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+        //         'expiry_date' => $expiryDate,
+        //         'batch_number' => $batchNumber,
+        //     ]);
 
-        return redirect()->route('admin.inventory.show', $productId)
+        //     // Record transaction
+        //     InventoryTransaction::create([
+        //         'product_id' => $productId,
+        //         'quantity_change' => $validated['stock_quantity'],
+        //         'transaction_type' => 'restock',
+        //         'reason' => $validated['reason'] ?? 'New inventory batch',
+        //         'expiry_date' => $expiryDate,
+        //         'batch_number' => $batchNumber,
+        //     ]);
+        // }
+
+        return redirect()->route('admin.inventory.show', $inventoryId)
             ->with('success', 'Inventory updated successfully.');
     }
-}
 
+
+
+    // public function edit($productId)
+    // {
+    //     $product = Product::findOrFail($productId);
+    //     $inventory = Inventory::where('product_id', $productId)->firstOrFail();
+
+    //     return view('admin.inventory.edit', compact('product', 'inventory'));
+    // }
+
+    // /**
+    //  * Update inventory.
+    //  */
+    // public function update(Request $request, $productId)
+    // {
+    //     $product = Product::findOrFail($productId);
+
+    //     $validated = $request->validate([
+    //         'stock_quantity' => 'required|integer|min:0',
+    //         'minimum_alert_quantity' => 'required|integer|min:0',
+    //         'expiry_date' => 'nullable|date|after_or_equal:today',
+    //         'batch_number' => 'nullable|string|max:100',
+    //         'reason' => 'nullable|string|max:255',
+    //     ]);
+
+    //     // Check if inventory with same expiry_date and batch_number exists
+    //     $expiryDate = $validated['expiry_date'] ?? null;
+    //     $batchNumber = $validated['batch_number'] ?? null;
+
+    //     $inventory = Inventory::where('product_id', $productId)
+    //         ->where('expiry_date', $expiryDate)
+    //         ->where('batch_number', $batchNumber)
+    //         ->first();
+
+    //     if ($inventory) {
+    //         // Update existing inventory record
+    //         $oldStock = $inventory->stock_quantity;
+    //         $newStock = $validated['stock_quantity'];
+    //         $quantityChange = $newStock - $oldStock;
+
+    //         $inventory->update([
+    //             'stock_quantity' => $newStock,
+    //             'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+    //         ]);
+
+    //         // Record transaction
+    //         if ($quantityChange != 0) {
+    //             InventoryTransaction::create([
+    //                 'product_id' => $productId,
+    //                 'quantity_change' => $quantityChange,
+    //                 'transaction_type' => 'adjustment',
+    //                 'reason' => $validated['reason'] ?? 'Manual adjustment',
+    //                 'expiry_date' => $expiryDate,
+    //                 'batch_number' => $batchNumber,
+    //             ]);
+    //         }
+    //     } else {
+    //         // Create new inventory record with expiry date
+    //         $inventory = Inventory::create([
+    //             'product_id' => $productId,
+    //             'stock_quantity' => $validated['stock_quantity'],
+    //             'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+    //             'expiry_date' => $expiryDate,
+    //             'batch_number' => $batchNumber,
+    //         ]);
+
+    //         // Record transaction
+    //         InventoryTransaction::create([
+    //             'product_id' => $productId,
+    //             'quantity_change' => $validated['stock_quantity'],
+    //             'transaction_type' => 'restock',
+    //             'reason' => $validated['reason'] ?? 'New inventory batch',
+    //             'expiry_date' => $expiryDate,
+    //             'batch_number' => $batchNumber,
+    //         ]);
+    //     }
+
+    //     return redirect()->route('admin.inventory.show', $productId)
+    //         ->with('success', 'Inventory updated successfully.');
+    // }
+}

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name_en');
             $table->text('description_ar')->nullable();
             $table->text('description_en')->nullable();
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 3);
             $table->integer('max_order_item')->nullable();
             $table->boolean('featured')->default(false);
             $table->timestamp('created_at')->useCurrent();

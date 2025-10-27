@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('restrict');
             $table->foreignId('created_by_admin_id')->nullable()->constrained('admins')->onDelete('restrict');
             $table->timestamp('order_date')->useCurrent();
-            $table->decimal('total_amount', 10, 2)->default(0.00);
+            $table->decimal('total_amount', 10, 3)->default(0.000);
             $table->enum('status', ['pending', 'confirmed', 'shipped', 'delivered', 'canceled', 'returned'])->default('pending');
             $table->enum('order_source', ['inside_city', 'outside_city']);
             $table->enum('delivery_method', ['delivery', 'shipping', 'hand_delivered']);

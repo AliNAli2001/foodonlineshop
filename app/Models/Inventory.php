@@ -16,11 +16,13 @@ class Inventory extends Model
         'reserved_quantity',
         'minimum_alert_quantity',
         'version',
+        'cost_price',
         'expiry_date',
         'batch_number',
     ];
 
     protected $casts = [
+        'cost_price' => 'decimal:3',
         'updated_at' => 'datetime',
         'created_at' => 'datetime',
         'expiry_date' => 'date',
@@ -39,7 +41,7 @@ class Inventory extends Model
      */
     public function transactions(): HasMany
     {
-        return $this->hasMany(InventoryTransaction::class, 'product_id', 'product_id');
+        return $this->hasMany(InventoryTransaction::class, 'inventory_id');
     }
 
     /**

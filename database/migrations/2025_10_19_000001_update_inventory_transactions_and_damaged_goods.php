@@ -43,9 +43,13 @@ return new class extends Migration
         });
 
         // Remove inventory_transaction_id from damaged_goods table
+       // Remove inventory_transaction_id from damaged_goods table
         Schema::table('damaged_goods', function (Blueprint $table) {
-            $table->dropForeignIdFor('InventoryTransaction');
+            // Drop the index
             $table->dropIndex(['inventory_transaction_id']);
+            // Drop the foreign key
+            $table->dropForeign(['inventory_transaction_id']);
+            // Drop the column
             $table->dropColumn('inventory_transaction_id');
         });
     }

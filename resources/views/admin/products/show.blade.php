@@ -38,17 +38,17 @@
                     <h5>Inventory Information</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Stock Quantity:</strong> {{ $product->inventory->stock_quantity }}</p>
-                    <p><strong>Reserved Quantity:</strong> {{ $product->inventory->reserved_quantity }}</p>
-                    <p><strong>Available:</strong> {{ $product->inventory->getAvailableStock() }}</p>
-                    <p><strong>Minimum Alert:</strong> {{ $product->inventory->minimum_alert_quantity }}</p>
+                    <p><strong>All Stock Quantity:</strong> {{ $product->total_stock }}</p>
+                    <p><strong>All Reserved Quantity:</strong> {{ $product->total_reserved_stock }}</p>
+                    <p><strong>Available:</strong> {{ $product->total_available_stock }}</p>
+                    {{-- <p><strong>Minimum Alert:</strong> {{ $product->inventory->minimum_alert_quantity }}</p>
                     <p><strong>Status:</strong> 
                         @if ($product->inventory->isBelowMinimum())
                             <span class="badge bg-warning">Below Minimum</span>
                         @else
                             <span class="badge bg-success">OK</span>
                         @endif
-                    </p>
+                    </p> --}}
                 </div>
             </div>
         </div>
@@ -106,7 +106,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="d-flex gap-2">
-                <a href="{{ route('admin.inventory.show', $product->id) }}" class="btn btn-info">View Inventory</a>
+                <a href="{{ route('admin.inventory.product', $product->id) }}" class="btn btn-info">View Inventories</a>
                 <a href="{{ route('admin.products.categories.index', $product->id) }}" class="btn btn-secondary">Manage Categories</a>
                 <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Back to Products</a>
             </div>
