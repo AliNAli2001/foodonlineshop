@@ -5,11 +5,47 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\InventoryTransaction;
 use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {
+    public function create($productId)
+    {
+        $product = Product::findOrFail($productId);
+        $generalMinimumAlertQuantity = Setting::get('general_minimum_alert_quantity');
+        return view('admin.inventory.create', compact('product', 'generalMinimumAlertQuantity'));
+    }
+
+    public function store(Request $request, $productId)
+    {
+        $product = Product::findOrFail($productId);
+        $validated = $request->validate([
+            'batch_number' => 'required|string|max:100',
+            'expiry_date' => 'required|date|after_or_equal:today',
+            'stock_quantity' => 'required|integer|min:0',
+            'minimum_alert_quantity' => 'required|integer|min:0',
+            'cost_price' => 'required|numeric|min:0.001',
+        ]);
+        $inventory = Inventory::create([
+            'product_id' => $product->id,
+            'batch_number' => $validated['batch_number'],
+            'expiry_date' => $validated['expiry_date'],
+            'stock_quantity' => $validated['stock_quantity'],
+            'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+            'cost_price' => $validated['cost_price'],
+        ]);
+        InventoryTransaction::create([
+            'inventory_id' => $inventory->id,
+            'quantity_change' => $validated['stock_quantity'],
+            'transaction_type' => 'restock',
+            'cost_price' => $validated['cost_price'],
+            'reason' => 'Initial stock',
+        ]);
+        return redirect()->route('admin.inventory.product', $product->id)
+            ->with('success', 'Inventory created successfully.');
+    }
     /**
      * Show all inventory grouped by product.
      */
@@ -75,6 +111,9 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'stock_quantity' => 'required|integer|min:0',
             'minimum_alert_quantity' => 'required|integer|min:0',
+            'cost_price' => 'required|numeric|min:0.001',
+            'batch_number' => 'required|string|max:100',
+            'expiry_date' => 'required|date',
             'reason' => 'nullable|string|max:255',
         ]);
 
@@ -88,23 +127,28 @@ class InventoryController extends Controller
             $newStock = $validated['stock_quantity'];
             $quantityChange = $newStock - $oldStock;
 
+
             $inventory->update([
                 'stock_quantity' => $newStock,
                 'minimum_alert_quantity' => $validated['minimum_alert_quantity'],
+                'cost_price' => $validated['cost_price'],
+                'expiry_date' => $validated['expiry_date'],
+                'batch_number' => $validated['batch_number'],
             ]);
 
-            // Record transaction
-            if ($quantityChange != 0) {
+            // // Record transaction
+            // if ($quantityChange != 0) {
 
-                $inventoryTransaction = InventoryTransaction::create([
-                    'inventory_id' => $inventory->id,
-                    'quantity_change' => $quantityChange,
-                    'transaction_type' => 'adjustment',
-                    'reason' => $validated['reason'] ?? 'Manual adjustment',
-                    'expiry_date' => $inventory->expiryDate,
-                    'batch_number' => $inventory->batchNumber,
-                ]);
-            }
+            $inventoryTransaction = InventoryTransaction::create([
+                'inventory_id' => $inventory->id,
+                'quantity_change' => $quantityChange,
+                'transaction_type' => 'adjustment',
+                'cost_price' => $validated['cost_price'],
+                'reason' => $validated['reason'] ?? 'Manual adjustment',
+                'expiry_date' => $inventory->expiry_date,
+                'batch_number' => $inventory->batch_number,
+            ]);
+            // }
         }
         // else {
         //     // Create new inventory record with expiry date

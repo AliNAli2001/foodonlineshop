@@ -117,6 +117,8 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/inventory/{product}', [InventoryController::class, 'show'])->name('inventory.show');
     Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::get('/inventory/{product}/create', [InventoryController::class, 'create'])->name('inventory.create');
+    Route::post('/inventory/{product}', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/{product}/batches', [InventoryController::class, 'product'])->name('inventory.product');
     
 

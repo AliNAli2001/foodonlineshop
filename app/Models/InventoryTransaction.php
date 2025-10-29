@@ -64,7 +64,7 @@ class InventoryTransaction extends Model
      */
     public function inventory()
     {
-        return $this->hasOne(Inventory::class, 'inventory_transaction_id');
+        return $this->belongsTo(Inventory::class, 'inventory_id');
     }
 }
 

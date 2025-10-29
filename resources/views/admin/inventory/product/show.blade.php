@@ -6,12 +6,13 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>Product Inventory: {{ $product->name_en }}</h2>
+            <h2>Product: {{ $product->name_en }}</h2>
             <p class="text-muted">{{ $product->name_ar }}</p>
         </div>
         <div class="col-md-4 text-end">
+            <a href="{{ route('admin.inventory.create', $product->id) }}" class="btn btn-warning">+ Add Inventory</a>
             <a href="{{ route('admin.inventory.index') }}" class="btn btn-secondary">Back to Inventory List</a>
-            <a href="{{ route('admin.inventory.edit', $product->id) }}" class="btn btn-warning">Edit Inventory</a>
+            
         </div>
     </div>
 
@@ -59,6 +60,7 @@
                         <tr>
                             <th>Batch Number</th>
                             <th>Expiry Date</th>
+                            <th>Cost Price</th>
                             <th>Stock</th>
                             <th>Reserved</th>
                             <th>Available</th>
@@ -89,6 +91,7 @@
                                         <span class="text-muted">No expiry</span>
                                     @endif
                                 </td>
+                                <td>{{ $inventory->cost_price }}</td>
                                 <td>{{ $inventory->stock_quantity }}</td>
                                 <td>{{ $inventory->reserved_quantity }}</td>
                                 <td><strong>{{ $inventory->getAvailableStock() }}</strong></td>
@@ -108,7 +111,7 @@
                                     <a href="{{ route('admin.inventory.show', $inventory->id) }}" class="btn btn-sm btn-info" title="View Batch">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('admin.inventory.edit', $product->id) }}" class="btn btn-sm btn-warning" title="Edit Inventory">
+                                    <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-sm btn-warning" title="Edit Inventory">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 </td>
@@ -137,6 +140,10 @@
                             <th>Reserved Change</th>
                             <th>Reason</th>
                             <th>Date</th>
+                            <th>Batch Number</th>
+                            <th>Expiry Date</th>
+                            <th>Cost Price</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -147,6 +154,13 @@
                                 <td>{{ $transaction->reserved_change > 0 ? '+' : '' }}{{ $transaction->reserved_change }}</td>
                                 <td>{{ $transaction->reason }}</td>
                                 <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
+                                <td><a class="btn btn-sm btn-info" href="{{ route('admin.inventory.show', $transaction->inventory->id) }}"> <i class="fa fa-eye"></i> {{ $inventory->batch_number }}</a></td>
+
+                                <td>{{ $transaction->expiry_date }}</td>
+                                <td>{{ $transaction->cost_price }}</td>
+                                
+
+
                             </tr>
                         @endforeach
                     </tbody>

@@ -41,6 +41,7 @@
                             <tr>
                                 <th>Batch Number</th>
                                 <th>Expiry Date</th>
+                                <th>Cost Price</th>
                                 <th>Stock</th>
                                 <th>Reserved</th>
                                 <th>Available</th>
@@ -71,6 +72,7 @@
                                             <span class="text-muted">No expiry</span>
                                         @endif
                                     </td>
+                                    <td>{{ $inventory->cost_price }}</td>
                                     <td>{{ $inventory->stock_quantity }}</td>
                                     <td>{{ $inventory->reserved_quantity }}</td>
                                     <td>
@@ -90,9 +92,9 @@
                                         <a href="{{ route('admin.inventory.show', $inventory->id) }}" class="btn btn-sm btn-info" title="View all batches">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-sm btn-warning" title="Edit inventory">
+                                        {{-- <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-sm btn-warning" title="Edit inventory">
                                             <i class="fas fa-edit"></i>
-                                        </a>
+                                        </a> --}}
                                     </td>
                                 </tr>
                             @endforeach

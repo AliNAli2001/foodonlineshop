@@ -7,8 +7,9 @@
             <h2>Inventory: {{ $product->name_en }}</h2>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ route('admin.inventory.index') }}" class="btn btn-secondary">Back</a>
+            
             <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-warning">Edit</a>
+            <a href="{{ route('admin.inventory.product',$product->id) }}" class="btn btn-secondary">Back to product inventories</a>
         </div>
     </div>
 
@@ -21,7 +22,11 @@
                 <div class="card-body">
                     <p><strong>Product:</strong> {{ $product->name_en }}</p>
                     <p><strong>Stock Quantity:</strong> {{ $inventory->stock_quantity }}</p>
+                    <p><strong>Batch Number:</strong> {{ $inventory->batch_number }}</p>
+                    <p><strong>Expiry Date:</strong> {{ $inventory->expiry_date->format('Y-m-d') }}</p>
+                    <p><strong>Cost Price:</strong> {{ $inventory->cost_price }}</p>
                     <p><strong>Reserved Quantity:</strong> {{ $inventory->reserved_quantity }}</p>
+
                     <p><strong>Available:</strong> {{ $inventory->getAvailableStock() }}</p>
                     <p><strong>Minimum Alert:</strong> {{ $inventory->minimum_alert_quantity }}</p>
                     <p><strong>Status:</strong> 
@@ -49,6 +54,9 @@
                             <th>Quantity Change</th>
                             <th>Reserved Change</th>
                             <th>Reason</th>
+                            <th>Cost Price</th>
+                            <th>Expiry Date</th>
+                            <th>Batch Number</th>
                             <th>Date</th>
                         </tr>
                     </thead>
@@ -59,6 +67,9 @@
                                 <td>{{ $transaction->quantity_change > 0 ? '+' : '' }}{{ $transaction->quantity_change }}</td>
                                 <td>{{ $transaction->reserved_change > 0 ? '+' : '' }}{{ $transaction->reserved_change }}</td>
                                 <td>{{ $transaction->reason }}</td>
+                                <td>{{ $transaction->cost_price }}</td>
+                                <td>{{ $transaction->expiry_date }}</td>
+                                <td>{{ $transaction->batch_number }}</td>
                                 <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
                             </tr>
                         @endforeach
