@@ -371,6 +371,7 @@ class OrderController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:pending,confirmed,shipped,delivered,done,canceled,returned',
+            'delivery_id' => 'nullable|exists:delivery,id',
         ]);
 
         $newStatus = $validated['status'];
@@ -381,18 +382,29 @@ class OrderController extends Controller
             return back()->with('error', "Cannot transition from {$previousStatus} to {$newStatus}.");
         }
 
-        DB::transaction(function () use ($request, $order, $previousStatus, $newStatus) {
+        // Enforce delivery_id if required
+        if (in_array($newStatus, ['shipped', 'delivered']) && $order->delivery_method === 'delivery' && $order->order_source === 'inside_city') {
+            if (!$order->delivery_id && !isset($validated['delivery_id'])) {
+                return back()->with('error', 'A delivery person must be assigned for this delivery method inside the city.');
+            }
+        }
+
+        DB::transaction(function () use ($request, $order, $validated, $previousStatus, $newStatus) {
+            // Update delivery_id if provided
+            if (isset($validated['delivery_id'])) {
+                $order->delivery_id = $validated['delivery_id'];
+                $order->save();
+            }
 
             switch (true) {
                 // Pending → Confirmed
                 case $previousStatus === 'pending' && $newStatus === 'confirmed':
-                    $this->confirm($order);
+                    $this->confirm($order->id); // Note: Pass $order->id as per your confirm method
                     break;
 
-
-                // Pending → Reject
+                // Pending → Canceled (reject)
                 case $previousStatus === 'pending' && $newStatus === 'canceled':
-                    $this->reject($request, $order);
+                    $this->reject($request, $order->id); // Note: Pass $order->id as per your reject method
                     break;
 
                 // Confirmed/Shipped/Delivered → Canceled
@@ -421,9 +433,9 @@ class OrderController extends Controller
     {
         $transitions = [
             'pending' => ['confirmed', 'canceled'],
-            'confirmed' => ['shipped', 'canceled'],
-            'shipped' => ['delivered', 'done', 'canceled'],
-            'delivered' => ['done', 'canceled'],
+            'confirmed' => ['shipped', 'delivered', 'canceled'],
+            'shipped' => [ 'done', 'returned'],
+            'delivered' => ['done', 'returned'],
             'done' => [],
             'canceled' => [],
         ];

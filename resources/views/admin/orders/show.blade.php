@@ -106,14 +106,48 @@
                                     style="display:inline;">
                                     @csrf
                                     <input type="hidden" name="status" value="delivered">
-                                    <button type="submit" class="btn btn-primary">Mark as Delivered</button>
+                                    @if ($order->delivery_method === 'delivery' && $order->order_source === 'inside_city' && !$order->delivery_id)
+                                        <div class="mb-3">
+                                            <label for="delivery_id" class="form-label">Select Delivery Person (Required)</label>
+                                            <select class="form-control" id="delivery_id" name="delivery_id" required>
+                                                <option value="">-- Select Delivery Person --</option>
+                                                @foreach ($deliveryPersons as $delivery)
+                                                    <option value="{{ $delivery->id }}">{{ $delivery->first_name }} {{ $delivery->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endif
+                                    <button type="submit" class="btn btn-primary">
+                                        @if ($order->delivery_method === 'delivery' && $order->order_source === 'inside_city' && !$order->delivery_id)
+                                            Assign Delivery & Mark as Delivered
+                                        @else
+                                            Mark as Delivered
+                                        @endif
+                                    </button>
                                 </form>
                             @else
                                 <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST"
                                     style="display:inline;">
                                     @csrf
                                     <input type="hidden" name="status" value="shipped">
-                                    <button type="submit" class="btn btn-primary">Mark as Shipped</button>
+                                    @if ($order->delivery_method === 'delivery' && $order->order_source === 'inside_city' && !$order->delivery_id)
+                                        <div class="mb-3">
+                                            <label for="delivery_id" class="form-label">Select Delivery Person (Required)</label>
+                                            <select class="form-control" id="delivery_id" name="delivery_id" required>
+                                                <option value="">-- Select Delivery Person --</option>
+                                                @foreach ($deliveryPersons as $delivery)
+                                                    <option value="{{ $delivery->id }}">{{ $delivery->first_name }} {{ $delivery->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endif
+                                    <button type="submit" class="btn btn-primary">
+                                        @if ($order->delivery_method === 'delivery' && $order->order_source === 'inside_city' && !$order->delivery_id)
+                                            Assign Delivery & Mark as Shipped
+                                        @else
+                                            Mark as Shipped
+                                        @endif
+                                    </button>
                                 </form>
                             @endif
 
@@ -165,73 +199,7 @@
                 </div>
             </div>
 
-            @if ($order->status === 'confirmed')
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h5>Delivery Method & Assignment</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ route('admin.orders.update-delivery-method', $order->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-
-                            <div class="mb-3">
-                                <label for="delivery_method" class="form-label">Delivery Method</label>
-                                <select class="form-control" id="delivery_method" name="delivery_method" required
-                                    onchange="toggleDeliveryFields()">
-                                    <option value="">-- Select Delivery Method --</option>
-                                    <option value="delivery"
-                                        {{ $order->delivery_method === 'delivery' ? 'selected' : '' }}>Delivery (Select
-                                        Delivery Person)</option>
-                                    <option value="hand_delivered"
-                                        {{ $order->delivery_method === 'hand_delivered' ? 'selected' : '' }}>Hand Delivered
-                                        (Inside City)</option>
-                                    <option value="shipping"
-                                        {{ $order->delivery_method === 'shipping' ? 'selected' : '' }}>Shipping (Outside
-                                        City)</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3" id="deliveryPersonField"
-                                style="display: {{ $order->delivery_method === 'delivery' ? 'block' : 'none' }};">
-                                <label for="delivery_id" class="form-label">Delivery Person</label>
-                                <select class="form-control" id="delivery_id" name="delivery_id">
-                                    <option value="">-- Select Delivery Person --</option>
-                                    @foreach ($deliveryPersons as $delivery)
-                                        <option value="{{ $delivery->id }}"
-                                            {{ $order->delivery_id === $delivery->id ? 'selected' : '' }}>
-                                            {{ $delivery->first_name }} {{ $delivery->last_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="shipping_notes" class="form-label">Shipping Notes (Optional)</label>
-                                <textarea class="form-control" id="shipping_notes" name="shipping_notes" rows="3">{{ $order->shipping_notes }}</textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Update Delivery Method</button>
-                        </form>
-                    </div>
-                </div>
-
-                <script>
-                    function toggleDeliveryFields() {
-                        const method = document.getElementById('delivery_method').value;
-                        const deliveryField = document.getElementById('deliveryPersonField');
-                        const deliverySelect = document.getElementById('delivery_id');
-
-                        if (method === 'delivery') {
-                            deliveryField.style.display = 'block';
-                            deliverySelect.required = true;
-                        } else {
-                            deliveryField.style.display = 'none';
-                            deliverySelect.required = false;
-                        }
-                    }
-                </script>
-            @endif
+            
 
             @if ($order->delivery_id)
                 <div class="card mt-3">
