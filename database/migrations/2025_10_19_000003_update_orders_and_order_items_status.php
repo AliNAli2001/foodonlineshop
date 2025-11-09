@@ -18,7 +18,7 @@ return new class extends Migration
         });
 
         Schema::table('orders', function (Blueprint $table) {
-            $table->enum('status', ['pending', 'confirmed', 'shipped', 'delivered', 'done', 'canceled'])->default('pending')->after('total_amount');
+            $table->enum('status', ['pending', 'confirmed', 'shipped', 'delivered', 'done', 'canceled', 'returned'])->default('pending')->after('total_amount');
         });
 
         // Update order_items table: add status column

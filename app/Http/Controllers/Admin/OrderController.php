@@ -10,6 +10,7 @@ use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -41,9 +42,11 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'client_id' => 'nullable|exists:clients,id',
+            'client_name' => 'nullable|string|max:255',
+            'client_phone_number' => 'nullable|string|max:20',
             'order_source' => 'required|in:inside_city,outside_city',
             'delivery_method' => 'required|in:delivery,shipping,hand_delivered',
-            'address_details' => 'required|string|max:500',
+            'address_details' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'shipping_notes' => 'nullable|string|max:500',
@@ -54,73 +57,92 @@ class OrderController extends Controller
         ]);
 
         $totalAmount = 0;
-        $orderItems = [];
 
-        // Calculate total and prepare items
+        // Calculate total and check stock availability
         foreach ($validated['products'] as $item) {
             $product = Product::findOrFail($item['product_id']);
+
+            // Check if sufficient stock is available
+            if ($product->getTotalAvailableStockAttribute() < $item['quantity']) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'products' => "Insufficient stock for product ID {$item['product_id']}. Available: {$product->getTotalAvailableStockAttribute()}, Requested: {$item['quantity']}",
+                ]);
+            }
+
             $subtotal = $product->price * $item['quantity'];
             $totalAmount += $subtotal;
-
-            $orderItems[] = [
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'unit_price' => $product->price,
-            ];
         }
 
-        // Create order with confirmed status
-        $order = Order::create([
-            'created_by_admin_id' => auth('admin')->id(),
-            'client_id' => $validated['client_id'] ?? null,
-            'total_amount' => $totalAmount,
-            'status' => 'confirmed', // Admin orders are confirmed from the beginning
-            'order_source' => $validated['order_source'],
-            'delivery_method' => $validated['delivery_method'],
-            'address_details' => $validated['address_details'],
-            'latitude' => $validated['latitude'] ?? null,
-            'longitude' => $validated['longitude'] ?? null,
-            'shipping_notes' => $validated['shipping_notes'] ?? null,
-            'admin_order_client_notes' => $validated['admin_order_client_notes'] ?? null,
-        ]);
+        $order = null;
+        // Wrap in transaction for atomicity
+        DB::transaction(function () use (&$order, $validated, $totalAmount) {
+            // Create order with confirmed status
+            $order = Order::create([
+                'created_by_admin_id' => auth('admin')->id(),
+                'client_id' => $validated['client_id'] ?? null,
+                'client_name' => $validated['client_name'] ?? null,
+                'client_phone_number' => $validated['client_phone_number'] ?? null,
+                'total_amount' => $totalAmount,
+                'status' => 'confirmed', // Admin orders are confirmed from the beginning
+                'order_source' => $validated['order_source'],
+                'delivery_method' => $validated['delivery_method'],
+                'address_details' => $validated['address_details'],
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
+                'shipping_notes' => $validated['shipping_notes'] ?? null,
+                'admin_order_client_notes' => $validated['admin_order_client_notes'] ?? null,
+            ]);
 
-        // Create order items
-        foreach ($orderItems as $item) {
-            $order->items()->create($item);
+            // Create order items and subtract from stock using FIFO
+            foreach ($validated['products'] as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                $quantityToSubtract = $item['quantity'];
+                $inventories = $product->getInventoriesByExpiry(); // Sorted by expiry date ASC (oldest first)
 
-            // Reserve inventory using FIFO (First In First Out)
-            $product = Product::findOrFail($item['product_id']);
-            $quantityToReserve = $item['quantity'];
-            $inventories = $product->getInventoriesByExpiry(); // Sorted by expiry date
+                foreach ($inventories as $inventory) {
+                    if ($quantityToSubtract <= 0) {
+                        break;
+                    }
 
-            foreach ($inventories as $inventory) {
-                if ($quantityToReserve <= 0) {
-                    break;
+                    $available = $inventory->stock_quantity - $inventory->reserved_quantity;
+                    $subtractAmount = min($quantityToSubtract, $available);
+
+                    if ($subtractAmount > 0) {
+                        $inventory->update([
+                            'stock_quantity' => $inventory->stock_quantity - $subtractAmount,
+                        ]);
+
+                        // Create order item linked to this inventory batch
+                        $order->items()->create([
+                            'product_id' => $item['product_id'],
+                            'quantity' => $subtractAmount,
+                            'unit_price' => $product->price,
+                            'inventory_id' => $inventory->id,
+                        ]);
+
+                        // Log transaction as sale
+                        InventoryTransaction::create([
+                            'inventory_id' => $inventory->id,
+                            'product_id' => $item['product_id'],
+                            'quantity_change' => -$subtractAmount,
+                            'reserved_change' => 0,
+                            'transaction_type' => 'sale',
+                            'cost_price' => $inventory->cost_price,
+                            'reason' => "Order #{$order->id} created and confirmed by admin",
+                            'expiry_date' => $inventory->expiry_date,
+                            'batch_number' => $inventory->batch_number,
+                        ]);
+
+                        $quantityToSubtract -= $subtractAmount;
+                    }
                 }
 
-                $availableToReserve = $inventory->stock_quantity - $inventory->reserved_quantity;
-                $reserveAmount = min($quantityToReserve, $availableToReserve);
-
-                if ($reserveAmount > 0) {
-                    $inventory->update([
-                        'reserved_quantity' => $inventory->reserved_quantity + $reserveAmount,
-                    ]);
-
-                    // Log transaction
-                    InventoryTransaction::create([
-                        'product_id' => $item['product_id'],
-                        'quantity_change' => 0,
-                        'reserved_change' => $reserveAmount,
-                        'transaction_type' => 'reservation',
-                        'reason' => "Order #{$order->id} created by admin",
-                        'expiry_date' => $inventory->expiry_date,
-                        'batch_number' => $inventory->batch_number,
-                    ]);
-
-                    $quantityToReserve -= $reserveAmount;
+                // If still quantity left (should not happen due to prior check), but just in case
+                if ($quantityToSubtract > 0) {
+                    throw new \Exception("Failed to subtract full quantity for product ID {$item['product_id']}. Remaining: $quantityToSubtract");
                 }
             }
-        }
+        });
 
         return redirect()->route('admin.orders.show', $order->id)
             ->with('success', 'Order created successfully.');
@@ -142,80 +164,187 @@ class OrderController extends Controller
      */
     public function confirm($orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = Order::with(['items.product'])->findOrFail($orderId);
 
         if ($order->status !== 'pending') {
             return back()->with('error', 'Only pending orders can be confirmed.');
         }
 
-        $order->update(['status' => 'confirmed']);
+        DB::transaction(function () use ($order) {
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                $quantityToDeduct = $item->quantity;
+
+                // Deduct stock using FIFO (by expiry date ascending)
+                $inventories = $product->getInventoriesByExpiry();
+
+                foreach ($inventories as $inventory) {
+                    if ($quantityToDeduct <= 0) break;
+
+                    $available = $inventory->stock_quantity - $inventory->reserved_quantity;
+                    $deductAmount = min($quantityToDeduct, $available > 0 ? $available : $inventory->reserved_quantity);
+
+                    if ($deductAmount > 0) {
+                        // Reduce both stock and reserved (if applicable)
+                        $inventory->update([
+                            'stock_quantity' => max(0, $inventory->stock_quantity - $deductAmount),
+                            'reserved_quantity' => max(0, $inventory->reserved_quantity - $deductAmount),
+                        ]);
+
+                        InventoryTransaction::create([
+                            'inventory_id' => $inventory->id,
+                            'product_id' => $item->product_id,
+                            'quantity_change' => -$deductAmount,
+                            'reserved_change' => -$deductAmount,
+                            'transaction_type' => 'sale',
+                            'cost_price' => $inventory->cost_price,
+                            'reason' => "Order #{$order->id} confirmed by admin",
+                            'expiry_date' => $inventory->expiry_date,
+                            'batch_number' => $inventory->batch_number,
+                        ]);
+
+                        $quantityToDeduct -= $deductAmount;
+                    }
+                }
+
+                if ($quantityToDeduct > 0) {
+                    throw new \Exception("Insufficient stock for product ID {$item->product_id} during confirmation.");
+                }
+            }
+
+            $order->update(['status' => 'confirmed']);
+        });
 
         return back()->with('success', 'Order confirmed successfully.');
     }
+
 
     /**
      * Reject order.
      */
     public function reject(Request $request, $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = Order::with(['items.product'])->findOrFail($orderId);
 
         if ($order->status !== 'pending') {
             return back()->with('error', 'Only pending orders can be rejected.');
         }
 
         $validated = $request->validate([
-            'reason' => 'required|string',
+            'reason' => 'required|string|max:500',
         ]);
 
-        // Release reserved inventory
-        foreach ($order->items as $item) {
-            $product = $item->product;
-            $quantityToRelease = $item->quantity;
+        DB::transaction(function () use ($order, $validated) {
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                $quantityToRelease = $item->quantity;
 
-            // Release from inventories in reverse FIFO order (most recently added first)
-            $inventories = $product->inventories()
-                ->where(function ($query) {
-                    $query->whereNull('expiry_date')
-                        ->orWhere('expiry_date', '>=', now()->toDate());
-                })
-                ->orderBy('expiry_date', 'desc')
-                ->get();
+                // Release reserved stock (reverse FIFO - newest first)
+                $inventories = $product->inventories()
+                    ->where(function ($query) {
+                        $query->whereNull('expiry_date')
+                            ->orWhere('expiry_date', '>=', now()->toDate());
+                    })
+                    ->orderBy('expiry_date', 'desc')
+                    ->get();
 
-            foreach ($inventories as $inventory) {
-                if ($quantityToRelease <= 0) {
-                    break;
+                foreach ($inventories as $inventory) {
+                    if ($quantityToRelease <= 0) break;
+
+                    $releaseAmount = min($quantityToRelease, $inventory->reserved_quantity);
+
+                    if ($releaseAmount > 0) {
+                        $inventory->update([
+                            'reserved_quantity' => max(0, $inventory->reserved_quantity - $releaseAmount),
+                        ]);
+
+                        InventoryTransaction::create([
+                            'inventory_id' => $inventory->id,
+                            'product_id' => $item->product_id,
+                            'quantity_change' => 0,
+                            'reserved_change' => -$releaseAmount,
+                            'transaction_type' => 'adjustment',
+                            'reason' => "Order #{$order->id} rejected: {$validated['reason']}",
+                            'expiry_date' => $inventory->expiry_date,
+                            'batch_number' => $inventory->batch_number,
+                        ]);
+
+                        $quantityToRelease -= $releaseAmount;
+                    }
                 }
 
-                $reservedAmount = min($quantityToRelease, $inventory->reserved_quantity);
-
-                if ($reservedAmount > 0) {
-                    $inventory->update([
-                        'reserved_quantity' => max(0, $inventory->reserved_quantity - $reservedAmount),
-                    ]);
-
-                    InventoryTransaction::create([
-                        'product_id' => $item->product_id,
-                        'quantity_change' => 0,
-                        'reserved_change' => -$reservedAmount,
-                        'transaction_type' => 'adjustment',
-                        'reason' => "Order #{$order->id} rejected: {$validated['reason']}",
-                        'expiry_date' => $inventory->expiry_date,
-                        'batch_number' => $inventory->batch_number,
-                    ]);
-
-                    $quantityToRelease -= $reservedAmount;
+                if ($quantityToRelease > 0) {
+                    throw new \Exception("Failed to release all reserved quantities for product ID {$item->product_id}.");
                 }
             }
-        }
 
-        $order->update([
-            'status' => 'canceled',
-            'general_notes' => ($order->general_notes ? $order->general_notes . "\n" : "") . "Rejected: {$validated['reason']}",
-        ]);
+            $order->update([
+                'status' => 'canceled',
+                'general_notes' => trim(($order->general_notes ? $order->general_notes . "\n" : "") . "Rejected: {$validated['reason']}"),
+            ]);
+        });
 
         return back()->with('success', 'Order rejected successfully.');
     }
+
+    /**
+     * Cancel confirmed/shipped/delivered order → Return to inventory
+     */
+    private function cancelConfirmedOrder(Order $order, string $reasonSuffix = '')
+    {
+        foreach ($order->items as $item) {
+            $inventory = $item->inventory;
+            if (!$inventory) {
+                throw new \Exception("Missing inventory for product ID {$item->product_id}.");
+            }
+
+            $inventory->update([
+                'stock_quantity' => $inventory->stock_quantity + $item->quantity,
+            ]);
+
+            InventoryTransaction::create([
+                'inventory_id' => $inventory->id,
+                'product_id' => $item->product_id,
+                'quantity_change' => $item->quantity,
+                'reserved_change' => 0,
+                'transaction_type' => 'adjustment',
+                'cost_price' => $inventory->cost_price,
+                'reason' => "Order #{$order->id} canceled (returned to stock) {$reasonSuffix}",
+                'expiry_date' => $inventory->expiry_date,
+                'batch_number' => $inventory->batch_number,
+            ]);
+        }
+    }
+
+    /**
+     * Returned order → Return items to inventory (like cancelConfirmedOrder but with 'returned' reason)
+     */
+    private function returnOrderToInventory(Order $order, string $reasonSuffix = '')
+    {
+        foreach ($order->items as $item) {
+            $inventory = $item->inventory;
+            if (!$inventory) {
+                throw new \Exception("Missing inventory for product ID {$item->product_id}.");
+            }
+
+            $inventory->update([
+                'stock_quantity' => $inventory->stock_quantity + $item->quantity,
+            ]);
+
+            InventoryTransaction::create([
+                'inventory_id' => $inventory->id,
+                'product_id' => $item->product_id,
+                'quantity_change' => $item->quantity,
+                'reserved_change' => 0,
+                'transaction_type' => 'return',
+                'cost_price' => $inventory->cost_price,
+                'reason' => "Order #{$order->id} returned to inventory {$reasonSuffix}",
+                'expiry_date' => $inventory->expiry_date,
+                'batch_number' => $inventory->batch_number,
+            ]);
+        }
+    }
+
 
     /**
      * Assign delivery person.
@@ -238,104 +367,52 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = Order::with(['items.product', 'items.inventory'])->findOrFail($orderId);
 
         $validated = $request->validate([
-            'status' => 'required|in:pending,confirmed,shipped,delivered,done,canceled',
+            'status' => 'required|in:pending,confirmed,shipped,delivered,done,canceled,returned',
         ]);
 
         $newStatus = $validated['status'];
+        $previousStatus = $order->status;
 
-        // Validate status transitions
-        $validTransitions = $this->getValidStatusTransitions($order->status);
+        $validTransitions = $this->getValidStatusTransitions($previousStatus);
         if (!in_array($newStatus, $validTransitions)) {
-            return back()->with('error', "Cannot transition from {$order->status} to {$newStatus}");
+            return back()->with('error', "Cannot transition from {$previousStatus} to {$newStatus}.");
         }
 
-        // Handle inventory changes based on status
-        if ($newStatus === 'shipped') {
-            // Convert reserved to actual stock deduction using FIFO
-            foreach ($order->items as $item) {
-                $product = $item->product;
-                $quantityToDeduct = $item->quantity;
+        DB::transaction(function () use ($request, $order, $previousStatus, $newStatus) {
 
-                // Deduct from inventories in FIFO order (expiring soon first)
-                $inventories = $product->getInventoriesByExpiry();
+            switch (true) {
+                // Pending → Confirmed
+                case $previousStatus === 'pending' && $newStatus === 'confirmed':
+                    $this->confirm($order);
+                    break;
 
-                foreach ($inventories as $inventory) {
-                    if ($quantityToDeduct <= 0) {
-                        break;
-                    }
 
-                    $deductAmount = min($quantityToDeduct, $inventory->reserved_quantity);
+                // Pending → Reject
+                case $previousStatus === 'pending' && $newStatus === 'canceled':
+                    $this->reject($request, $order);
+                    break;
 
-                    if ($deductAmount > 0) {
-                        $inventory->update([
-                            'stock_quantity' => max(0, $inventory->stock_quantity - $deductAmount),
-                            'reserved_quantity' => max(0, $inventory->reserved_quantity - $deductAmount),
-                        ]);
+                // Confirmed/Shipped/Delivered → Canceled
+                case $previousStatus === 'confirmed' && $newStatus === 'canceled':
+                    $this->cancelConfirmedOrder($order, "via status update");
+                    break;
 
-                        InventoryTransaction::create([
-                            'product_id' => $item->product_id,
-                            'quantity_change' => -$deductAmount,
-                            'reserved_change' => -$deductAmount,
-                            'transaction_type' => 'sale',
-                            'reason' => "Order #{$order->id} shipped",
-                            'expiry_date' => $inventory->expiry_date,
-                            'batch_number' => $inventory->batch_number,
-                        ]);
-
-                        $quantityToDeduct -= $deductAmount;
-                    }
-                }
+                // Confirmed/Shipped/Delivered → Returned
+                case in_array($previousStatus, ['shipped', 'delivered']) && $newStatus === 'returned':
+                    $this->returnOrderToInventory($order, "via status update");
+                    break;
             }
-        } elseif ($newStatus === 'canceled') {
-            // Release reserved inventory
-            foreach ($order->items as $item) {
-                $product = $item->product;
-                $quantityToRelease = $item->quantity;
 
-                // Release from inventories in reverse FIFO order
-                $inventories = $product->inventories()
-                    ->where(function ($query) {
-                        $query->whereNull('expiry_date')
-                            ->orWhere('expiry_date', '>=', now()->toDate());
-                    })
-                    ->orderBy('expiry_date', 'desc')
-                    ->get();
-
-                foreach ($inventories as $inventory) {
-                    if ($quantityToRelease <= 0) {
-                        break;
-                    }
-
-                    $releaseAmount = min($quantityToRelease, $inventory->reserved_quantity);
-
-                    if ($releaseAmount > 0) {
-                        $inventory->update([
-                            'reserved_quantity' => max(0, $inventory->reserved_quantity - $releaseAmount),
-                        ]);
-
-                        InventoryTransaction::create([
-                            'product_id' => $item->product_id,
-                            'quantity_change' => 0,
-                            'reserved_change' => -$releaseAmount,
-                            'transaction_type' => 'adjustment',
-                            'reason' => "Order #{$order->id} canceled",
-                            'expiry_date' => $inventory->expiry_date,
-                            'batch_number' => $inventory->batch_number,
-                        ]);
-
-                        $quantityToRelease -= $releaseAmount;
-                    }
-                }
-            }
-        }
-
-        $order->update(['status' => $newStatus]);
+            $order->update(['status' => $newStatus]);
+        });
 
         return back()->with('success', "Order status updated to {$newStatus} successfully.");
     }
+
+
 
     /**
      * Get valid status transitions for an order.
@@ -384,4 +461,3 @@ class OrderController extends Controller
         return back()->with('success', 'Delivery method updated successfully.');
     }
 }
-

@@ -104,10 +104,13 @@ class Product extends Model
     /**
      * Get total available stock quantity across all expiry dates (excluding expired).
      */
+    /**
+     * Get total available stock quantity across all expiry dates (excluding expired).
+     */
     public function getTotalAvailableStockAttribute(): int
     {
         // Use the loaded inventories relationship if available
-        $inventories = $this->getRelation('inventories') ?? $this->inventories()->get();
+        $inventories = $this->relationLoaded('inventories') ? $this->getRelation('inventories') : $this->inventories()->get();
 
         return $inventories
             ->filter(function ($inventory) {

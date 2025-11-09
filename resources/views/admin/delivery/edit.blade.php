@@ -52,11 +52,23 @@
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
+                      <div class="mb-3">
+                        <label for="phone_plus" class="form-label">Phone +</label>
+                        <input type="text" class="form-control @error('phone_plus') is-invalid @enderror" 
+                               id="phone_plus" name="phone_plus" value="{{ $delivery->phone_plus }}" required>
+                        @error('phone_plus')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    
+
+
 
                     <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-control @error('status') is-invalid @enderror" id="status" name="status" required>
-                            <option value="active" {{ $delivery->status === 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="available" {{ $delivery->status === 'available' ? 'selected' : '' }}>Available</option>
+                            <option value="busy" {{ $delivery->status === 'busy' ? 'selected' : '' }}>Busy</option>
                             <option value="inactive" {{ $delivery->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
                         @error('status')

@@ -1,0 +1,7 @@
+add the client name and client phone number to form
+add the templates of messages
+add assign delviery
+fix the delviery details
+fix damaged goods
+create api
+

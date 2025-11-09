@@ -93,5 +93,9 @@ class Inventory extends Model
         }
         return now()->diffInDays($this->expiry_date, false);
     }
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }
 

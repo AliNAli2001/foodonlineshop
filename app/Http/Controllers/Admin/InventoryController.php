@@ -118,8 +118,6 @@ class InventoryController extends Controller
         ]);
 
 
-        $inventory = Inventory::findOrFail($inventoryId)
-            ->first();
 
         if ($inventory) {
             // Update existing inventory record

@@ -36,6 +36,9 @@ class DeliveryController extends Controller
             'phone' => 'required|string|max:20|unique:delivery,phone',
             'email' => 'nullable|email|unique:delivery,email',
             'status' => 'required|in:available,busy,inactive',
+            
+            'info' => 'nullable|string',
+            'phone_plus' => 'nullable|string|max:20',
         ]);
 
         Delivery::create($validated);
@@ -66,6 +69,8 @@ class DeliveryController extends Controller
             'phone' => 'required|string|max:20|unique:delivery,phone,' . $deliveryId,
             'email' => 'nullable|email|unique:delivery,email,' . $deliveryId,
             'status' => 'required|in:available,busy,inactive',
+            'info' => 'nullable|string',
+            'phone_plus' => 'nullable|string|max:20',
         ]);
 
         $delivery->update($validated);

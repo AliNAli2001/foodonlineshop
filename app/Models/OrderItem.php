@@ -18,6 +18,7 @@ class OrderItem extends Model
         'quantity',
         'unit_price',
         'status',
+        'inventory_id'
     ];
 
     public const STATUSES = [
@@ -59,6 +60,10 @@ class OrderItem extends Model
     public function getSubtotal(): float
     {
         return $this->quantity * $this->unit_price;
+    }
+    public function inventory(): BelongsTo
+    {
+        return $this->belongsTo(Inventory::class);
     }
 }
 

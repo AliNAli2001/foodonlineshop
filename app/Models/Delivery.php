@@ -18,6 +18,8 @@ class Delivery extends Model
         'phone',
         'email',
         'status',
+        'info',
+        'phone_plus',
     ];
 
     protected $casts = [

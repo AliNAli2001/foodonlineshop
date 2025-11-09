@@ -12,6 +12,8 @@ class Order extends Model
 
     protected $fillable = [
         'client_id',
+        'client_name',
+        'client_phone_number',
         'created_by_admin_id',
         'total_amount',
         'status',
@@ -24,6 +26,7 @@ class Order extends Model
         'general_notes',
         'admin_order_client_notes',
         'delivery_id',
+
     ];
 
     protected $casts = [
@@ -42,6 +45,7 @@ class Order extends Model
         'delivered' => 'Delivered',
         'done' => 'Done',
         'canceled' => 'Canceled',
+        'returned' => 'Returned',
     ];
 
     const SOURCES = [
