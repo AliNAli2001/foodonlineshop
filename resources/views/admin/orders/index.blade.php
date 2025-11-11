@@ -3,10 +3,10 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-md-8">
-        <h1>Orders</h1>
+        <h1>الطلبات</h1>
     </div>
     <div class="col-md-4 text-end">
-        <a href="{{ route('admin.orders.create') }}" class="btn btn-primary">+ Create Order</a>
+        <a href="{{ route('admin.orders.create') }}" class="btn btn-primary">+ إنشاء طلب</a>
     </div>
 </div>
 
@@ -15,13 +15,13 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Order ID</th>
-                    <th>Client</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Delivery</th>
-                    <th>Date</th>
-                    <th>Actions</th>
+                    <th>رقم الطلب</th>
+                    <th>العميل</th>
+                    <th>الإجمالي</th>
+                    <th>الحالة</th>
+                    <th>التوصيل</th>
+                    <th>التاريخ</th>
+                    <th>الإجراءات</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,20 +32,20 @@
                             @if ($order->client_id)
                                 {{ $order->client->first_name }} {{ $order->client->last_name }}
                             @else
-                                <span class="badge bg-warning">Admin Order</span>
+                                <span class="badge bg-warning">طلب إداري</span>
                             @endif
                         </td>
                         <td>${{ number_format($order->total_amount, 2) }}</td>
                         <td><span class="badge bg-info">{{ ucfirst($order->status) }}</span></td>
-                        <td>{{ $order->delivery ? $order->delivery->first_name . ' ' . $order->delivery->last_name : 'Not Assigned' }}</td>
+                        <td>{{ $order->delivery ? $order->delivery->first_name . ' ' . $order->delivery->last_name : 'لم يتم التعيين' }}</td>
                         <td>{{ $order->order_date->format('Y-m-d H:i') }}</td>
                         <td>
-                            <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-primary">View</a>
+                            <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-primary">عرض</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">No orders found.</td>
+                        <td colspan="7" class="text-center">لا توجد طلبات.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -59,4 +59,3 @@
     </div>
 </div>
 @endsection
-

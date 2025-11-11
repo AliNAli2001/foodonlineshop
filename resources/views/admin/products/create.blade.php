@@ -3,7 +3,7 @@
 @section('content')
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1>Add Product</h1>
+            <h1>إضافة منتج جديد</h1>
         </div>
     </div>
 
@@ -26,7 +26,7 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="name_ar" class="form-label">Name (Arabic)</label>
+                                <label for="name_ar" class="form-label">الاسم (بالعربية)</label>
                                 <input type="text" class="form-control @error('name_ar') is-invalid @enderror"
                                     id="name_ar" name="name_ar" value="{{ old('name_ar') }}" required>
                                 @error('name_ar')
@@ -34,7 +34,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label for="name_en" class="form-label">Name (English)</label>
+                                <label for="name_en" class="form-label">الاسم (بالإنجليزية)</label>
                                 <input type="text" class="form-control @error('name_en') is-invalid @enderror"
                                     id="name_en" name="name_en" value="{{ old('name_en') }}" required>
                                 @error('name_en')
@@ -45,7 +45,7 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="description_ar" class="form-label">Description (Arabic)</label>
+                                <label for="description_ar" class="form-label">الوصف (بالعربية)</label>
                                 <textarea class="form-control @error('description_ar') is-invalid @enderror" id="description_ar" name="description_ar"
                                     rows="3">{{ old('description_ar') }}</textarea>
                                 @error('description_ar')
@@ -53,7 +53,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label for="description_en" class="form-label">Description (English)</label>
+                                <label for="description_en" class="form-label">الوصف (بالإنجليزية)</label>
                                 <textarea class="form-control @error('description_en') is-invalid @enderror" id="description_en" name="description_en"
                                     rows="3">{{ old('description_en') }}</textarea>
                                 @error('description_en')
@@ -64,7 +64,7 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="price" class="form-label">Price</label>
+                                <label for="price" class="form-label">السعر</label>
                                 <input type="number" class="form-control @error('price') is-invalid @enderror"
                                     id="price" name="price" value="{{ old('price') }}" step="0.001" required>
                                 @error('price')
@@ -72,7 +72,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label for="max_order_item" class="form-label">Max Order Item</label>
+                                <label for="max_order_item" class="form-label">الحد الأقصى للطلب</label>
                                 <input type="number" class="form-control @error('max_order_item') is-invalid @enderror"
                                     id="max_order_item" name="max_order_item"
                                     value="{{ old('max_order_item', $maxOrderItems) }}">
@@ -82,22 +82,23 @@
                             </div>
                         </div>
 
-                        <!-- Checkbox to toggle inventory fields -->
+                        <!-- تفعيل حقول المخزون -->
                         <div class="mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="enable_inventory"
                                     name="enable_inventory" value="1" {{ old('enable_inventory', 1) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="enable_inventory">
-                                    Enable Inventory Fields
+                                    تفعيل حقول المخزون
                                 </label>
                             </div>
                         </div>
-                        <!-- Inventory Fields Container -->
+
+                        <!-- حقول المخزون -->
                         <div id="inventory_fields">
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="stock_quantity" class="form-label">Stock Quantity</label>
+                                    <label for="stock_quantity" class="form-label">كمية المخزون</label>
                                     <input type="number" class="form-control @error('stock_quantity') is-invalid @enderror"
                                         id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity') }}"
                                         required>
@@ -106,23 +107,21 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="minimum_alert_quantity" class="form-label">Minimum Alert Quantity</label>
+                                    <label for="minimum_alert_quantity" class="form-label">حد التنبيه الأدنى</label>
                                     <input type="number"
                                         class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
                                         id="minimum_alert_quantity" name="minimum_alert_quantity"
-                                        value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}" required
-                                        >
+                                        value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}" required>
                                     @error('minimum_alert_quantity')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
-
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="expiry_date" class="form-label">
-                                        Expiry Date
+                                        تاريخ الانتهاء
                                     </label>
                                     <input type="date" class="form-control @error('expiry_date') is-invalid @enderror"
                                         id="expiry_date" name="expiry_date" value="{{ old('expiry_date') }}" required>
@@ -132,19 +131,19 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="batch_number" class="form-label">
-                                        Batch Number
+                                        رقم الدفعة
                                     </label>
                                     <input type="text" class="form-control @error('batch_number') is-invalid @enderror"
-                                        id="batch_number" name="batch_number" value="{{ old('batch_number') }}"
-                                        required>
+                                        id="batch_number" name="batch_number" value="{{ old('batch_number') }}" required>
                                     @error('batch_number')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
+
                             <div class="row mb-3">
                                 <div class="col-md-12">
-                                    <label for="cost_price" class="form-label">Cost Price</label>
+                                    <label for="cost_price" class="form-label">سعر التكلفة</label>
                                     <input type="number" class="form-control @error('cost_price') is-invalid @enderror"
                                         id="cost_price" name="cost_price" value="{{ old('cost_price') }}"
                                         step="0.001" required>
@@ -152,30 +151,29 @@
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
-
                             </div>
-
                         </div>
+
                         <div class="mb-3">
-                            <label for="categories" class="form-label">Categories</label>
+                            <label for="categories" class="form-label">التصنيفات</label>
                             <div>
                                 @foreach ($categories as $category)
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="categories[]"
                                             id="category_{{ $category->id }}" value="{{ $category->id }}">
                                         <label class="form-check-label"
-                                            for="category_{{ $category->id }}">{{ $category->name_en }}</label>
+                                            for="category_{{ $category->id }}">{{ $category->name_ar }}</label>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="images" class="form-label">Product Images</label>
+                            <label for="images" class="form-label">صور المنتج</label>
                             <input type="file" class="form-control @error('images') is-invalid @enderror"
                                 id="images" name="images[]" accept="image/*" multiple>
-                            <small class="form-text text-muted">You can select multiple images. The first image will be set
-                                as primary.</small>
+                            <small class="form-text text-muted">يمكنك اختيار عدة صور، وستُعتبر الصورة الأولى هي الصورة
+                                الرئيسية.</small>
                             @error('images')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
@@ -186,19 +184,20 @@
                                 <input class="form-check-input" type="checkbox" id="featured" name="featured"
                                     value="1">
                                 <label class="form-check-label" for="featured">
-                                    Featured
+                                    منتج مميز
                                 </label>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Create Product</button>
-                        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">إنشاء المنتج</button>
+                        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">إلغاء</a>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <!-- JavaScript to toggle inventory fields -->
+
+    <!-- جافاسكريبت لتبديل ظهور حقول المخزون -->
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -210,16 +209,14 @@
                 const isEnabled = enableInventoryCheckbox.checked;
                 inventoryInputs.forEach(input => {
                     input.disabled = !isEnabled;
-
                 });
                 inventoryFieldsContainer.style.display = isEnabled ? 'block' : 'none';
             }
 
-
-            // Initial state
+            // الحالة عند التحميل
             toggleInventoryFields();
 
-            // Toggle on checkbox change
+            // التبديل عند تغيير حالة التفعيل
             enableInventoryCheckbox.addEventListener('change', toggleInventoryFields);
         });
     </script>

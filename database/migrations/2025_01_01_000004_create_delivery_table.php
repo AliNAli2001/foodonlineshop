@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('phone')->unique();
             $table->string('email')->unique()->nullable();
             $table->enum('status', ['available', 'busy', 'inactive'])->default('available');
+            $table->text('info')->nullable();
+            $table->string('phone_plus', 20)->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->index('phone');

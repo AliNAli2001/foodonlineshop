@@ -153,7 +153,7 @@ class OrderController extends Controller
      */
     public function show($orderId)
     {
-        $order = Order::with(['client', 'delivery', 'items.product', 'returnedItems'])->findOrFail($orderId);
+        $order = Order::with(['client', 'delivery', 'items.product'])->findOrFail($orderId);
         $deliveryPersons = Delivery::all();
 
         return view('admin.orders.show', compact('order', 'deliveryPersons'));

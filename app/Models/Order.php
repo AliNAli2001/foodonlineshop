@@ -39,13 +39,13 @@ class Order extends Model
     ];
 
     const STATUSES = [
-        'pending' => 'Pending',
-        'confirmed' => 'Confirmed',
-        'shipped' => 'Shipped',
-        'delivered' => 'Delivered',
-        'done' => 'Done',
-        'canceled' => 'Canceled',
-        'returned' => 'Returned',
+        'pending' => 'معلق',
+        'confirmed' => 'مقبول',
+        'shipped' => 'قيد الشحن',
+        'delivered' => 'قيد التوصيل',
+        'done' => 'مكتمل',
+        'canceled' => 'ملغى',
+        'returned' => 'مرجع',
     ];
 
     const SOURCES = [
@@ -98,5 +98,81 @@ class Order extends Model
     {
         return $this->hasMany(ReturnItem::class, 'order_id');
     }
-}
 
+
+    /**
+     * Prepare a copiable message based on the order's status.
+     *
+     * @param string|null $status Optional status to use (defaults to current status).
+     * @return string The formatted message.
+     */
+    public function prepareCopiableMessage(?string $status = null): string
+    {
+        $status = $status ?? $this->status;
+
+
+        // Common order details
+       
+        $orderDetails = "رقم الطلب: {$this->id}\n";
+        $orderDetails .= "اسم العميل: " . ($this->client_name ?? 'غير محدد') . "\n";
+        $orderDetails .= "رقم الهاتف: " . ($this->client_phone_number ?? 'غير محدد') . "\n";
+        $orderDetails .= "-------------\n";
+        $orderDetails .= "المصدر: " . (self::SOURCES[$this->order_source] ?? 'غير محدد') . "\n";
+        $orderDetails .= "طريقة التوصيل: " . (self::DELIVERY_METHODS[$this->delivery_method] ?? 'غير محدد') . "\n";
+        $orderDetails .= "العنوان: " . ($this->address_details ?? 'غير محدد') . "\n";
+        $orderDetails .= "الإحداثيات: (" . ($this->latitude ?? 'غير محدد') . ", " . ($this->longitude ?? 'غير محدد') . ")\n";
+        $orderDetails .= "الملاحظات: " . ($this->general_notes ?? 'لا توجد') . "\n";
+        $orderDetails .= "-------------\n";
+        // Item details
+        $itemsList = "العناصر:\n";
+        foreach ($this->items as $item) {
+            $itemsList .= "- " . ($item->product->name ?? 'منتج غير معروف') . " (كمية: {$item->quantity}, سعر الوحدة: {$item->unit_price})\n";
+        }
+        $orderDetails .= $itemsList;
+        $orderDetails .= "الإجمالي: {$this->total_amount}\n";
+
+        // Delivery info (if applicable)
+        $deliveryInfo ="";
+        if ($this->delivery) {
+            $deliveryInfo = "-------------\nمعلومات التوصيل:\n";
+            $deliveryInfo .= "اسم عامل التوصيل: " . ($this->delivery->full_name ?? 'غير محدد') . "\n";
+            $deliveryInfo .= "رقم هاتف عامل التوصيل: " . ($this->delivery->phone ?? 'غير محدد') . "\n";
+            // Add more delivery model fields as needed (assuming Delivery model has 'name', etc.)
+            $deliveryInfo .= "ملاحظات الشحن: " . ($this->shipping_notes ?? 'لا توجد') . "\n-------------\n";
+               
+        }
+
+        // Status-specific message
+        switch ($status) {
+            case 'confirmed':
+                $message = "تم قبول طلبك رقم {$this->id}\n";
+                $message .= "تفاصيل الطلب:\n{$orderDetails}";
+                break;
+            case 'shipped':
+                $message = "طلبك رقم {$this->id} قيد الشحن\n";
+                $message .= "معلومات الشحن: " . ($this->shipping_notes ?? 'لا توجد') . "\n";
+                $message .= "تفاصيل الطلب:\n{$orderDetails}";
+                break;
+            case 'delivered':
+                $message = "طلبك رقم {$this->id} قيد التوصيل\n";
+                $message .= $deliveryInfo;
+                $message .= "تفاصيل الطلب:\n{$orderDetails}";
+                break;
+            case 'returned':
+                $message = "طلبك رقم {$this->id} تم إرجاعه\n";
+                $message .= "تفاصيل الطلب:\n{$orderDetails}";
+                break;
+            case 'canceled':
+                $message = "طلبك رقم {$this->id} تم إلغاؤه\n";
+                $message .= "تفاصيل الطلب:\n{$orderDetails}";
+                break;
+            // Add more cases for other statuses as needed (e.g., 'done', 'pending')
+            default:
+                $message = "حالة الطلب: " . (self::STATUSES[$status] ?? 'غير معروفة') . "\n";
+                $message .= "تفاصيل الطلب:\n{$orderDetails}{$deliveryInfo}";
+                break;
+        }
+
+        return $message;
+    }
+}

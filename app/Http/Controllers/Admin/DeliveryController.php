@@ -48,6 +48,18 @@ class DeliveryController extends Controller
     }
 
     /**
+     * Show delivery person details.
+     */
+    public function show($deliveryId)
+    {
+        $delivery = Delivery::findOrFail($deliveryId);
+        $orders = $delivery->orders()->paginate(15);
+
+        return view('admin.delivery.show', compact('delivery', 'orders'));
+    }
+
+    
+    /**
      * Show edit delivery form.
      */
     public function edit($deliveryId)

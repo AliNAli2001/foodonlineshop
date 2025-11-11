@@ -4,11 +4,11 @@
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>Damaged Goods Management</h2>
+            <h2>إدارة البضائع التالفة</h2>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ route('admin.damaged-goods.create') }}" class="btn btn-primary">Add Damaged Goods</a>
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Back</a>
+            <a href="{{ route('admin.damaged-goods.create') }}" class="btn btn-primary">إضافة بضاعة تالفة</a>
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">العودة</a>
         </div>
     </div>
 
@@ -24,28 +24,28 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Source</th>
-                        <th>Reason</th>
-                        <th>Date</th>
-                        <th>Actions</th>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>المصدر</th>
+                        <th>السبب</th>
+                        <th>التاريخ</th>
+                        <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($damagedGoods as $damaged)
                         <tr>
-                            <td>{{ $damaged->product->name_en }}</td>
+                            <td>{{ $damaged->product->name_ar }}</td>
                             <td>{{ $damaged->quantity }}</td>
                             <td><span class="badge bg-info">{{ ucfirst($damaged->source) }}</span></td>
                             <td>{{ $damaged->reason }}</td>
                             <td>{{ $damaged->created_at->format('Y-m-d H:i') }}</td>
                             <td>
-                                <a href="{{ route('admin.damaged-goods.show', $damaged->id) }}" class="btn btn-sm btn-info">View</a>
+                                <a href="{{ route('admin.damaged-goods.show', $damaged->id) }}" class="btn btn-sm btn-info">عرض</a>
                                 <form action="{{ route('admin.damaged-goods.destroy', $damaged->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد؟')">حذف</button>
                                 </form>
                             </td>
                         </tr>
@@ -57,4 +57,3 @@
     </div>
 </div>
 @endsection
-

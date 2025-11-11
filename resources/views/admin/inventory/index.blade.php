@@ -4,10 +4,10 @@
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>Inventory Management</h2>
+            <h2>إدارة المخزون</h2>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">العودة إلى لوحة التحكم</a>
         </div>
     </div>
 
@@ -27,10 +27,10 @@
                         <small>{{ $product->name_ar }}</small>
                     </div>
                     <div class="col-md-4 text-end">
-                        <span class="badge bg-info">Total Stock: {{ $product->total_stock }}</span>
-                        <span class="badge bg-success">Available: {{ $product->total_available_stock }}</span>
-                        <span class="badge bg-warning">Reserved: {{ $product->total_reserved_stock }}</span>
-                        <a href="{{ route('admin.inventory.product', $product->id) }}" class="btn btn-sm btn-info"><i class="fa fa-eye"></i> View</a>
+                        <span class="badge bg-info">إجمالي المخزون: {{ $product->total_stock }}</span>
+                        <span class="badge bg-success">المتاح: {{ $product->total_available_stock }}</span>
+                        <span class="badge bg-warning">المحجوز: {{ $product->total_reserved_stock }}</span>
+                        <a href="{{ route('admin.inventory.product', $product->id) }}" class="btn btn-sm btn-info"><i class="fa fa-eye"></i> عرض</a>
                     </div>
                 </div>
             </div>
@@ -39,15 +39,15 @@
                     <table class="table table-sm table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>Batch Number</th>
-                                <th>Expiry Date</th>
-                                <th>Cost Price</th>
-                                <th>Stock</th>
-                                <th>Reserved</th>
-                                <th>Available</th>
-                                <th>Min Alert</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th>رقم الدفعة</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>سعر التكلفة</th>
+                                <th>المخزون</th>
+                                <th>المحجوز</th>
+                                <th>المتاح</th>
+                                <th>تنبيه الحد الأدنى</th>
+                                <th>الحالة</th>
+                                <th>إجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,12 +64,12 @@
                                         @if ($inventory->expiry_date)
                                             <strong>{{ $inventory->expiry_date->format('Y-m-d') }}</strong>
                                             @if ($inventory->isExpired())
-                                                <span class="badge bg-danger">Expired</span>
+                                                <span class="badge bg-danger">منتهي الصلاحية</span>
                                             @elseif ($inventory->isExpiringSoon())
-                                                <span class="badge bg-warning">Expiring Soon ({{ $inventory->getDaysUntilExpiry() }} days)</span>
+                                                <span class="badge bg-warning">ستنتهي قريباً ({{ $inventory->getDaysUntilExpiry() }} أيام)</span>
                                             @endif
                                         @else
-                                            <span class="text-muted">No expiry</span>
+                                            <span class="text-muted">لا يوجد تاريخ انتهاء</span>
                                         @endif
                                     </td>
                                     <td>{{ $inventory->cost_price }}</td>
@@ -81,18 +81,18 @@
                                     <td>{{ $inventory->minimum_alert_quantity }}</td>
                                     <td>
                                         @if ($inventory->isBelowMinimum())
-                                            <span class="badge bg-warning">Below Min</span>
+                                            <span class="badge bg-warning">أقل من الحد الأدنى</span>
                                         @elseif ($inventory->isExpired())
-                                            <span class="badge bg-danger">Expired</span>
+                                            <span class="badge bg-danger">منتهي الصلاحية</span>
                                         @else
-                                            <span class="badge bg-success">OK</span>
+                                            <span class="badge bg-success">سليم</span>
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.inventory.show', $inventory->id) }}" class="btn btn-sm btn-info" title="View all batches">
+                                        <a href="{{ route('admin.inventory.show', $inventory->id) }}" class="btn btn-sm btn-info" title="عرض جميع الدفعات">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        {{-- <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-sm btn-warning" title="Edit inventory">
+                                        {{-- <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-sm btn-warning" title="تعديل المخزون">
                                             <i class="fas fa-edit"></i>
                                         </a> --}}
                                     </td>
@@ -102,7 +102,7 @@
                     </table>
                 @else
                     <div class="alert alert-info mb-0">
-                        No inventory records for this product.
+                        لا توجد سجلات مخزون لهذا المنتج.
                     </div>
                 @endif
             </div>
@@ -114,4 +114,3 @@
     </div>
 </div>
 @endsection
-

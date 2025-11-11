@@ -3,7 +3,7 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-md-12">
-        <h1>Settings</h1>
+        <h1>الإعدادات</h1>
     </div>
 </div>
 
@@ -31,7 +31,7 @@
                     @csrf
 
                     <div class="mb-3">
-                        <label for="dollar_exchange_rate" class="form-label">Dollar Exchange Rate</label>
+                        <label for="dollar_exchange_rate" class="form-label">سعر صرف الدولار</label>
                         <input type="number" class="form-control @error('dollar_exchange_rate') is-invalid @enderror" 
                                id="dollar_exchange_rate" name="dollar_exchange_rate" 
                                value="{{ $settings->dollar_exchange_rate }}" step="0.0001" required>
@@ -41,7 +41,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="general_minimum_alert_quantity" class="form-label">General Minimum Alert Quantity</label>
+                        <label for="general_minimum_alert_quantity" class="form-label">الكمية الدنيا للتنبيه العامة</label>
                         <input type="number" class="form-control @error('general_minimum_alert_quantity') is-invalid @enderror" 
                                id="general_minimum_alert_quantity" name="general_minimum_alert_quantity" 
                                value="{{ $settings->general_minimum_alert_quantity }}" min="0" required>
@@ -51,7 +51,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="max_order_items" class="form-label">Max Order Items</label>
+                        <label for="max_order_items" class="form-label">أقصى عدد للعناصر في الطلب</label>
                         <input type="number" class="form-control @error('max_order_items') is-invalid @enderror" 
                                id="max_order_items" name="max_order_items" 
                                value="{{ $settings->max_order_items }}" min="1" required>
@@ -60,11 +60,10 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Update Settings</button>
+                    <button type="submit" class="btn btn-primary">تحديث الإعدادات</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 @endsection
-

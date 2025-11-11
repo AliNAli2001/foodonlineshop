@@ -3,7 +3,7 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-md-12">
-        <h1>Add Category</h1>
+        <h1>إضافة تصنيف</h1>
     </div>
 </div>
 
@@ -25,7 +25,7 @@
                     @csrf
 
                     <div class="mb-3">
-                        <label for="name_ar" class="form-label">Name (Arabic)</label>
+                        <label for="name_ar" class="form-label">الاسم (عربي)</label>
                         <input type="text" class="form-control @error('name_ar') is-invalid @enderror"
                                id="name_ar" name="name_ar" value="{{ old('name_ar') }}" required>
                         @error('name_ar')
@@ -34,7 +34,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="name_en" class="form-label">Name (English)</label>
+                        <label for="name_en" class="form-label">الاسم (إنجليزي)</label>
                         <input type="text" class="form-control @error('name_en') is-invalid @enderror"
                                id="name_en" name="name_en" value="{{ old('name_en') }}" required>
                         @error('name_en')
@@ -43,11 +43,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="type" class="form-label">Type</label>
+                        <label for="type" class="form-label">النوع</label>
                         <select class="form-control @error('type') is-invalid @enderror" id="type" name="type" required>
-                            <option value="">-- Select Type --</option>
-                            <option value="company" {{ old('type') == 'company' ? 'selected' : '' }}>Company</option>
-                            <option value="class" {{ old('type') == 'class' ? 'selected' : '' }}>Class</option>
+                            <option value="">-- اختر النوع --</option>
+                            <option value="company" {{ old('type') == 'company' ? 'selected' : '' }}>شركة</option>
+                            <option value="class" {{ old('type') == 'class' ? 'selected' : '' }}>فئة</option>
                         </select>
                         @error('type')
                             <span class="invalid-feedback">{{ $message }}</span>
@@ -55,7 +55,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="category_image" class="form-label">Category Image</label>
+                        <label for="category_image" class="form-label">صورة التصنيف</label>
                         <input type="file" class="form-control @error('category_image') is-invalid @enderror"
                                id="category_image" name="category_image" accept="image/*">
                         @error('category_image')
@@ -67,17 +67,16 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="featured" name="featured" value="1">
                             <label class="form-check-label" for="featured">
-                                Featured
+                                مميز
                             </label>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Create Category</button>
-                    <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">إنشاء التصنيف</button>
+                    <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">إلغاء</a>
                 </form>
             </div>
         </div>
     </div>
 </div>
 @endsection
-

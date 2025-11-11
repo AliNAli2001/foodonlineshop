@@ -3,7 +3,7 @@
 @section('content')
     <div class="row mb-4">
         <div class="col-md-12">
-            <h1>Create New Order</h1>
+            <h1>إنشاء طلب جديد</h1>
         </div>
     </div>
 
@@ -22,16 +22,16 @@
             <form action="{{ route('admin.orders.store') }}" method="POST" id="orderForm">
                 @csrf
 
-                <!-- Client Selection -->
+                <!-- معلومات العميل -->
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h5>Client Information (Optional)</h5>
+                        <h5>معلومات العميل (اختياري)</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">Select Client</label>
+                            <label class="form-label">اختر العميل</label>
                             <select name="client_id" class="form-control @error('client_id') is-invalid @enderror">
-                                <option value="">-- No Client (Admin Order) --</option>
+                                <option value="">-- بدون عميل (طلب إداري) --</option>
                                 @foreach ($clients as $client)
                                     <option value="{{ $client->id }}"
                                         {{ old('client_id') == $client->id ? 'selected' : '' }}>
@@ -42,10 +42,10 @@
                             @error('client_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">Leave empty to create an order without a client.</small>
+                            <small class="form-text text-muted">اتركه فارغًا لإنشاء طلب بدون عميل.</small>
                         </div>
                         <div class="mb-3">
-                            <label for="client_name" class="form-label">Client Name (Optional)</label>
+                            <label for="client_name" class="form-label">اسم العميل (اختياري)</label>
                             <input type="text" class="form-control @error('client_name') is-invalid @enderror"
                                 id="client_name" name="client_name" value="{{ old('client_name') }}">
                             @error('client_name')
@@ -53,7 +53,7 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="client_phone_number" class="form-label">Client Phone Number (Optional)</label>
+                            <label for="client_phone_number" class="form-label">رقم هاتف العميل (اختياري)</label>
                             <input type="text" class="form-control @error('client_phone_number') is-invalid @enderror"
                                 id="client_phone_number" name="client_phone_number"
                                 value="{{ old('client_phone_number') }}">
@@ -61,25 +61,24 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
                     </div>
                 </div>
 
-                <!-- Order Location & Delivery -->
+                <!-- موقع الطلب وطرق التوصيل -->
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h5>Order Location & Delivery</h5>
+                        <h5>موقع الطلب وطرق التوصيل</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">Order Source</label>
+                            <label class="form-label">مصدر الطلب</label>
                             <select name="order_source" id="orderSource"
                                 class="form-control @error('order_source') is-invalid @enderror" required>
-                                <option value="">-- Select --</option>
+                                <option value="">-- اختر --</option>
                                 <option value="inside_city" {{ old('order_source') == 'inside_city' ? 'selected' : '' }}>
-                                    Inside City</option>
+                                    داخل المدينة</option>
                                 <option value="outside_city" {{ old('order_source') == 'outside_city' ? 'selected' : '' }}>
-                                    Outside City</option>
+                                    خارج المدينة</option>
                             </select>
                             @error('order_source')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -87,24 +86,22 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Delivery Method</label>
+                            <label class="form-label">طريقة التوصيل</label>
                             <select name="delivery_method" id="deliveryMethod"
                                 class="form-control @error('delivery_method') is-invalid @enderror" required>
-                                <option value="">-- Select --</option>
-                                <option value="delivery" data-source="inside_city">Delivery (Select Delivery Person)
-                                </option>
-                                <option value="hand_delivered" data-source="inside_city">Hand Delivered (Inside City)
-                                </option>
-                                <option value="shipping" data-source="outside_city">Shipping (Outside City)</option>
+                                <option value="">-- اختر --</option>
+                                <option value="delivery" data-source="inside_city">توصيل (اختر موظف التوصيل)</option>
+                                <option value="hand_delivered" data-source="inside_city">تسليم يدوي (داخل المدينة)</option>
+                                <option value="shipping" data-source="outside_city">شحن (خارج المدينة)</option>
                             </select>
                             @error('delivery_method')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <!-- Address Details (Hidden for Hand Delivered) -->
+                        <!-- تفاصيل العنوان -->
                         <div class="mb-3" id="addressDetailsGroup">
-                            <label class="form-label">Address Details <span class="text-danger">*</span></label>
+                            <label class="form-label">تفاصيل العنوان <span class="text-danger">*</span></label>
                             <textarea name="address_details" class="form-control @error('address_details') is-invalid @enderror" rows="3"
                                 required>{{ old('address_details') }}</textarea>
                             @error('address_details')
@@ -115,10 +112,10 @@
                         <div class="row" id="coordinatesGroup">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Latitude (Optional)</label>
+                                    <label class="form-label">خط العرض (اختياري)</label>
                                     <input type="number" name="latitude" step="0.000001"
                                         class="form-control @error('latitude') is-invalid @enderror"
-                                        value="{{ old('latitude') }}" placeholder="-90 to 90">
+                                        value="{{ old('latitude') }}" placeholder="-90 إلى 90">
                                     @error('latitude')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -126,10 +123,10 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Longitude (Optional)</label>
+                                    <label class="form-label">خط الطول (اختياري)</label>
                                     <input type="number" name="longitude" step="0.000001"
                                         class="form-control @error('longitude') is-invalid @enderror"
-                                        value="{{ old('longitude') }}" placeholder="-180 to 180">
+                                        value="{{ old('longitude') }}" placeholder="-180 إلى 180">
                                     @error('longitude')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -137,15 +134,15 @@
                             </div>
                         </div>
 
-                        <!-- Map for Location Selection -->
+                        <!-- خريطة لاختيار الموقع -->
                         <div class="mb-3" id="mapGroup">
-                            <label class="form-label">Select Location on Map (Optional)</label>
+                            <label class="form-label">اختر الموقع على الخريطة (اختياري)</label>
                             <div id="map" style="height: 300px;"></div>
                         </div>
 
-                        <!-- Shipping Notes (Only for Shipping) -->
+                        <!-- ملاحظات الشحن -->
                         <div class="mb-3" id="shippingNotesGroup" style="display: none;">
-                            <label class="form-label">Shipping Notes (Optional)</label>
+                            <label class="form-label">ملاحظات الشحن (اختياري)</label>
                             <textarea name="shipping_notes" class="form-control @error('shipping_notes') is-invalid @enderror" rows="2">{{ old('shipping_notes') }}</textarea>
                             @error('shipping_notes')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -153,31 +150,31 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Admin Notes About Client (Optional)</label>
+                            <label class="form-label">ملاحظات إدارية عن العميل (اختياري)</label>
                             <textarea name="admin_order_client_notes" class="form-control @error('admin_order_client_notes') is-invalid @enderror"
                                 rows="2">{{ old('admin_order_client_notes') }}</textarea>
                             @error('admin_order_client_notes')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">Internal notes about the client or order.</small>
+                            <small class="form-text text-muted">ملاحظات داخلية عن العميل أو الطلب.</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Order Items -->
+                <!-- عناصر الطلب -->
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h5>Order Items</h5>
+                        <h5>عناصر الطلب</h5>
                     </div>
                     <div class="card-body">
                         <div id="itemsContainer">
                             <div class="order-item mb-3 p-3 border rounded">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label class="form-label">Product</label>
+                                        <label class="form-label">المنتج</label>
                                         <select name="products[0][product_id]" class="form-control product-select"
                                             required>
-                                            <option value="">-- Select Product --</option>
+                                            <option value="">-- اختر المنتج --</option>
                                             @foreach ($products as $product)
                                                 <option value="{{ $product->id }}" data-price="{{ $product->price }}">
                                                     {{ $product->name_en }} - ${{ number_format($product->price, 2) }}
@@ -186,26 +183,26 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Quantity</label>
+                                        <label class="form-label">الكمية</label>
                                         <input type="number" name="products[0][quantity]"
                                             class="form-control quantity-input" min="1" value="1" required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label">&nbsp;</label>
                                         <button type="button" class="btn btn-danger w-100 remove-item"
-                                            style="display:none;">Remove</button>
+                                            style="display:none;">إزالة</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="button" class="btn btn-secondary" id="addItemBtn">+ Add Another Item</button>
+                        <button type="button" class="btn btn-secondary" id="addItemBtn">+ إضافة عنصر آخر</button>
                     </div>
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Create Order</button>
-                    <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">إنشاء الطلب</button>
+                    <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary">إلغاء</a>
                 </div>
             </form>
         </div>
@@ -213,17 +210,18 @@
         <div class="col-md-4">
             <div class="card sticky-top" style="top: 20px;">
                 <div class="card-header">
-                    <h5>Order Summary</h5>
+                    <h5>ملخص الطلب</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total Items:</strong> <span id="totalItems">0</span></p>
-                    <p><strong>Total Amount:</strong> $<span id="totalAmount">0.00</span></p>
+                    <p><strong>إجمالي العناصر:</strong> <span id="totalItems">0</span></p>
+                    <p><strong>الإجمالي:</strong> $<span id="totalAmount">0.00</span></p>
                     <hr>
-                    <p class="text-muted small">This order will be created with <strong>Confirmed</strong> status.</p>
+                    <p class="text-muted small">سيتم إنشاء هذا الطلب بحالة <strong>تم التأكيد</strong>.</p>
                 </div>
             </div>
         </div>
     </div>
+
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />

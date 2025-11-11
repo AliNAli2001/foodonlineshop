@@ -3,8 +3,8 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-md-12">
-        <h1>Delivery Personnel</h1>
-        <a href="{{ route('admin.delivery.create') }}" class="btn btn-primary">Add Delivery Person</a>
+        <h1>أفراد التوصيل</h1>
+        <a href="{{ route('admin.delivery.create') }}" class="btn btn-primary">إضافة موظف توصيل</a>
     </div>
 </div>
 
@@ -13,11 +13,11 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>المعرف</th>
+                    <th>الاسم</th>
+                    <th>الهاتف</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,21 +28,22 @@
                         <td>{{ $delivery->phone }}</td>
                         <td>
                             <span class="badge bg-{{ $delivery->status === 'active' ? 'success' : 'secondary' }}">
-                                {{ ucfirst($delivery->status) }}
+                                {{ ucfirst($delivery->status) === 'Active' ? 'نشط' : 'غير نشط' }}
                             </span>
                         </td>
                         <td>
-                            <a href="{{ route('admin.delivery.edit', $delivery->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('admin.delivery.edit', $delivery->id) }}" class="btn btn-sm btn-warning">تعديل</a>
                             <form action="{{ route('admin.delivery.destroy', $delivery->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد؟')">حذف</button>
                             </form>
+                            <a href="{{ route('admin.delivery.show', $delivery->id) }}" class="btn btn-sm btn-info">عرض</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">No delivery personnel found.</td>
+                        <td colspan="5" class="text-center">لا يوجد موظفو توصيل.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -56,4 +57,3 @@
     </div>
 </div>
 @endsection
-

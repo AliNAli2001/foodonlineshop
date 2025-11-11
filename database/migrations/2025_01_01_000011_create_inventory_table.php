@@ -13,13 +13,23 @@ return new class extends Migration
     {
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->unique()->constrained('products')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->integer('stock_quantity')->default(0);
             $table->integer('reserved_quantity')->default(0);
             $table->integer('minimum_alert_quantity')->default(5);
+            $table->decimal('cost_price', 10, 3);
             $table->integer('version')->default(1);
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
-            $table->index('product_id');
+            // Add expiry_date column
+            $table->date('expiry_date')->nullable();
+
+            // Add batch number for tracking
+            $table->string('batch_number')->nullable();
+
+
+            $table->timestamps();
+            // Create composite index for product_id and expiry_date
+
+            $table->index(['product_id', 'expiry_date']);
         });
     }
 
@@ -31,4 +41,3 @@ return new class extends Migration
         Schema::dropIfExists('inventory');
     }
 };
-

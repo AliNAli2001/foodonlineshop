@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('restrict');
             $table->foreignId('created_by_admin_id')->nullable()->constrained('admins')->onDelete('restrict');
+            $table->string('client_name')->nullable();
+            $table->string('client_phone_number')->nullable();
             $table->timestamp('order_date')->useCurrent();
             $table->decimal('total_amount', 10, 3)->default(0.000);
-            $table->enum('status', ['pending', 'confirmed', 'shipped', 'delivered', 'canceled', 'returned'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'shipped', 'delivered', 'done', 'canceled', 'returned'])->default('pending');
             $table->enum('order_source', ['inside_city', 'outside_city']);
             $table->enum('delivery_method', ['delivery', 'shipping', 'hand_delivered']);
             $table->text('shipping_notes')->nullable();
@@ -25,6 +27,7 @@ return new class extends Migration
             $table->decimal('longitude', 9, 6)->nullable();
             $table->text('address_details')->nullable();
             $table->text('general_notes')->nullable();
+            $table->text('admin_order_client_notes')->nullable();
             $table->foreignId('delivery_id')->nullable()->constrained('delivery')->onDelete('set null');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
@@ -43,4 +46,3 @@ return new class extends Migration
         Schema::dropIfExists('orders');
     }
 };
-

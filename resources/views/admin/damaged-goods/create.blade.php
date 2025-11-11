@@ -4,10 +4,10 @@
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>Record Damaged Goods</h2>
+            <h2>تسجيل البضائع التالفة</h2>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ route('admin.damaged-goods.index') }}" class="btn btn-secondary">Back</a>
+            <a href="{{ route('admin.damaged-goods.index') }}" class="btn btn-secondary">العودة</a>
         </div>
     </div>
 
@@ -27,9 +27,9 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Product</label>
-                    <select name="product_id" class="form-control @error('product_id') is-invalid @enderror" required>
-                        <option value="">-- Select Product --</option>
+                    <label class="form-label">المنتج</label>
+                    <select name="product_id" id="product_id" class="form-control @error('product_id') is-invalid @enderror" required>
+                        <option value="">-- اختر المنتج --</option>
                         @foreach ($products as $product)
                             <option value="{{ $product->id }}" {{ old('product_id') == $product->id ? 'selected' : '' }}>
                                 {{ $product->name_en }}
@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Quantity</label>
+                    <label class="form-label">الكمية</label>
                     <input 
                         type="number" 
                         name="quantity" 
@@ -57,38 +57,32 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Source</label>
-                    <select name="source" class="form-control @error('source') is-invalid @enderror" required>
-                        <option value="">-- Select Source --</option>
-                        <option value="inventory" {{ old('source') == 'inventory' ? 'selected' : '' }}>Inventory (will create transaction)</option>
-                        <option value="external" {{ old('source') == 'external' ? 'selected' : '' }}>External</option>
-                        <option value="returned" {{ old('source') == 'returned' ? 'selected' : '' }}>Returned</option>
+                    <label class="form-label">المصدر</label>
+                    <select name="source" id="source" class="form-control @error('source') is-invalid @enderror" required>
+                        <option value="">-- اختر المصدر --</option>
+                        <option value="inventory" {{ old('source') == 'inventory' ? 'selected' : '' }}>المخزون (سيتم إنشاء حركة مخزون)</option>
+                        <option value="external" {{ old('source') == 'external' ? 'selected' : '' }}>خارجي</option>
                     </select>
                     @error('source')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                     <small class="form-text text-muted">
-                        Selecting "Inventory" will automatically create an inventory transaction record and deduct from stock.
+                        اختيار "المخزون" سينشئ تلقائيًا سجل حركة مخزون ويخصم من المخزون الحالي.
                     </small>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Return Item (Optional)</label>
-                    <select name="return_item_id" class="form-control @error('return_item_id') is-invalid @enderror">
-                        <option value="">-- Select Return Item --</option>
-                        @foreach ($returnItems as $returnItem)
-                            <option value="{{ $returnItem->id }}" {{ old('return_item_id') == $returnItem->id ? 'selected' : '' }}>
-                                Return #{{ $returnItem->id }} - {{ $returnItem->orderItem->product->name_en }}
-                            </option>
-                        @endforeach
+                <div class="mb-3" id="inventory-field" style="display: none;">
+                    <label class="form-label">دفعة المخزون</label>
+                    <select name="inventory_id" class="form-control @error('inventory_id') is-invalid @enderror">
+                        <option value="">-- اختر دفعة المخزون --</option>
                     </select>
-                    @error('return_item_id')
+                    @error('inventory_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Reason</label>
+                    <label class="form-label">السبب</label>
                     <textarea 
                         name="reason" 
                         class="form-control @error('reason') is-invalid @enderror"
@@ -101,12 +95,68 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Record Damaged Goods</button>
-                    <a href="{{ route('admin.damaged-goods.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">تسجيل البضائع التالفة</button>
+                    <a href="{{ route('admin.damaged-goods.index') }}" class="btn btn-secondary">إلغاء</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
-@endsection
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productSelect = document.getElementById('product_id');
+        const sourceSelect = document.getElementById('source');
+        const inventoryField = document.getElementById('inventory-field');
+        const inventorySelect = inventoryField.querySelector('select[name="inventory_id"]');
+        const getInventoriesUrlTemplate = '{{ route("admin.damaged-goods.product-inventories", ":product") }}';
+
+        let productId = productSelect.value;
+        let source = sourceSelect.value;
+
+        function loadInventories() {
+            if (source === 'inventory' && productId) {
+                const url = getInventoriesUrlTemplate.replace(':product', productId);
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        inventorySelect.innerHTML = '<option value="">-- Select Inventory Batch --</option>';
+                        data.forEach(value => {
+                            let optionText = '';
+                            if (value.batch_number) {
+                                optionText += 'Batch: ' + value.batch_number + ' - ';
+                            }
+                            optionText += 'Expiry: ' + (value.expiry_date ? value.expiry_date : 'N/A') + ' - Stock: ' + value.stock_quantity;
+                            const option = document.createElement('option');
+                            option.value = value.id;
+                            option.textContent = optionText;
+                            inventorySelect.appendChild(option);
+                        });
+                        inventoryField.style.display = 'block';
+                        inventorySelect.required = true;
+                    })
+                    .catch(error => {
+                        inventoryField.style.display = 'none';
+                    });
+            } else {
+                inventoryField.style.display = 'none';
+                inventorySelect.required = false;
+            }
+        }
+
+        productSelect.addEventListener('change', function() {
+            productId = this.value;
+            loadInventories();
+        });
+
+        sourceSelect.addEventListener('change', function() {
+            source = this.value;
+            loadInventories();
+        });
+
+        // Initial load if old values
+        loadInventories();
+    });
+</script>
+@endsection

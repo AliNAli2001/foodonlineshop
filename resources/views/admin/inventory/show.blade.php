@@ -4,12 +4,11 @@
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>Inventory: {{ $product->name_en }}</h2>
+            <h2>المخزون: {{ $product->name_en }}</h2>
         </div>
         <div class="col-md-4 text-end">
-            
-            <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-warning">Edit</a>
-            <a href="{{ route('admin.inventory.product',$product->id) }}" class="btn btn-secondary">Back to product inventories</a>
+            <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-warning">تعديل</a>
+            <a href="{{ route('admin.inventory.product',$product->id) }}" class="btn btn-secondary">العودة إلى مخزون المنتج</a>
         </div>
     </div>
 
@@ -17,23 +16,22 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Current Inventory</h5>
+                    <h5>المخزون الحالي</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Product:</strong> {{ $product->name_en }}</p>
-                    <p><strong>Stock Quantity:</strong> {{ $inventory->stock_quantity }}</p>
-                    <p><strong>Batch Number:</strong> {{ $inventory->batch_number }}</p>
-                    <p><strong>Expiry Date:</strong> {{ $inventory->expiry_date->format('Y-m-d') }}</p>
-                    <p><strong>Cost Price:</strong> {{ $inventory->cost_price }}</p>
-                    <p><strong>Reserved Quantity:</strong> {{ $inventory->reserved_quantity }}</p>
-
-                    <p><strong>Available:</strong> {{ $inventory->getAvailableStock() }}</p>
-                    <p><strong>Minimum Alert:</strong> {{ $inventory->minimum_alert_quantity }}</p>
-                    <p><strong>Status:</strong> 
+                    <p><strong>المنتج:</strong> {{ $product->name_en }}</p>
+                    <p><strong>كمية المخزون:</strong> {{ $inventory->stock_quantity }}</p>
+                    <p><strong>رقم الدفعة:</strong> {{ $inventory->batch_number }}</p>
+                    <p><strong>تاريخ الانتهاء:</strong> {{ $inventory->expiry_date->format('Y-m-d') }}</p>
+                    <p><strong>سعر التكلفة:</strong> {{ $inventory->cost_price }}</p>
+                    <p><strong>الكمية المحجوزة:</strong> {{ $inventory->reserved_quantity }}</p>
+                    <p><strong>المتاح:</strong> {{ $inventory->getAvailableStock() }}</p>
+                    <p><strong>تنبيه الحد الأدنى:</strong> {{ $inventory->minimum_alert_quantity }}</p>
+                    <p><strong>الحالة:</strong> 
                         @if ($inventory->isBelowMinimum())
-                            <span class="badge bg-warning">Below Minimum</span>
+                            <span class="badge bg-warning">أقل من الحد الأدنى</span>
                         @else
-                            <span class="badge bg-success">OK</span>
+                            <span class="badge bg-success">سليم</span>
                         @endif
                     </p>
                 </div>
@@ -43,21 +41,21 @@
 
     <div class="card">
         <div class="card-header">
-            <h5>Recent Transactions</h5>
+            <h5>التحركات الأخيرة</h5>
         </div>
         <div class="card-body">
             @if ($transactions->count() > 0)
                 <table class="table table-sm">
                     <thead>
                         <tr>
-                            <th>Type</th>
-                            <th>Quantity Change</th>
-                            <th>Reserved Change</th>
-                            <th>Reason</th>
-                            <th>Cost Price</th>
-                            <th>Expiry Date</th>
-                            <th>Batch Number</th>
-                            <th>Date</th>
+                            <th>النوع</th>
+                            <th>تغيير الكمية</th>
+                            <th>تغيير المحجوز</th>
+                            <th>السبب</th>
+                            <th>سعر التكلفة</th>
+                            <th>تاريخ الانتهاء</th>
+                            <th>رقم الدفعة</th>
+                            <th>التاريخ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,10 +75,9 @@
                 </table>
                 {{ $transactions->links() }}
             @else
-                <p class="text-muted">No transactions yet</p>
+                <p class="text-muted">لا توجد تحركات بعد</p>
             @endif
         </div>
     </div>
 </div>
 @endsection
-

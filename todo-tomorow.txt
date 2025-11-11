@@ -1,7 +1,7 @@
-add the client name and client phone number to form
-add the templates of messages
-add assign delviery
-fix the delviery details
-fix damaged goods
+
+checking the templates of messages
+add values before and after to stock and reserved
 create api
+review
+testing
 

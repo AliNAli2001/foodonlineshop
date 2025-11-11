@@ -4,10 +4,10 @@
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>Manage Categories for: {{ $product->name_en }}</h2>
+            <h2>إدارة التصنيفات للمنتج: {{ $product->name_ar ?? $product->name_en }}</h2>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Back to Products</a>
+            <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">الرجوع إلى قائمة المنتجات</a>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label class="form-label">Select Categories</label>
+                    <label class="form-label">اختر التصنيفات</label>
                     <div class="border p-3" style="max-height: 400px; overflow-y: auto;">
                         @foreach ($allCategories as $category)
                             <div class="form-check">
@@ -41,7 +41,7 @@
                                     {{ in_array($category->id, $selectedCategoryIds) ? 'checked' : '' }}
                                 >
                                 <label class="form-check-label" for="category_{{ $category->id }}">
-                                    {{ $category->name_en }} ({{ $category->name_ar }})
+                                    {{ $category->name_ar }} ({{ $category->name_en }})
                                 </label>
                             </div>
                         @endforeach
@@ -49,12 +49,11 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Save Categories</button>
-                    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">حفظ التصنيفات</button>
+                    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">إلغاء</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
 @endsection
-

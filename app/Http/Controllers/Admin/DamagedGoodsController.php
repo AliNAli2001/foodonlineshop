@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DamagedGoods;
+use App\Models\Inventory;
 use App\Models\InventoryTransaction;
 use App\Models\Product;
 use App\Models\ReturnItem;
@@ -29,9 +30,20 @@ class DamagedGoodsController extends Controller
     public function create()
     {
         $products = Product::all();
-        $returnItems = ReturnItem::all();
 
-        return view('admin.damaged-goods.create', compact('products', 'returnItems'));
+        return view('admin.damaged-goods.create', compact('products'));
+    }
+
+    /**
+     * Get inventories for a product.
+     */
+    public function getProductInventories(Product $product)
+    {
+        $inventories = $product->inventories()
+            ->where('stock_quantity', '>', 0)
+            ->get(['id', 'batch_number', 'expiry_date', 'stock_quantity']);
+
+        return response()->json($inventories);
     }
 
     /**
@@ -43,6 +55,7 @@ class DamagedGoodsController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'source' => 'required|in:inventory,external,returned',
+            'inventory_id' => 'required_if:source,inventory|exists:inventory,id',
             'return_item_id' => 'nullable|exists:return_items,id',
             'reason' => 'required|string|max:255',
         ]);
@@ -51,20 +64,28 @@ class DamagedGoodsController extends Controller
         $product = Product::findOrFail($validated['product_id']);
 
         if ($validated['source'] === 'inventory') {
+            $inventory = Inventory::findOrFail($validated['inventory_id']);
+
+            if ($inventory->stock_quantity < $validated['quantity']) {
+                return back()->withErrors(['quantity' => 'Insufficient stock in the selected inventory batch.']);
+            }
+
+            // Deduct from specific inventory
+            $inventory->update([
+                'stock_quantity' => $inventory->stock_quantity - $validated['quantity'],
+            ]);
+
             // Create inventory transaction
             $transaction = InventoryTransaction::create([
+                'inventory_id' => $inventory->id,
                 'product_id' => $validated['product_id'],
+                'cost_price' => $inventory->cost_price,
                 'quantity_change' => -$validated['quantity'],
                 'transaction_type' => 'damaged',
                 'reason' => $validated['reason'],
             ]);
 
             $inventoryTransactionId = $transaction->id;
-
-            // Update inventory
-            $product->inventory->update([
-                'stock_quantity' => $product->inventory->stock_quantity - $validated['quantity'],
-            ]);
         }
 
         // Create damaged goods record with transaction ID
@@ -107,4 +128,3 @@ class DamagedGoodsController extends Controller
             ->with('success', 'Damaged goods record deleted successfully.');
     }
 }
-

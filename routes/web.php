@@ -55,13 +55,6 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 
-// Cart Routes
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
 // Client Authenticated Routes
 Route::middleware('auth:client')->group(function () {
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
@@ -121,18 +114,12 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::post('/inventory/{product}', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/{product}/batches', [InventoryController::class, 'product'])->name('inventory.product');
     
-
-    // Returns
-    Route::get('/returns', [ReturnsController::class, 'index'])->name('returns.index');
-    Route::get('/returns/create/{order}', [ReturnsController::class, 'create'])->name('returns.create');
-    Route::post('/returns', [ReturnsController::class, 'store'])->name('returns.store');
-    Route::get('/returns/{return}', [ReturnsController::class, 'show'])->name('returns.show');
-    Route::delete('/returns/{return}', [ReturnsController::class, 'destroy'])->name('returns.destroy');
-
     // Damaged Goods
     Route::get('/damaged-goods', [DamagedGoodsController::class, 'index'])->name('damaged-goods.index');
     Route::get('/damaged-goods/create', [DamagedGoodsController::class, 'create'])->name('damaged-goods.create');
     Route::post('/damaged-goods', [DamagedGoodsController::class, 'store'])->name('damaged-goods.store');
+    Route::get('/damaged-goods/product-inventories/{product}', [DamagedGoodsController::class, 'getProductInventories'])->name('damaged-goods.product-inventories');
     Route::get('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'show'])->name('damaged-goods.show');
     Route::delete('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'destroy'])->name('damaged-goods.destroy');
+    
 });

@@ -3,7 +3,7 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-md-12">
-        <h1>Edit Category</h1>
+        <h1>تعديل التصنيف</h1>
     </div>
 </div>
 
@@ -26,7 +26,7 @@
                     @method('PUT')
 
                     <div class="mb-3">
-                        <label for="name_ar" class="form-label">Name (Arabic)</label>
+                        <label for="name_ar" class="form-label">الاسم (عربي)</label>
                         <input type="text" class="form-control @error('name_ar') is-invalid @enderror"
                                id="name_ar" name="name_ar" value="{{ $category->name_ar }}" required>
                         @error('name_ar')
@@ -35,7 +35,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="name_en" class="form-label">Name (English)</label>
+                        <label for="name_en" class="form-label">الاسم (إنجليزي)</label>
                         <input type="text" class="form-control @error('name_en') is-invalid @enderror"
                                id="name_en" name="name_en" value="{{ $category->name_en }}" required>
                         @error('name_en')
@@ -44,11 +44,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="type" class="form-label">Type</label>
+                        <label for="type" class="form-label">النوع</label>
                         <select class="form-control @error('type') is-invalid @enderror" id="type" name="type" required>
-                            <option value="">-- Select Type --</option>
-                            <option value="company" {{ $category->type == 'company' ? 'selected' : '' }}>Company</option>
-                            <option value="class" {{ $category->type == 'class' ? 'selected' : '' }}>Class</option>
+                            <option value="">-- اختر النوع --</option>
+                            <option value="company" {{ $category->type == 'company' ? 'selected' : '' }}>شركة</option>
+                            <option value="class" {{ $category->type == 'class' ? 'selected' : '' }}>صف / فصل</option>
                         </select>
                         @error('type')
                             <span class="invalid-feedback">{{ $message }}</span>
@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="category_image" class="form-label">Category Image</label>
+                        <label for="category_image" class="form-label">صورة التصنيف</label>
                         @if ($category->category_image)
                             <div class="mb-2">
                                 <img src="{{ asset('storage/' . $category->category_image) }}" alt="{{ $category->name_en }}" style="max-width: 150px; max-height: 150px;">
@@ -73,17 +73,16 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="featured" name="featured" value="1" {{ $category->featured ? 'checked' : '' }}>
                             <label class="form-check-label" for="featured">
-                                Featured
+                                مميز
                             </label>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Update Category</button>
-                    <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">تحديث التصنيف</button>
+                    <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">إلغاء</a>
                 </form>
             </div>
         </div>
     </div>
 </div>
 @endsection
-
