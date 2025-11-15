@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
+use App\Http\Controllers\Controller;
 
 use App\Models\Product;
 use App\Models\Category;
@@ -9,11 +10,11 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Show all products with filtering and search.
+     * Get all products with filtering and search.
      */
     public function index(Request $request)
     {
-        $language = session('language_preference', 'en');
+        $language = $request->query('lang', 'en');
         $query = Product::query();
 
         // Search by name
@@ -26,6 +27,9 @@ class ProductController extends Controller
         // Filter by categories
         if ($request->filled('categories')) {
             $categories = $request->input('categories');
+            if (!is_array($categories)) {
+                $categories = explode(',', $categories);
+            }
             $query->whereHas('categories', function ($q) use ($categories) {
                 $q->whereIn('category_id', $categories);
             });
@@ -37,43 +41,41 @@ class ProductController extends Controller
         }
 
         $products = $query->with(['inventory', 'primaryImage', 'categories'])->paginate(12);
-        $categories = Category::all();
 
-        return view('products.index', compact('products', 'categories', 'language'));
+        return response()->json($products);
     }
 
     /**
-     * Show single product details.
+     * Get single product details.
      */
-    public function show($productId)
+    public function show(Request $request, $product)
     {
-        $language = session('language_preference', 'en');
-        $product = Product::with(['inventory', 'images', 'categories'])->findOrFail($productId);
+        $language = $request->query('lang', 'en');
+        $product = Product::with(['inventory', 'images', 'categories'])->findOrFail($product);
 
-        return view('products.show', compact('product', 'language'));
+        return response()->json($product);
     }
 
     /**
      * Get products by category.
      */
-    public function byCategory($categoryId)
+    public function byCategory(Request $request, $category)
     {
-        $language = session('language_preference', 'en');
-        $category = Category::findOrFail($categoryId);
+        $language = $request->query('lang', 'en');
+        $category = Category::findOrFail($category);
         $products = $category->products()->with(['inventory', 'primaryImage'])->paginate(12);
 
-        return view('products.by-category', compact('category', 'products', 'language'));
+        return response()->json($products);
     }
 
     /**
      * Get featured products.
      */
-    public function featured()
+    public function featured(Request $request)
     {
-        $language = session('language_preference', 'en');
+        $language = $request->query('lang', 'en');
         $products = Product::where('featured', true)->with(['inventory', 'primaryImage'])->paginate(12);
 
-        return view('products.featured', compact('products', 'language'));
+        return response()->json($products);
     }
 }
-

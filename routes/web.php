@@ -31,40 +31,12 @@ Route::get('/', function () {
     return view('home', compact('featuredProducts', 'featuredCategories'));
 })->name('home');
 
-// Client Authentication Routes
-Route::middleware('guest:client')->group(function () {
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.store');
-});
-
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:client');
-
-// Email and Phone Verification
-Route::middleware('auth:client')->group(function () {
-    Route::get('/verify-email', [AuthController::class, 'showVerifyEmail'])->name('verify-email');
-    Route::post('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email.store');
-    Route::get('/verify-phone', [AuthController::class, 'showVerifyPhone'])->name('verify-phone');
-    Route::post('/verify-phone', [AuthController::class, 'verifyPhone'])->name('verify-phone.store');
-});
-
-// Client Routes (Public - no auth required for browsing)
+// Home page (kept for web)
+// Client Routes (Public - no auth required for browsing) - kept for web
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
-
-// Client Authenticated Routes
-Route::middleware('auth:client')->group(function () {
-    Route::get('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
-    Route::post('/order', [OrderController::class, 'store'])->name('order.store');
-
-    Route::get('/profile', [ClientController::class, 'profile'])->name('client.profile');
-    Route::post('/profile', [ClientController::class, 'updateProfile'])->name('client.update-profile');
-    Route::get('/orders', [ClientController::class, 'orders'])->name('client.orders');
-    Route::get('/orders/{order}', [ClientController::class, 'orderDetails'])->name('client.order-details');
-});
 
 // Admin Authentication Routes
 Route::middleware('guest:admin')->group(function () {

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\VerificationCode;
 use Illuminate\Http\Request;
@@ -10,14 +11,6 @@ use Illuminate\Support\Facades\Auth as AuthFacade;
 
 class AuthController extends Controller
 {
-    /**
-     * Show the registration form.
-     */
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-
     /**
      * Handle client registration.
      */
@@ -47,15 +40,11 @@ class AuthController extends Controller
 
         AuthFacade::guard('client')->login($client);
 
-        return redirect()->route('verify-email')->with('success', 'Registration successful. Please verify your email.');
-    }
-
-    /**
-     * Show the login form.
-     */
-    public function showLogin()
-    {
-        return view('auth.login');
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration successful. Please verify your email and phone.',
+            'client' => $client,
+        ], 201);
     }
 
     /**
@@ -71,12 +60,19 @@ class AuthController extends Controller
         $client = Client::where('email', $validated['email'])->first();
 
         if (!$client || !Hash::check($validated['password'], $client->password_hash)) {
-            return back()->withErrors(['email' => 'Invalid credentials.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials.',
+            ], 401);
         }
 
         AuthFacade::guard('client')->login($client);
 
-        return redirect()->route('home')->with('success', 'Logged in successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged in successfully.',
+            'client' => $client,
+        ], 200);
     }
 
     /**
@@ -85,19 +81,10 @@ class AuthController extends Controller
     public function logout()
     {
         AuthFacade::guard('client')->logout();
-        return redirect()->route('home')->with('success', 'Logged out successfully.');
-    }
-
-    /**
-     * Show email verification form.
-     */
-    public function showVerifyEmail()
-    {
-        if (!AuthFacade::guard('client')->check()) {
-            return redirect()->route('register');
-        }
-
-        return view('auth.verify-email');
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully.',
+        ], 200);
     }
 
     /**
@@ -106,35 +93,30 @@ class AuthController extends Controller
     public function verifyEmail(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|size:10',
+            'code' => 'required|string',
         ]);
 
-        $client = AuthFacade::guard('client')->user();
-        $verificationCode = VerificationCode::where('client_id', $client->id)
+        $clientId = auth('client')->id();
+        $verificationCode = VerificationCode::where('client_id', $clientId)
             ->where('type', 'email')
             ->where('code', $validated['code'])
             ->first();
 
-        if (!$verificationCode || $verificationCode->isExpired()) {
-            return back()->withErrors(['code' => 'Invalid or expired code.']);
+        if (!$verificationCode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code.',
+            ], 400);
         }
 
+        $client = Client::find($clientId);
         $client->update(['email_verified' => true]);
         $verificationCode->delete();
 
-        return redirect()->route('verify-phone')->with('success', 'Email verified successfully.');
-    }
-
-    /**
-     * Show phone verification form.
-     */
-    public function showVerifyPhone()
-    {
-        if (!AuthFacade::guard('client')->check()) {
-            return redirect()->route('register');
-        }
-
-        return view('auth.verify-phone');
+        return response()->json([
+            'success' => true,
+            'message' => 'Email verified successfully.',
+        ], 200);
     }
 
     /**
@@ -143,38 +125,46 @@ class AuthController extends Controller
     public function verifyPhone(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|size:10',
+            'code' => 'required|string',
         ]);
 
-        $client = AuthFacade::guard('client')->user();
-        $verificationCode = VerificationCode::where('client_id', $client->id)
+        $clientId = auth('client')->id();
+        $verificationCode = VerificationCode::where('client_id', $clientId)
             ->where('type', 'phone')
             ->where('code', $validated['code'])
             ->first();
 
-        if (!$verificationCode || $verificationCode->isExpired()) {
-            return back()->withErrors(['code' => 'Invalid or expired code.']);
+        if (!$verificationCode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code.',
+            ], 400);
         }
 
+        $client = Client::find($clientId);
         $client->update(['phone_verified' => true]);
         $verificationCode->delete();
 
-        return redirect()->route('home')->with('success', 'Phone verified successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Phone verified successfully.',
+        ], 200);
     }
 
     /**
-     * Generate a verification code.
+     * Generate verification code.
      */
-    private function generateVerificationCode(Client $client, string $type): void
+    private function generateVerificationCode($client, $type)
     {
-        $code = str_pad(random_int(0, 9999999999), 10, '0', STR_PAD_LEFT);
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         VerificationCode::create([
             'client_id' => $client->id,
-            'code' => $code,
             'type' => $type,
-            'expires_at' => now()->addHours(24),
+            'code' => $code,
         ]);
+
+        // TODO: Send code via email or SMS
     }
 }
 

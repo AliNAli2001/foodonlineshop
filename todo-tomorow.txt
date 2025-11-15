@@ -1,7 +1,7 @@
 
 checking the templates of messages
 add values before and after to stock and reserved
-create api
+the order must check if amount available and if available the product must subtract from old inventories as he could
 review
 testing
 
