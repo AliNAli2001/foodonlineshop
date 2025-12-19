@@ -13,5 +13,7 @@ shipped
 delivered
 (delivered -> done-)
 
+finite state for shipped and delivered
+
 
 `-` means finite state

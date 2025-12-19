@@ -27,6 +27,7 @@ export interface UpdateProfileData {
 export const profileService = {
   async getProfile() {
     const response = await apiClient.get(API_ENDPOINTS.PROFILE.GET);
+    console.log(response.data);
     return response.data;
   },
 

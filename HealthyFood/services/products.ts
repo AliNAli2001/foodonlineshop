@@ -28,6 +28,8 @@ export interface ProductsListParams {
 export const productsService = {
   async getProducts(params?: ProductsListParams) {
     const response = await apiClient.get(API_ENDPOINTS.PRODUCTS.LIST, { params });
+    
+   
     return response.data;
   },
 

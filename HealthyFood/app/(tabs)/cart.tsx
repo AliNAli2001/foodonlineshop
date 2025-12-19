@@ -6,18 +6,30 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useCartStore } from '@/store/cartStore';
+import { useLanguageStore } from '@/store/languageStore';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+import { useCallback } from 'react'; // ← useCallback
 export default function CartScreen() {
   const router = useRouter();
   const { items, totalPrice, removeItem, updateQuantity } = useCartStore();
-
+  const { t,language, isRTL } = useLanguageStore();
+// ← FORCE RE-RENDER EVERY TIME SCREEN IS FOCUSED
+  useFocusEffect(
+    useCallback(() => {
+      // This runs EVERY time the tab is tapped
+      console.log('CartScreen focused – language:', language);
+      // No need to do anything else – just triggers re-render
+    }, [language]) // ← Re-run when language changes
+  );
   const renderCartItem = ({ item }: { item: any }) => (
-    <View style={styles.cartItem}>
+    <View style={[styles.cartItem, isRTL && styles.rtl]}>
       <View style={styles.itemInfo}>
-        <Text style={styles.itemName}>{item.name_en}</Text>
+        <Text style={styles.itemName}>
+          {isRTL ? item.name_ar : item.name_en}
+        </Text>
         <Text style={styles.itemPrice}>${item.price}</Text>
       </View>
 
@@ -41,21 +53,21 @@ export default function CartScreen() {
 
   if (items.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
+      <View style={[styles.emptyContainer, isRTL && styles.rtl]}>
         <MaterialCommunityIcons name="shopping" size={64} color="#ccc" />
-        <Text style={styles.emptyText}>Your cart is empty</Text>
+        <Text style={styles.emptyText}>{t('yourCartIsEmpty')}</Text>
         <TouchableOpacity
           style={styles.continueButton}
           onPress={() => router.push('/(tabs)')}
         >
-          <Text style={styles.continueButtonText}>Continue Shopping</Text>
+          <Text style={styles.continueButtonText}>{t('continueShopping')}</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isRTL && styles.rtl]}>
       <FlatList
         data={items}
         renderItem={renderCartItem}
@@ -64,7 +76,7 @@ export default function CartScreen() {
 
       <View style={styles.footer}>
         <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total:</Text>
+          <Text style={styles.totalLabel}>{t('total')}:</Text>
           <Text style={styles.totalPrice}>${totalPrice.toFixed(2)}</Text>
         </View>
 
@@ -72,7 +84,7 @@ export default function CartScreen() {
           style={styles.checkoutButton}
           onPress={() => router.push('/checkout')}
         >
-          <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
+          <Text style={styles.checkoutButtonText}>{t('proceedToCheckout')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -83,6 +95,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  rtl: {
+    direction: 'rtl',
   },
   emptyContainer: {
     flex: 1,

@@ -10,16 +10,18 @@ import {
 } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login, loading, error } = useAuthStore();
+  const { t, isRTL } = useLanguageStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert(t('error'), t('fillAllFields'));
       return;
     }
 
@@ -27,18 +29,18 @@ export default function LoginScreen() {
       await login({ email, password });
       router.replace('/(tabs)');
     } catch (err) {
-      Alert.alert('Login Failed', error || 'Please try again');
+      Alert.alert(t('error'), error || t('serverError'));
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isRTL && styles.rtl]}>
       <Text style={styles.title}>Healthy Food</Text>
-      <Text style={styles.subtitle}>Welcome Back</Text>
+      <Text style={styles.subtitle}>{t('login')}</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder={t('email')}
         value={email}
         onChangeText={setEmail}
         editable={!loading}
@@ -48,7 +50,7 @@ export default function LoginScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder={t('password')}
         value={password}
         onChangeText={setPassword}
         editable={!loading}
@@ -63,15 +65,15 @@ export default function LoginScreen() {
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>{t('login')}</Text>
         )}
       </TouchableOpacity>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Don't have an account? </Text>
+        <Text style={styles.footerText}>{t('register')} </Text>
         <Link href="/(auth)/register" asChild>
           <TouchableOpacity>
-            <Text style={styles.linkText}>Register</Text>
+            <Text style={styles.linkText}>{t('register')}</Text>
           </TouchableOpacity>
         </Link>
       </View>
@@ -85,6 +87,9 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     backgroundColor: '#fff',
+  },
+  rtl: {
+    direction: 'rtl',
   },
   title: {
     fontSize: 32,

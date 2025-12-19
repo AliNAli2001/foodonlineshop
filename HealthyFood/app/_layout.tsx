@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
 
 export const unstable_settings = {
   anchor: '(auth)',
@@ -14,9 +15,11 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { checkAuth, isAuthenticated } = useAuthStore();
+  const { getLanguage } = useLanguageStore();
 
   useEffect(() => {
     checkAuth();
+    getLanguage();
   }, []);
 
   return (
@@ -30,7 +33,7 @@ export default function RootLayout() {
             <Stack.Screen name="checkout" options={{ title: 'Checkout' }} />
             <Stack.Screen name="orders" options={{ title: 'My Orders' }} />
             <Stack.Screen name="order/[id]" options={{ title: 'Order Details' }} />
-            <Stack.Screen name="profile" options={{ title: 'Profile' }} />
+            <Stack.Screen name="edit-profile" options={{ title: 'Edit Profile' }} />
           </>
         ) : (
           <>

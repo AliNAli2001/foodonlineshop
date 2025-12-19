@@ -12,18 +12,20 @@ import {
 import { useRouter } from 'expo-router';
 import { useProductsStore } from '@/store/productsStore';
 import { useCartStore } from '@/store/cartStore';
+import { useLanguageStore } from '@/store/languageStore';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { products, featuredProducts, loading, fetchProducts, fetchFeaturedProducts } =
     useProductsStore();
   const { addItem } = useCartStore();
+  const { t, language, isRTL } = useLanguageStore();
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetchFeaturedProducts('en');
+    fetchFeaturedProducts(language);
     fetchProducts();
-  }, []);
+  }, [language]);
 
   const handleAddToCart = (product: any) => {
     addItem({
@@ -46,13 +48,15 @@ export default function HomeScreen() {
           style={styles.productImage}
         />
       )}
-      <Text style={styles.productName}>{item.name_en}</Text>
+      <Text style={styles.productName}>
+        {language === 'ar' ? item.name_ar : item.name_en}
+      </Text>
       <Text style={styles.productPrice}>${item.price}</Text>
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => handleAddToCart(item)}
       >
-        <Text style={styles.addButtonText}>Add to Cart</Text>
+        <Text style={styles.addButtonText}>{t('addToCart')}</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -66,17 +70,17 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isRTL && styles.rtl]}>
       <TextInput
         style={styles.searchInput}
-        placeholder="Search products..."
+        placeholder={t('search')}
         value={search}
         onChangeText={setSearch}
       />
 
       {featuredProducts.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Featured Products</Text>
+          <Text style={styles.sectionTitle}>{t('featuredProducts')}</Text>
           <FlatList
             data={featuredProducts}
             renderItem={renderProduct}
@@ -88,7 +92,7 @@ export default function HomeScreen() {
         </>
       )}
 
-      <Text style={styles.sectionTitle}>All Products</Text>
+      <Text style={styles.sectionTitle}>{t('allProducts')}</Text>
       <FlatList
         data={products}
         renderItem={renderProduct}
@@ -105,6 +109,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: '#f5f5f5',
+  },
+  rtl: {
+    direction: 'rtl',
   },
   centerContainer: {
     flex: 1,

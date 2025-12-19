@@ -10,10 +10,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useCategoriesStore } from '@/store/categoriesStore';
+import { useLanguageStore } from '@/store/languageStore';
 
 export default function CategoriesScreen() {
   const router = useRouter();
   const { categories, loading, fetchCategories } = useCategoriesStore();
+  const { t, language, isRTL } = useLanguageStore();
 
   useEffect(() => {
     fetchCategories();
@@ -27,7 +29,9 @@ export default function CategoriesScreen() {
       {item.image && (
         <Image source={{ uri: item.image }} style={styles.categoryImage} />
       )}
-      <Text style={styles.categoryName}>{item.name_en}</Text>
+      <Text style={styles.categoryName}>
+        {language === 'ar' ? item.name_ar : item.name_en}
+      </Text>
     </TouchableOpacity>
   );
 
@@ -40,7 +44,7 @@ export default function CategoriesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isRTL && styles.rtl]}>
       <FlatList
         data={categories}
         renderItem={renderCategory}
@@ -57,6 +61,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: '#f5f5f5',
+  },
+  rtl: {
+    direction: 'rtl',
   },
   centerContainer: {
     flex: 1,
