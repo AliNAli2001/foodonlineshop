@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->string('password_hash')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('email_verified')->default(false);
@@ -26,6 +26,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->index('email');
+            $table->index('phone');
             $table->index('email_verified');
             $table->index('phone_verified');
         });
