@@ -1,0 +1,128 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\DamagedGoods;
+use App\Models\InventoryBatch;
+use App\Models\Product;
+use App\Models\ReturnItem;
+
+class DamagedGoodsService
+{
+    protected InventoryMovementService $inventoryMovementService;
+
+    public function __construct(InventoryMovementService $inventoryMovementService)
+    {
+        $this->inventoryMovementService = $inventoryMovementService;
+    }
+
+    /**
+     * Create a damaged goods record.
+     */
+    public function createDamagedGoods(array $data): DamagedGoods
+    {
+        $movementId = null;
+        // Verify product exists
+        Product::findOrFail($data['product_id']);
+
+        if ($data['source'] === 'inventory') {
+            $batch = InventoryBatch::findOrFail($data['inventory_batch_id']);
+
+            if ($batch->available_quantity < $data['quantity']) {
+                throw new \Exception(
+                    "Insufficient available quantity in the selected batch. " .
+                    "Available: {$batch->available_quantity}, Requested: {$data['quantity']}"
+                );
+            }
+
+            // Deduct from available quantity
+            $batch->decrement('available_quantity', $data['quantity']);
+
+            // Create inventory movement record
+            $movement = $this->inventoryMovementService->logMovement([
+                'product_id' => $data['product_id'],
+                'inventory_batch_id' => $batch->id,
+                'transaction_type' => 'damaged',
+                'quantity_change' => -$data['quantity'],
+                'reserved_change' => 0,
+                'cost_price' => $batch->cost_price,
+                'reason' => $data['reason'],
+                'reference' => 'Damaged goods reported',
+            ]);
+
+            $movementId = $movement->id;
+        }
+
+        // Create damaged goods record
+        $damagedGoods = DamagedGoods::create([
+            'product_id' => $data['product_id'],
+            'quantity' => $data['quantity'],
+            'source' => $data['source'],
+            'inventory_batch_id' => $data['source'] === 'inventory' ? $data['inventory_batch_id'] : null,
+            'return_item_id' => $data['source'] === 'returned' ? $data['return_item_id'] : null,
+            'inventory_movement_id' => $movementId,
+            'reason' => $data['reason'],
+        ]);
+
+        // Handle returned item deduction
+        if ($data['source'] === 'returned') {
+            $returnItem = ReturnItem::findOrFail($data['return_item_id']);
+
+            if ($returnItem->quantity < $data['quantity']) {
+                throw new \Exception('Cannot mark more as damaged than currently returned.');
+            }
+
+            $returnItem->decrement('quantity', $data['quantity']);
+        }
+
+        return $damagedGoods;
+    }
+
+    /**
+     * Get all damaged goods records.
+     */
+    public function getAllDamagedGoods(int $perPage = 15)
+    {
+        return DamagedGoods::with(['product', 'inventoryBatch', 'returnItem'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Get a specific damaged goods record.
+     */
+    public function getDamagedGoods(int $damagedGoodsId): DamagedGoods
+    {
+        return DamagedGoods::with([
+            'product',
+            'inventoryBatch',
+            'returnItem',
+            'inventoryMovement'
+        ])->findOrFail($damagedGoodsId);
+    }
+
+    /**
+     * Delete a damaged goods record.
+     */
+    public function deleteDamagedGoods(int $damagedGoodsId): bool
+    {
+        $damagedGoods = DamagedGoods::findOrFail($damagedGoodsId);
+        return $damagedGoods->delete();
+    }
+
+    /**
+     * Get available batches for a product.
+     */
+    public function getAvailableBatches(Product $product)
+    {
+        return $product->inventoryBatches()
+            ->where('available_quantity', '>', 0)
+            ->where(function ($q) {
+                $q->whereNull('expiry_date')
+                  ->orWhere('expiry_date', '>=', now()->toDateString());
+            })
+            ->where('status', 'active')
+            ->select(['id', 'batch_number', 'expiry_date', 'available_quantity', 'cost_price'])
+            ->get();
+    }
+}

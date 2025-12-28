@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\InventoryBatch;
+use App\Models\InventoryMovement;
+
 class Product extends Model
 {
     protected $table = 'products';
@@ -33,25 +36,31 @@ class Product extends Model
     /**
      * Get all inventory records for this product (multiple rows per product with different expiry dates).
      */
-    public function inventories(): HasMany
+    public function inventoryBatches(): HasMany
     {
-         return $this->hasMany(Inventory::class, 'product_id', 'id');
+        return $this->hasMany(InventoryBatch::class, 'product_id');
     }
 
-   /**
+    /**
      * Get all inventory transactions for this product.
      */
-    public function transactions()
+    // public function transactions()
+    // {
+    //     return $this->hasManyThrough(
+    //         InventoryTransaction::class, // Target model
+    //         Inventory::class,           // Intermediate model
+    //         'product_id',               // Foreign key on Inventory table
+    //         'inventory_id',             // Foreign key on InventoryTransaction table
+    //         'id',                       // Local key on Product table
+    //         'id'                        // Local key on Inventory table
+    //     );
+    // }
+
+    public function inventoryMovements(): HasMany
     {
-        return $this->hasManyThrough(
-            InventoryTransaction::class, // Target model
-            Inventory::class,           // Intermediate model
-            'product_id',               // Foreign key on Inventory table
-            'inventory_id',             // Foreign key on InventoryTransaction table
-            'id',                       // Local key on Product table
-            'id'                        // Local key on Inventory table
-        );
+        return $this->hasMany(InventoryMovement::class, 'product_id');
     }
+
 
     /**
      * Get all images for this product.
@@ -203,6 +212,4 @@ class Product extends Model
             ->where('expiry_date', '<', now()->toDate())
             ->get();
     }
-
 }
-

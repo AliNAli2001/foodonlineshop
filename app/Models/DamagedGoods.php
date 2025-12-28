@@ -13,8 +13,7 @@ class DamagedGoods extends Model
         'product_id',
         'quantity',
         'source',
-        'return_item_id',
-        'inventory_transaction_id',
+        'inventory_movement_id',
         'reason',
     ];
 
@@ -26,7 +25,6 @@ class DamagedGoods extends Model
     const SOURCES = [
         'inventory' => 'Inventory',
         'external' => 'External',
-        'returned' => 'Returned',
     ];
 
     /**
@@ -38,19 +36,10 @@ class DamagedGoods extends Model
     }
 
     /**
-     * Get the return item if this damage is from a return.
+     * Get the inventory movement associated with this damaged goods record.
      */
-    public function returnItem(): BelongsTo
+    public function inventoryMovement(): BelongsTo
     {
-        return $this->belongsTo(ReturnItem::class, 'return_item_id');
-    }
-
-    /**
-     * Get the inventory transaction associated with this damaged goods record.
-     */
-    public function inventoryTransaction(): BelongsTo
-    {
-        return $this->belongsTo(InventoryTransaction::class, 'inventory_transaction_id');
+        return $this->belongsTo(InventoryMovement::class, 'inventory_movement_id');
     }
 }
-

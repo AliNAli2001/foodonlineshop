@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->decimal('dollar_exchange_rate', 10, 4)->default(1.0000);
+            $table->decimal('dollar_exchange_rate', 12, 2)->default(1.00);
             $table->integer('general_minimum_alert_quantity')->default(10);
             $table->integer('max_order_items')->default(50);
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();

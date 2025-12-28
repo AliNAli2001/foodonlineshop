@@ -64,10 +64,10 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="price" class="form-label">السعر</label>
-                                <input type="number" class="form-control @error('price') is-invalid @enderror"
-                                    id="price" name="price" value="{{ old('price') }}" step="0.001" required>
-                                @error('price')
+                                <label for="selling_price" class="form-label">السعر</label>
+                                <input type="number" class="form-control @error('selling_price') is-invalid @enderror"
+                                    id="selling_price" name="selling_price" value="{{ old('selling_price') }}" step="0.001" required>
+                                @error('selling_price')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
                             </div>

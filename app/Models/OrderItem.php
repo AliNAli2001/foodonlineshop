@@ -10,8 +10,6 @@ class OrderItem extends Model
 {
     protected $table = 'order_items';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'order_id',
         'product_id',
@@ -28,6 +26,9 @@ class OrderItem extends Model
 
     protected $casts = [
         'unit_price' => 'decimal:3',
+        'subtotal' => 'decimal:3',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -59,11 +60,14 @@ class OrderItem extends Model
      */
     public function getSubtotal(): float
     {
-        return $this->quantity * $this->unit_price;
+        return $this->subtotal;
     }
-    public function inventory(): BelongsTo
+
+    /**
+     * Get the inventory batch for this order item.
+     */
+    public function inventoryBatch(): BelongsTo
     {
-        return $this->belongsTo(Inventory::class);
+        return $this->belongsTo(InventoryBatch::class, 'inventory_id');
     }
 }
-

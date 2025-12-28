@@ -3,22 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ReturnItem;
-use App\Models\OrderItem;
 use App\Models\Order;
+use App\Services\ReturnService;
 use Illuminate\Http\Request;
 
 class ReturnsController extends Controller
 {
+    protected ReturnService $returnService;
+
+    public function __construct(ReturnService $returnService)
+    {
+        $this->returnService = $returnService;
+    }
     /**
      * Show all returns.
      */
     public function index()
     {
-        $returns = ReturnItem::with(['order', 'orderItem.product'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
+        $returns = $this->returnService->getAllReturns();
         return view('admin.returns.index', compact('returns'));
     }
 
@@ -44,16 +46,14 @@ class ReturnsController extends Controller
             'reason' => 'nullable|string|max:255',
         ]);
 
-        $orderItem = OrderItem::findOrFail($validated['order_item_id']);
+        try {
+            $this->returnService->createReturn($validated);
 
-        if ($validated['quantity'] > $orderItem->quantity) {
-            return back()->withErrors(['quantity' => 'Return quantity cannot exceed order quantity.']);
+            return redirect()->route('admin.returns.index')
+                ->with('success', 'Return created successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
-
-        ReturnItem::create($validated);
-
-        return redirect()->route('admin.returns.index')
-            ->with('success', 'Return created successfully.');
     }
 
     /**
@@ -61,10 +61,12 @@ class ReturnsController extends Controller
      */
     public function show($returnId)
     {
-        $return = ReturnItem::with(['order', 'orderItem.product', 'damagedGoods'])
-            ->findOrFail($returnId);
-
-        return view('admin.returns.show', compact('return'));
+        try {
+            $return = $this->returnService->getReturn($returnId);
+            return view('admin.returns.show', compact('return'));
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -72,11 +74,14 @@ class ReturnsController extends Controller
      */
     public function destroy($returnId)
     {
-        $return = ReturnItem::findOrFail($returnId);
-        $return->delete();
+        try {
+            $this->returnService->deleteReturn($returnId);
 
-        return redirect()->route('admin.returns.index')
-            ->with('success', 'Return deleted successfully.');
+            return redirect()->route('admin.returns.index')
+                ->with('success', 'Return deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 }
 

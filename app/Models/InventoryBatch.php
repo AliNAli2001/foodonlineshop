@@ -6,30 +6,33 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Inventory extends Model
+class InventoryBatch extends Model
 {
-    protected $table = 'inventory';
+    protected $table = 'inventory_batches';
 
     protected $fillable = [
         'product_id',
-        'stock_quantity',
-        'reserved_quantity',
-        'minimum_alert_quantity',
-        'version',
-        'cost_price',
-        'expiry_date',
         'batch_number',
+        'expiry_date',
+        'available_quantity',
+        'reserved_quantity',
+        'cost_price',
+        'version',
+        'status',
     ];
 
     protected $casts = [
         'cost_price' => 'decimal:3',
-        'updated_at' => 'datetime',
-        'created_at' => 'datetime',
         'expiry_date' => 'date',
+        'available_quantity' => 'integer',
+        'reserved_quantity' => 'integer',
+        'version' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
-     * Get the product this inventory belongs to.
+     * Get the product this inventory batch belongs to.
      */
     public function product(): BelongsTo
     {
@@ -37,11 +40,11 @@ class Inventory extends Model
     }
 
     /**
-     * Get all transactions for this inventory.
+     * Get all transactions for this inventory batch.
      */
-    public function transactions(): HasMany
+    public function inventoryMovements(): HasMany
     {
-        return $this->hasMany(InventoryTransaction::class, 'inventory_id');
+        return $this->hasMany(InventoryMovement::class, 'inventory_batch_id');
     }
 
     /**
@@ -49,32 +52,24 @@ class Inventory extends Model
      */
     public function getAvailableStock(): int
     {
-        return $this->stock_quantity - $this->reserved_quantity;
+        return $this->available_quantity;
     }
 
     /**
-     * Check if stock is below minimum alert quantity.
-     */
-    public function isBelowMinimum(): bool
-    {
-        return $this->stock_quantity <= $this->minimum_alert_quantity;
-    }
-
-    /**
-     * Check if inventory has expired.
+     * Check if inventory batch has expired.
      */
     public function isExpired(): bool
     {
         if (!$this->expiry_date) {
             return false;
         }
-        return now()->toDate() > $this->expiry_date;
+        return now()->toDate() > $this->expiry_date || $this->status === 'expired';
     }
 
     /**
-     * Check if inventory is expiring soon (within 7 days).
+     * Check if inventory batch is expiring soon (within 7 days).
      */
-    public function isExpiringsoon(): bool
+    public function isExpiringSoon(): bool
     {
         if (!$this->expiry_date) {
             return false;
@@ -93,9 +88,12 @@ class Inventory extends Model
         }
         return now()->diffInDays($this->expiry_date, false);
     }
+
+    /**
+     * Get all order items for this inventory batch.
+     */
     public function orderItems(): HasMany
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'inventory_batch_id');
     }
 }
-

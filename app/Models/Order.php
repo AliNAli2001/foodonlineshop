@@ -2,19 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+    use HasFactory;
+
     protected $table = 'orders';
 
     protected $fillable = [
         'client_id',
+        'created_by_admin_id',
         'client_name',
         'client_phone_number',
-        'created_by_admin_id',
+        'order_date',
         'total_amount',
         'status',
         'order_source',
@@ -26,7 +30,6 @@ class Order extends Model
         'general_notes',
         'admin_order_client_notes',
         'delivery_id',
-
     ];
 
     protected $casts = [
@@ -99,7 +102,6 @@ class Order extends Model
         return $this->hasMany(ReturnItem::class, 'order_id');
     }
 
-
     /**
      * Prepare a copiable message based on the order's status.
      *
@@ -110,9 +112,7 @@ class Order extends Model
     {
         $status = $status ?? $this->status;
 
-
         // Common order details
-       
         $orderDetails = "رقم الطلب: {$this->id}\n";
         $orderDetails .= "اسم العميل: " . ($this->client_name ?? 'غير محدد') . "\n";
         $orderDetails .= "رقم الهاتف: " . ($this->client_phone_number ?? 'غير محدد') . "\n";
@@ -132,14 +132,13 @@ class Order extends Model
         $orderDetails .= "الإجمالي: {$this->total_amount}\n";
 
         // Delivery info (if applicable)
-        $deliveryInfo ="";
+        $deliveryInfo = "";
         if ($this->delivery) {
             $deliveryInfo = "-------------\nمعلومات التوصيل:\n";
             $deliveryInfo .= "اسم عامل التوصيل: " . ($this->delivery->full_name ?? 'غير محدد') . "\n";
             $deliveryInfo .= "رقم هاتف عامل التوصيل: " . ($this->delivery->phone ?? 'غير محدد') . "\n";
             // Add more delivery model fields as needed (assuming Delivery model has 'name', etc.)
             $deliveryInfo .= "ملاحظات الشحن: " . ($this->shipping_notes ?? 'لا توجد') . "\n-------------\n";
-               
         }
 
         // Status-specific message
