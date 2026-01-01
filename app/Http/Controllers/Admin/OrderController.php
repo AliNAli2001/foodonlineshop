@@ -165,4 +165,73 @@ class OrderController extends Controller
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
+    /**
+     * Search clients for autocomplete.
+     */
+    public function searchClients(Request $request)
+    {
+        $search = $request->get('q', '');
+
+        $clients = Client::where(function($query) use ($search) {
+            $query->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
+                  ->orWhere('phone', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+        })
+        ->limit(20)
+        ->get()
+        ->map(function($client) {
+            return [
+                'id' => $client->id,
+                'text' => "{$client->first_name} {$client->last_name} ({$client->phone})",
+                'first_name' => $client->first_name,
+                'last_name' => $client->last_name,
+                'phone' => $client->phone,
+            ];
+        });
+
+        return response()->json([
+            'results' => $clients
+        ]);
+    }
+
+    /**
+     * Search products for autocomplete with availability status.
+     */
+    public function searchProducts(Request $request)
+{
+    $search = $request->get('q', '');
+    $exclude = $request->get('exclude', []); // 👈 استلام المنتجات المختارة
+
+    $products = Product::with('stock')
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name_en', 'LIKE', "%{$search}%")
+                  ->orWhere('name_ar', 'LIKE', "%{$search}%");
+            });
+        })
+        ->when(!empty($exclude), function ($query) use ($exclude) {
+            $query->whereNotIn('id', $exclude); // 👈 منع التكرار
+        })
+        ->limit(30)
+        ->get()
+        ->map(function ($product) {
+            $availableStock = $product->total_available_stock;
+            $isAvailable = $availableStock > 0;
+
+            return [
+                'id' => $product->id,
+                'text' => "{$product->name_en} - \${$product->selling_price} (متاح: {$availableStock})",
+                'price' => $product->selling_price,
+                'available_stock' => $availableStock,
+                'disabled' => !$isAvailable,
+            ];
+        });
+
+    return response()->json([
+        'results' => $products
+    ]);
+}
+
 }

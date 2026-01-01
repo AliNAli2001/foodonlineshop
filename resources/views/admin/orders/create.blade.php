@@ -30,19 +30,15 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">اختر العميل</label>
-                            <select name="client_id" class="form-control @error('client_id') is-invalid @enderror">
+                            <select name="client_id" id="clientSelect"
+                                class="form-control @error('client_id') is-invalid @enderror">
                                 <option value="">-- بدون عميل (طلب إداري) --</option>
-                                @foreach ($clients as $client)
-                                    <option value="{{ $client->id }}"
-                                        {{ old('client_id') == $client->id ? 'selected' : '' }}>
-                                        {{ $client->first_name }} {{ $client->last_name }} ({{ $client->phone }})
-                                    </option>
-                                @endforeach
                             </select>
                             @error('client_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">اتركه فارغًا لإنشاء طلب بدون عميل.</small>
+                            <small class="form-text text-muted">ابحث عن العميل بالاسم أو رقم الهاتف، أو اتركه فارغًا لإنشاء
+                                طلب بدون عميل.</small>
                         </div>
                         <div class="mb-3">
                             <label for="client_name" class="form-label">اسم العميل (اختياري)</label>
@@ -167,6 +163,30 @@
                         <h5>عناصر الطلب</h5>
                     </div>
                     <div class="card-body">
+                        <template id="orderItemTemplate">
+                            <div class="order-item mb-3 p-3 border rounded">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">المنتج</label>
+                                        <select class="form-control product-select" required>
+                                            <option value="">-- ابحث عن المنتج --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">الكمية</label>
+                                        <input type="number" class="form-control quantity-input" min="1"
+                                            value="1" required>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="button" class="btn btn-danger w-100 remove-item">إزالة</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
                         <div id="itemsContainer">
                             <div class="order-item mb-3 p-3 border rounded">
                                 <div class="row">
@@ -174,12 +194,7 @@
                                         <label class="form-label">المنتج</label>
                                         <select name="products[0][product_id]" class="form-control product-select"
                                             required>
-                                            <option value="">-- اختر المنتج --</option>
-                                            @foreach ($products as $product)
-                                                <option value="{{ $product->id }}" data-price="{{ $product->price }}">
-                                                    {{ $product->name_en }} - ${{ number_format($product->price, 2) }}
-                                                </option>
-                                            @endforeach
+                                            <option value="">-- ابحث عن المنتج --</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
@@ -223,13 +238,161 @@
     </div>
 
 
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
+
+    <style>
+        /* Style for unavailable products in Select2 dropdown */
+        .select2-results__option[aria-disabled="true"] {
+            color: #999 !important;
+            background-color: #f5f5f5 !important;
+            font-style: italic;
+            cursor: not-allowed !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px;
+        }
+    </style>
+
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+
+    <!-- Leaflet Control Geocoder -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+
     <script>
-        let itemCount = 1;
+        
+
+        // Initialize Select2 for Client Search
+        $(document).ready(function() {
+             $('#addItemBtn').click();
+            $('#clientSelect').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- بدون عميل (طلب إداري) --',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('admin.orders.autocomplete.clients') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.results
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 0
+            });
+
+            // Initialize first product select
+            initializeProductSelect($('.product-select').first());
+        });
+
+        // Function to initialize Select2 on product select elements
+        function initializeProductSelect($element) {
+            $element.select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- ابحث عن المنتج --',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('admin.orders.autocomplete.products') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            exclude: Array.from(getSelectedProductIds())
+                        };
+                    },
+                    processResults: data => ({
+                        results: data.results
+                    }),
+                    cache: true
+                }
+            });
+
+            $element.on('select2:select', updateSummary);
+        }
+
+
+        // function initializeProductSelect($element) {
+        //     $element.select2({
+        //         theme: 'bootstrap-5',
+        //         placeholder: '-- ابحث عن المنتج --',
+        //         allowClear: true,
+        //         ajax: {
+        //             url: '{{ route('admin.orders.autocomplete.products') }}',
+        //             dataType: 'json',
+        //             delay: 250,
+        //             data: function(params) {
+        //                 return {
+        //                     q: params.term
+        //                 };
+        //             },
+        //             processResults: function(data) {
+        //                 return {
+        //                     results: data.results
+        //                 };
+        //             },
+        //             cache: true
+        //         },
+        //         minimumInputLength: 0,
+        //         templateResult: formatProductOption,
+        //         templateSelection: formatProductSelection
+        //     });
+
+        //     // Store price and stock data when product is selected
+        //     $element.on('select2:select', function(e) {
+        //         const data = e.params.data;
+        //         $(this).data('price', data.price);
+        //         $(this).data('available-stock', data.available_stock);
+        //         updateSummary();
+        //     });
+        // }
+
+        // Format product option in dropdown (with availability styling)
+        function formatProductOption(product) {
+            if (!product.id) {
+                return product.text;
+            }
+
+            const $option = $(
+                '<span style="' + (product.disabled ? 'color: #999; font-style: italic;' : '') + '">' +
+                product.text +
+                (product.disabled ? ' (غير متوفر)' : '') +
+                '</span>'
+            );
+
+            return $option;
+        }
+
+        // Format selected product
+        function formatProductSelection(product) {
+            return product.text || product.id;
+        }
 
         // DOM Elements
         const orderSource = document.getElementById('orderSource');
@@ -243,11 +406,11 @@
         function updateDeliveryOptions() {
             const source = orderSource.value;
             deliveryMethod.innerHTML =
-                '<option value="">-- Select --</option><option value="delivery" data-source="inside_city">Delivery (Select Delivery Person)</option><option value="hand_delivered" data-source="inside_city">Hand Delivered (Inside City)</option><option value="shipping" data-source="outside_city">Shipping (Outside City)</option>';
+                '<option value="">-- اختر --</option><option value="delivery" data-source="inside_city">توصيل (اختر عامل توصيل)</option><option value="hand_delivered" data-source="inside_city">استلام باليد</option><option value="shipping" data-source="outside_city">شحن (خارج المدينة)</option>';
             const options = deliveryMethod.querySelectorAll('option[data-source]');
 
             // Reset all options
-            deliveryMethod.innerHTML = '<option value="">-- Select --</option>';
+            deliveryMethod.innerHTML = '<option value="">-- اختر --</option>';
 
             options.forEach(option => {
                 if (!source || option.dataset.source === source) {
@@ -314,8 +477,8 @@
         let map;
         let marker;
         document.addEventListener('DOMContentLoaded', () => {
-            const defaultLat = {{ old('latitude', 52.3676) }};
-            const defaultLng = {{ old('longitude', 4.9041) }};
+            const defaultLat = {{ old('latitude', 33.51307) }};
+            const defaultLng = {{ old('longitude', 36.309581) }};
             const hasInitialCoords = '{{ old('latitude') }}' && '{{ old('longitude') }}';
 
             map = L.map('map').setView([defaultLat, defaultLng], 13);
@@ -328,6 +491,28 @@
                 marker = L.marker([defaultLat, defaultLng]).addTo(map);
             }
 
+
+            // ✅ ADD SEARCH CONTROL
+            const geocoder = L.Control.geocoder({
+                    defaultMarkGeocode: false,
+                    placeholder: 'ابحث عن مدينة أو عنوان...'
+                })
+                .on('markgeocode', function(e) {
+                    const latlng = e.geocode.center;
+
+                    map.setView(latlng, 14);
+
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+
+                    marker = L.marker(latlng).addTo(map);
+
+                    // Fill inputs
+                    document.querySelector('input[name="latitude"]').value = latlng.lat.toFixed(6);
+                    document.querySelector('input[name="longitude"]').value = latlng.lng.toFixed(6);
+                })
+                .addTo(map);
             map.on('click', function(e) {
                 if (marker) {
                     map.removeLayer(marker);
@@ -338,95 +523,75 @@
             });
         });
 
-        // === Order Items Logic (unchanged) ===
+        // === Order Items Logic ===
         function getSelectedProductIds() {
             const selectedIds = new Set();
-            document.querySelectorAll('.product-select').forEach(select => {
-                if (select.value) selectedIds.add(select.value);
+            $('.product-select').each(function() {
+                const val = $(this).val();
+                if (val) selectedIds.add(val);
             });
             return selectedIds;
         }
 
-        function updateProductSelectOptions() {
-            const selectedIds = getSelectedProductIds();
-            document.querySelectorAll('.product-select').forEach(select => {
-                const currentValue = select.value;
-                select.querySelectorAll('option').forEach(option => {
-                    if (option.value === '') return;
-                    option.disabled = selectedIds.has(option.value) && option.value !== currentValue;
-                });
-            });
-        }
-
         function updateSummary() {
             let total = 0,
-                itemCount = 0;
-            document.querySelectorAll('.order-item').forEach(item => {
-                const select = item.querySelector('.product-select');
-                const quantity = parseInt(item.querySelector('.quantity-input').value) || 0;
-                const price = parseFloat(select.selectedOptions[0]?.dataset.price) || 0;
-                if (select.value && quantity > 0) {
+                count = 0;
+            $('.order-item').each(function() {
+                const $select = $(this).find('.product-select');
+                const quantity = parseInt($(this).find('.quantity-input').val()) || 0;
+                const price = parseFloat($select.data('price')) || 0;
+
+                if ($select.val() && quantity > 0) {
                     total += price * quantity;
-                    itemCount++;
+                    count++;
                 }
             });
-            document.getElementById('totalItems').textContent = itemCount;
-            document.getElementById('totalAmount').textContent = total.toFixed(2);
+            $('#totalItems').text(count);
+            $('#totalAmount').text(total.toFixed(2));
         }
+        let itemCount = 0;
 
-        document.getElementById('addItemBtn').addEventListener('click', function() {
-            const container = document.getElementById('itemsContainer');
-            const newItem = document.querySelector('.order-item').cloneNode(true);
+        $('#addItemBtn').on('click', function() {
+            const template = document.getElementById('orderItemTemplate');
+            const clone = template.content.cloneNode(true);
+            const $row = $(clone).find('.order-item');
 
-            newItem.querySelector('.product-select').value = '';
-            newItem.querySelector('.quantity-input').value = '1';
-            newItem.querySelector('.remove-item').style.display = 'block';
+            // Set unique names
+            $row.find('.product-select').attr('name', `products[${itemCount}][product_id]`);
+            $row.find('.quantity-input').attr('name', `products[${itemCount}][quantity]`);
 
-            const inputs = newItem.querySelectorAll('input, select');
-            inputs.forEach(input => {
-                const name = input.name.replace(/\[\d+\]/, `[${itemCount}]`);
-                input.name = name;
-            });
+            $('#itemsContainer').append($row);
 
-            container.appendChild(newItem);
-            itemCount++;
+            // Init Select2 for THIS select only
+            initializeProductSelect($row.find('.product-select'));
 
             attachEventListeners();
-            updateProductSelectOptions();
             updateSummary();
+
+            itemCount++;
         });
 
+
         function attachEventListeners() {
-            document.querySelectorAll('.product-select').forEach(select => {
-                select.removeEventListener('change', handleProductChange);
-                select.addEventListener('change', handleProductChange);
+            // Attach quantity input listeners
+            $('.quantity-input').off('input').on('input', updateSummary);
+
+            // Attach remove button listeners
+            $('.remove-item').off('click').on('click', function() {
+                const $item = $(this).closest('.order-item');
+
+                // Destroy Select2 before removing
+                $item.find('.product-select').select2('destroy');
+
+                $item.remove();
+                updateSummary();
             });
-
-            document.querySelectorAll('.quantity-input').forEach(input => {
-                input.removeEventListener('input', updateSummary);
-                input.addEventListener('input', updateSummary);
-            });
-
-            document.querySelectorAll('.remove-item').forEach(btn => {
-                btn.removeEventListener('click', removeItem);
-                btn.addEventListener('click', removeItem);
-            });
-        }
-
-        function handleProductChange() {
-            updateProductSelectOptions();
-            updateSummary();
-        }
-
-        function removeItem(e) {
-            e.target.closest('.order-item').remove();
-            updateProductSelectOptions();
-            updateSummary();
         }
 
         // Initial setup
-        attachEventListeners();
-        updateProductSelectOptions();
-        updateSummary();
+        $(document).ready(function() {
+            attachEventListeners();
+            updateSummary();
+        });
     </script>
 @endsection

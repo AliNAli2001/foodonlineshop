@@ -23,7 +23,7 @@
 
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('admin.inventory.update', $inventory->id) }}" method="POST">
+                <form action="{{ route('admin.inventory.update', $batch->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -34,20 +34,10 @@
 
                     <div class="mb-3">
                         <label class="form-label">كمية المخزون</label>
-                        <input type="number" name="stock_quantity"
-                            class="form-control @error('stock_quantity') is-invalid @enderror"
-                            value="{{ old('stock_quantity', $inventory->stock_quantity) }}" required>
-                        @error('stock_quantity')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">تنبيه الحد الأدنى للكمية</label>
-                        <input type="number" name="minimum_alert_quantity"
-                            class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
-                            value="{{ old('minimum_alert_quantity', $inventory->minimum_alert_quantity) }}" required>
-                        @error('minimum_alert_quantity')
+                        <input type="number" name="available_quantity"
+                            class="form-control @error('available_quantity') is-invalid @enderror"
+                            value="{{ old('available_quantity', $batch->available_quantity) }}" required>
+                        @error('available_quantity')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -56,7 +46,7 @@
                         <label class="form-label">رقم الدفعة</label>
                         <input type="text" name="batch_number"
                             class="form-control @error('batch_number') is-invalid @enderror"
-                            value="{{ old('batch_number', $inventory->batch_number) }}" required>
+                            value="{{ old('batch_number', $batch->batch_number) }}" required>
                         @error('batch_number')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -66,7 +56,7 @@
                         <label class="form-label">سعر التكلفة</label>
                         <input type="number" name="cost_price" step="0.001"
                             class="form-control @error('cost_price') is-invalid @enderror"
-                            value="{{ old('cost_price', $inventory->cost_price) }}" required>
+                            value="{{ old('cost_price', $batch->cost_price) }}" required>
                         @error('cost_price')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -76,7 +66,7 @@
                         <label class="form-label">تاريخ الانتهاء</label>
                         <input type="date" name="expiry_date"
                             class="form-control @error('expiry_date') is-invalid @enderror"
-                            value="{{ old('expiry_date', $inventory->expiry_date->format('Y-m-d')) }}">
+                            value="{{ old('expiry_date', $batch->expiry_date->format('Y-m-d')) }}">
                         @error('expiry_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

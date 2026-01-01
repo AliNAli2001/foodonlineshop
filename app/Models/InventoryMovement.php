@@ -18,13 +18,17 @@ class InventoryMovement extends Model
         'transaction_type',
         'quantity_change',
         'reserved_change',
+        'expiry_date',
+        'batch_number',
         'cost_price',
+
         'reference',
         'reason',
     ];
 
     protected $casts = [
         'cost_price' => 'decimal:3',
+        'expiry_date' => 'datetime',
         'created_at' => 'datetime',
     ];
 

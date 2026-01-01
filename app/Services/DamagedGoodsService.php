@@ -10,10 +10,14 @@ use App\Models\ReturnItem;
 class DamagedGoodsService
 {
     protected InventoryMovementService $inventoryMovementService;
+    protected ProductStockService $productStockService;
 
-    public function __construct(InventoryMovementService $inventoryMovementService)
-    {
+    public function __construct(
+        InventoryMovementService $inventoryMovementService,
+        ProductStockService $productStockService
+    ) {
         $this->inventoryMovementService = $inventoryMovementService;
+        $this->productStockService = $productStockService;
     }
 
     /**
@@ -51,6 +55,9 @@ class DamagedGoodsService
             ]);
 
             $movementId = $movement->id;
+
+            // Update ProductStock: deduct from available
+            $this->productStockService->deductStock($data['product_id'], $data['quantity'], false);
         }
 
         // Create damaged goods record

@@ -7,7 +7,7 @@
             <h2>المخزون: {{ $product->name_en }}</h2>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ route('admin.inventory.edit', $inventory->id) }}" class="btn btn-warning">تعديل</a>
+            <a href="{{ route('admin.inventory.edit', $batch->id) }}" class="btn btn-warning">تعديل</a>
             <a href="{{ route('admin.inventory.product',$product->id) }}" class="btn btn-secondary">العودة إلى مخزون المنتج</a>
         </div>
     </div>
@@ -20,18 +20,19 @@
                 </div>
                 <div class="card-body">
                     <p><strong>المنتج:</strong> {{ $product->name_en }}</p>
-                    <p><strong>كمية المخزون:</strong> {{ $inventory->stock_quantity }}</p>
-                    <p><strong>رقم الدفعة:</strong> {{ $inventory->batch_number }}</p>
-                    <p><strong>تاريخ الانتهاء:</strong> {{ $inventory->expiry_date->format('Y-m-d') }}</p>
-                    <p><strong>سعر التكلفة:</strong> {{ $inventory->cost_price }}</p>
-                    <p><strong>الكمية المحجوزة:</strong> {{ $inventory->reserved_quantity }}</p>
-                    <p><strong>المتاح:</strong> {{ $inventory->getAvailableStock() }}</p>
-                    <p><strong>تنبيه الحد الأدنى:</strong> {{ $inventory->minimum_alert_quantity }}</p>
+                    <p><strong>كمية المخزون:</strong> {{ $batch->total_stock }}</p>
+                    <p><strong>رقم الدفعة:</strong> {{ $batch->batch_number }}</p>
+                    <p><strong>تاريخ الانتهاء:</strong> {{ $batch->expiry_date->format('Y-m-d') }}</p>
+                    <p><strong>سعر التكلفة:</strong> {{ $batch->cost_price }}</p>
+                    <p><strong>المتاح:</strong> {{ $batch->available_quantity }}</p>
+                    <p><strong>الكمية المحجوزة:</strong> {{ $batch->reserved_quantity }}</p>
+                   
+                
                     <p><strong>الحالة:</strong> 
-                        @if ($inventory->isBelowMinimum())
-                            <span class="badge bg-warning">أقل من الحد الأدنى</span>
+                        @if ($batch->isExpired())
+                            <span class="badge bg-warning">منتهي</span>
                         @else
-                            <span class="badge bg-success">سليم</span>
+                            <span class="badge bg-success">متاح</span>
                         @endif
                     </p>
                 </div>
@@ -44,7 +45,7 @@
             <h5>التحركات الأخيرة</h5>
         </div>
         <div class="card-body">
-            @if ($transactions->count() > 0)
+            @if ($movements->count() > 0)
                 <table class="table table-sm">
                     <thead>
                         <tr>
@@ -59,7 +60,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($transactions as $transaction)
+                        @foreach ($movements as $transaction)
                             <tr>
                                 <td><span class="badge bg-info">{{ ucfirst($transaction->transaction_type) }}</span></td>
                                 <td>{{ $transaction->quantity_change > 0 ? '+' : '' }}{{ $transaction->quantity_change }}</td>
@@ -73,7 +74,7 @@
                         @endforeach
                     </tbody>
                 </table>
-                {{ $transactions->links() }}
+                {{ $movements->links() }}
             @else
                 <p class="text-muted">لا توجد تحركات بعد</p>
             @endif

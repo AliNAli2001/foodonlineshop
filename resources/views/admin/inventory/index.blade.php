@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="card-body">
-                @if ($product->inventories->count() > 0)
+                @if ($product->inventoryBatches->count() > 0)
                     <table class="table table-sm table-hover">
                         <thead class="table-light">
                             <tr>
@@ -51,7 +51,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($product->inventories as $inventory)
+                            @foreach ($product->inventoryBatches as $inventory)
                                 <tr class="@if($inventory->isExpired()) table-danger @elseif($inventory->isExpiringSoon()) table-warning @endif">
                                     <td>
                                         @if ($inventory->batch_number)
@@ -80,12 +80,10 @@
                                     </td>
                                     <td>{{ $inventory->minimum_alert_quantity }}</td>
                                     <td>
-                                        @if ($inventory->isBelowMinimum())
-                                            <span class="badge bg-warning">أقل من الحد الأدنى</span>
-                                        @elseif ($inventory->isExpired())
+                                        @if ($inventory->isExpired())
                                             <span class="badge bg-danger">منتهي الصلاحية</span>
                                         @else
-                                            <span class="badge bg-success">سليم</span>
+                                            <span class="badge bg-success">متاح</span>
                                         @endif
                                     </td>
                                     <td>

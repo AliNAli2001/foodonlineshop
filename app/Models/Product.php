@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\InventoryBatch;
 use App\Models\InventoryMovement;
+use App\Models\ProductStock;
 
 class Product extends Model
 {
@@ -32,6 +33,14 @@ class Product extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get the product stock record (aggregated stock information).
+     */
+    public function stock(): HasOne
+    {
+        return $this->hasOne(ProductStock::class, 'product_id');
+    }
 
     /**
      * Get all inventory records for this product (multiple rows per product with different expiry dates).
@@ -111,32 +120,55 @@ class Product extends Model
     }
 
     /**
-     * Get total available stock quantity across all expiry dates (excluding expired).
-     */
-    /**
-     * Get total available stock quantity across all expiry dates (excluding expired).
+     * Get total available stock quantity (from ProductStock table if available, otherwise calculate).
      */
     public function getTotalAvailableStockAttribute(): int
     {
-        // Use the loaded inventories relationship if available
-        $inventories = $this->relationLoaded('inventoryBatches') ? $this->getRelation('inventoryBatches') : $this->inventoryBatches()->get();
+        // Use ProductStock if relationship is loaded or exists
+        if ($this->relationLoaded('stock') && $this->stock) {
+            return $this->stock->available_quantity;
+        }
+
+        // Try to load from database
+        $stock = $this->stock;
+        if ($stock) {
+            return $stock->available_quantity;
+        }
+
+        // Fallback: calculate from inventory batches
+        $inventories = $this->relationLoaded('inventoryBatches')
+            ? $this->getRelation('inventoryBatches')
+            : $this->inventoryBatches()->get();
 
         return $inventories
             ->filter(function ($inventory) {
                 return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
             })
             ->sum(function ($inventory) {
-                return $inventory->stock_quantity - $inventory->reserved_quantity;
+                return $inventory->available_quantity - $inventory->reserved_quantity;
             });
     }
 
     /**
-     * Get total reserved stock quantity across all expiry dates (excluding expired).
+     * Get total reserved stock quantity (from ProductStock table if available, otherwise calculate).
      */
     public function getTotalReservedStockAttribute(): int
     {
-        // Use the loaded inventories relationship if available
-        $inventories = $this->getRelation('inventoryBatches') ?? $this->inventoryBatches()->get();
+        // Use ProductStock if relationship is loaded or exists
+        if ($this->relationLoaded('stock') && $this->stock) {
+            return $this->stock->reserved_quantity;
+        }
+
+        // Try to load from database
+        $stock = $this->stock;
+        if ($stock) {
+            return $stock->reserved_quantity;
+        }
+
+        // Fallback: calculate from inventory batches
+        $inventories = $this->relationLoaded('inventoryBatches')
+            ? $this->getRelation('inventoryBatches')
+            : $this->inventoryBatches()->get();
 
         return $inventories
             ->filter(function ($inventory) {
@@ -146,18 +178,31 @@ class Product extends Model
     }
 
     /**
-     * Get total stock quantity across all expiry dates (excluding expired).
+     * Get total stock quantity (available + reserved).
      */
     public function getTotalStockAttribute(): int
     {
+        // Use ProductStock if available
+        if ($this->relationLoaded('stock') && $this->stock) {
+            return $this->stock->available_quantity + $this->stock->reserved_quantity;
+        }
 
-        // Use the loaded inventories relationship if available
-        $inventories = $this->relationLoaded('inventoryBatches') ? $this->getRelation('inventoryBatches') : $this->inventoryBatches()->get();
+        // Try to load from database
+        $stock = $this->stock;
+        if ($stock) {
+            return $stock->available_quantity + $stock->reserved_quantity;
+        }
+
+        // Fallback: calculate from inventory batches
+        $inventories = $this->relationLoaded('inventoryBatches')
+            ? $this->getRelation('inventoryBatches')
+            : $this->inventoryBatches()->get();
+
         return $inventories
             ->filter(function ($inventory) {
                 return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
             })
-            ->sum('stock_quantity');
+            ->sum('available_quantity');
     }
 
     /**
@@ -166,7 +211,7 @@ class Product extends Model
      */
     public function getTotalReserved(): int
     {
-        return $this->inventories()
+        return $this->inventoryBatches()
             ->where(function ($query) {
                 $query->whereNull('expiry_date')
                     ->orWhere('expiry_date', '>=', now()->toDate());
@@ -179,7 +224,7 @@ class Product extends Model
      */
     public function getAvailableStock(): int
     {
-        return $this->getTotalAvailableStock();
+        return $this->getTotalAvailableStockAttribute();
     }
 
     /**
@@ -187,7 +232,7 @@ class Product extends Model
      */
     public function isInStock(): bool
     {
-        return $this->getTotalAvailableStock() > 0;
+        return $this->getTotalAvailableStockAttribute() > 0;
     }
 
     /**
@@ -195,7 +240,7 @@ class Product extends Model
      */
     public function getInventoriesByExpiry()
     {
-        return $this->inventories()
+        return $this->inventoryBatches()
             ->where(function ($query) {
                 $query->whereNull('expiry_date')
                     ->orWhere('expiry_date', '>=', now()->toDate());
@@ -209,7 +254,7 @@ class Product extends Model
      */
     public function getExpiredInventories()
     {
-        return $this->inventories()
+        return $this->inventoryBatches()
             ->where('expiry_date', '<', now()->toDate())
             ->get();
     }

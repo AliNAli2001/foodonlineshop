@@ -12,10 +12,14 @@ use Exception;
 class OrderService
 {
     protected InventoryMovementService $inventoryMovementService;
+    protected ProductStockService $productStockService;
 
-    public function __construct(InventoryMovementService $inventoryMovementService)
-    {
+    public function __construct(
+        InventoryMovementService $inventoryMovementService,
+        ProductStockService $productStockService
+    ) {
         $this->inventoryMovementService = $inventoryMovementService;
+        $this->productStockService = $productStockService;
     }
 
     /**
@@ -61,6 +65,7 @@ class OrderService
                 $product = Product::findOrFail($item['product_id']);
                 $quantityToSell = $item['quantity'];
                 $unitPrice = $product->selling_price;
+                $totalDeducted = 0;
 
                 // Get active batches: oldest expiry first (true FIFO)
                 $batches = $product->inventoryBatches()
@@ -105,19 +110,23 @@ class OrderService
                         'inventory_batch_id' => $batch->id,
                         'transaction_type' => 'sale',
                         'quantity_change' => -$sellFromThisBatch,
-                        'reserved_change' => -$sellFromThisBatch,
+                        'reserved_change' => 0, // nothing reserved in admin order
                         'cost_price' => $batch->cost_price,
                         'reference' => "Admin Order #{$order->id}",
                         'reason' => 'Direct sale by admin',
                     ]);
 
                     $totalCostPrice += $batch->cost_price * $sellFromThisBatch;
+                    $totalDeducted += $sellFromThisBatch;
                     $quantityToSell -= $sellFromThisBatch;
                 }
 
                 if ($quantityToSell > 0) {
                     throw new Exception("Could not fulfill full quantity for product {$item['product_id']}.");
                 }
+
+                // Update ProductStock for this product
+                $this->productStockService->deductStock($item['product_id'], $totalDeducted, false);
             }
 
             $order->update(['cost_price' => $totalCostPrice]);
@@ -195,6 +204,7 @@ class OrderService
 
                 // Reserve stock using FIFO (oldest expiry first)
                 $quantityToReserve = $quantityRequested;
+                $totalReserved = 0;
                 $batches = $product->inventoryBatches()
                     ->where(function ($q) {
                         $q->whereNull('expiry_date')
@@ -231,12 +241,16 @@ class OrderService
                         'reason' => 'Order placement - stock reserved',
                     ]);
 
+                    $totalReserved += $reserveThisBatch;
                     $quantityToReserve -= $reserveThisBatch;
                 }
 
                 if ($quantityToReserve > 0) {
                     throw new Exception("Failed to reserve sufficient stock for product ID {$productId}.");
                 }
+
+                // Update ProductStock: move from available to reserved
+                $this->productStockService->reserveStock($productId, $totalReserved);
             }
 
             // Update order totals
@@ -264,6 +278,7 @@ class OrderService
             foreach ($order->items as $item) {
                 $product = $item->product;
                 $quantityToDeduct = $item->quantity;
+                $totalDeducted = 0;
 
                 $batches = $product->inventoryBatches()
                     ->where(function ($q) {
@@ -301,6 +316,7 @@ class OrderService
                             'reason' => 'Order confirmed by admin',
                         ]);
 
+                        $totalDeducted += $deductAmount;
                         $quantityToDeduct -= $deductAmount;
                     }
                 }
@@ -308,6 +324,9 @@ class OrderService
                 if ($quantityToDeduct > 0) {
                     throw new Exception("Insufficient stock to confirm order for product {$item->product_id}.");
                 }
+
+                // Update ProductStock: deduct from reserved
+                $this->productStockService->deductStock($item->product_id, $totalDeducted, true);
             }
 
             $order->update(['status' => 'confirmed']);
@@ -331,6 +350,7 @@ class OrderService
             foreach ($order->items as $item) {
                 $quantityToRelease = $item->quantity;
                 $product = $item->product;
+                $totalReleased = 0;
 
                 // Release from newest batches first (LIFO for cancellations)
                 $batches = $product->inventoryBatches()
@@ -357,8 +377,14 @@ class OrderService
                             'reason' => $reason,
                         ]);
 
+                        $totalReleased += $releaseAmount;
                         $quantityToRelease -= $releaseAmount;
                     }
+                }
+
+                // Update ProductStock: release reserved back to available
+                if ($totalReleased > 0) {
+                    $this->productStockService->releaseReservedStock($item->product_id, $totalReleased);
                 }
             }
 
@@ -394,6 +420,9 @@ class OrderService
                 'reference' => "Order #{$order->id} {$reasonPrefix}",
                 'reason' => $reasonPrefix,
             ]);
+
+            // Update ProductStock: add back to available
+            $this->productStockService->addStock($item->product_id, $item->quantity);
         }
     }
 

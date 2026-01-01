@@ -56,6 +56,13 @@ class InventoryBatch extends Model
     }
 
     /**
+     * Get total stock quantity.
+     */
+    public function getTotalStockAttribute(): int
+    {
+        return $this->available_quantity + $this->reserved_quantity;
+    }
+    /**
      * Check if inventory batch has expired.
      */
     public function isExpired(): bool

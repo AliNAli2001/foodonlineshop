@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('quantity_change');
             $table->integer('reserved_change')->default(0);
             $table->decimal('cost_price', 10, 2)->nullable();
+            $table->date('expiry_date')->nullable();
+            $table->string('batch_number');
             $table->string('reference')->nullable();
             $table->text('reason')->nullable();
             $table->timestamp('created_at')->useCurrent();

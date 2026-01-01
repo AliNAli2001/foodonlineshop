@@ -69,6 +69,10 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::put('/orders/{order}/update-delivery-method', [AdminOrderController::class, 'updateDeliveryMethod'])->name('orders.update-delivery-method');
     Route::post('/orders/{order}/update-status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
 
+    // Autocomplete routes for order creation
+    Route::get('/orders/autocomplete/clients', [AdminOrderController::class, 'searchClients'])->name('orders.autocomplete.clients');
+    Route::get('/orders/autocomplete/products', [AdminOrderController::class, 'searchProducts'])->name('orders.autocomplete.products');
+
     // Delivery
     Route::resource('delivery', DeliveryController::class);
 
