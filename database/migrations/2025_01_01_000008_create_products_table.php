@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name_en');
             $table->text('description_ar')->nullable();
             $table->text('description_en')->nullable();
-            $table->decimal('selling_price', 10, 3);
+            $table->decimal('selling_price', 10, 2);
             $table->integer('max_order_item')->nullable();
             $table->unsignedInteger('minimum_alert_quantity')->default(5);
             $table->boolean('featured')->default(false);

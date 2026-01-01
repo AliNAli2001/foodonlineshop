@@ -26,7 +26,7 @@
                     <tr>
                         <td>{{ $product->id }}</td>
                         <td>{{ $product->name_en }}</td>
-                        <td>${{ number_format($product->price, 2) }}</td>
+                        <td>${{ number_format($product->selling_price, 2) }}</td>
                         <td>{{ $product->total_available_stock }}</td>
                         <td>
                             @if ($product->featured)

@@ -6,8 +6,8 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <h2>المنتج: {{ $product->name_en }}</h2>
-            <p class="text-muted">{{ $product->name_ar }}</p>
+            <h2>المنتج: {{ $product->name_ar }}</h2>
+            <p class="text-muted">{{ $product->name_en }}</p>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('admin.inventory.create', $product->id) }}" class="btn btn-warning">+ إضافة مخزون</a>
@@ -38,7 +38,7 @@
                     <strong>تنبيه الحد الأدنى:</strong>
                     <p>
                         @php
-                            $minAlert = $inventories->min('minimum_alert_quantity');
+                            $minAlert = $batches->min('minimum_alert_quantity');
                         @endphp
                         {{ $minAlert ?? '—' }}
                     </p>
@@ -53,7 +53,7 @@
             <h5>دفعات المخزون</h5>
         </div>
         <div class="card-body">
-            @if ($inventories->count() > 0)
+            @if ($batches->count() > 0)
                 <table class="table table-sm table-hover align-middle">
                     <thead class="table-light">
                         <tr>
@@ -69,7 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($inventories as $inventory)
+                        @foreach ($batches as $inventory)
                             <tr class="@if($inventory->isExpired()) table-danger @elseif($inventory->isExpiringSoon()) table-warning @endif">
                                 <td>
                                     @if ($inventory->batch_number)
@@ -96,13 +96,13 @@
                                 <td><strong>{{ $inventory->getAvailableStock() }}</strong></td>
                                 <td>{{ $inventory->minimum_alert_quantity }}</td>
                                 <td>
-                                    @if ($inventory->isBelowMinimum())
+                                    {{-- @if ($inventory->isBelowMinimum())
                                         <span class="badge bg-warning">أقل من الحد الأدنى</span>
                                     @elseif ($inventory->isExpired())
                                         <span class="badge bg-danger">منتهي</span>
                                     @else
                                         <span class="badge bg-success">جيد</span>
-                                    @endif
+                                    @endif --}}
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.inventory.show', $inventory->id) }}" class="btn btn-sm btn-info" title="عرض الدفعة">
@@ -122,13 +122,13 @@
         </div>
     </div>
 
-    <!-- Recent Transactions -->
+    <!-- Recent Movements -->
     <div class="card">
         <div class="card-header">
             <h5>المعاملات الأخيرة</h5>
         </div>
         <div class="card-body">
-            @if ($transactions->count() > 0)
+            @if ($movements->count() > 0)
                 <table class="table table-sm align-middle">
                     <thead class="table-light">
                         <tr>
@@ -143,21 +143,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($transactions as $transaction)
+                        @foreach ($movements as $transaction)
                             <tr>
                                 <td><span class="badge bg-info">{{ ucfirst($transaction->transaction_type) }}</span></td>
                                 <td>{{ $transaction->quantity_change > 0 ? '+' : '' }}{{ $transaction->quantity_change }}</td>
                                 <td>{{ $transaction->reserved_change > 0 ? '+' : '' }}{{ $transaction->reserved_change }}</td>
                                 <td>{{ $transaction->reason }}</td>
                                 <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
-                                <td><a class="btn btn-sm btn-info" href="{{ route('admin.inventory.show', $transaction->inventory->id) }}"> <i class="fa fa-eye"></i> {{ $inventory->batch_number }}</a></td>
+                                <td><a class="btn btn-sm btn-info" href="{{ route('admin.inventory.show', $transaction->inventoryBatch->id) }}"> <i class="fa fa-eye"></i> {{ $inventory->batch_number }}</a></td>
                                 <td>{{ $transaction->expiry_date }}</td>
                                 <td>{{ $transaction->cost_price }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-                {{ $transactions->links() }}
+                {{ $movements->links() }}
             @else
                 <p class="text-muted mb-0">لا توجد معاملات بعد لهذا المنتج.</p>
             @endif

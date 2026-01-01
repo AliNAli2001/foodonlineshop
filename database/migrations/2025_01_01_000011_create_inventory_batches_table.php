@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('expiry_date')->nullable();
             $table->unsignedInteger('available_quantity')->default(0);
             $table->unsignedInteger('reserved_quantity')->default(0);
-            $table->decimal('cost_price', 10, 3);
+            $table->decimal('cost_price', 10, 2);
             $table->unsignedInteger('version')->default(1);
             $table->enum('status', ['active', 'expired', 'depleted'])->default('active');
             $table->timestamps();

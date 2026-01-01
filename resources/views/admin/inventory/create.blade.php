@@ -26,23 +26,14 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="stock_quantity" class="form-label">كمية المخزون</label>
-                                <input type="number" class="form-control @error('stock_quantity') is-invalid @enderror"
-                                    id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity') }}" required>
-                                @error('stock_quantity')
+                                <label for="available_quantity" class="form-label">كمية المخزون</label>
+                                <input type="number" class="form-control @error('available_quantity') is-invalid @enderror"
+                                    id="available_quantity" name="available_quantity" value="{{ old('available_quantity') }}" required>
+                                @error('available_quantity')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="col-md-6">
-                                <label for="minimum_alert_quantity" class="form-label">تنبيه الحد الأدنى للكمية</label>
-                                <input type="number"
-                                    class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
-                                    id="minimum_alert_quantity" name="minimum_alert_quantity"
-                                    value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}" required>
-                                @error('minimum_alert_quantity')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
-                            </div>
+                         
 
                         </div>
 

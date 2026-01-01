@@ -83,7 +83,7 @@ class ProductController extends Controller
             }
 
             return redirect()->route('admin.products.index')
-                ->with('success', 'Product created successfully.');
+                ->with('success', 'تمت إضافة المنتج بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -138,7 +138,7 @@ class ProductController extends Controller
             }
 
             return redirect()->route('admin.products.show', $product->id)
-                ->with('success', 'Product updated successfully.');
+                ->with('success', 'تم تحديث بيانات المنتج بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -179,7 +179,7 @@ class ProductController extends Controller
             $this->productService->deleteProduct($productId);
 
             return redirect()->route('admin.products.index')
-                ->with('success', 'Product deleted successfully.');
+                ->with('success', 'تم حذف المنتج بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

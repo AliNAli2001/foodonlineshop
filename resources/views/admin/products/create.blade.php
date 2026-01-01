@@ -66,7 +66,8 @@
                             <div class="col-md-6">
                                 <label for="selling_price" class="form-label">السعر</label>
                                 <input type="number" class="form-control @error('selling_price') is-invalid @enderror"
-                                    id="selling_price" name="selling_price" value="{{ old('selling_price') }}" step="0.001" required>
+                                    id="selling_price" name="selling_price" value="{{ old('selling_price') }}"
+                                    step="0.001" required>
                                 @error('selling_price')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -83,35 +84,38 @@
                         </div>
 
                         <!-- تفعيل حقول المخزون -->
+                        <!-- تفعيل المخزون المبدئي -->
                         <div class="mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="enable_inventory"
-                                    name="enable_inventory" value="1" {{ old('enable_inventory', 1) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="enable_inventory">
-                                    تفعيل حقول المخزون
+                                <input class="form-check-input" type="checkbox" id="enable_initial_stock"
+                                    name="enable_initial_stock" value="1"
+                                    {{ old('enable_initial_stock') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="enable_initial_stock">
+                                    إضافة مخزون مبدئي
                                 </label>
                             </div>
                         </div>
 
-                        <!-- حقول المخزون -->
+                        <!-- حقول المخزون المبدئي -->
                         <div id="inventory_fields">
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="stock_quantity" class="form-label">كمية المخزون</label>
-                                    <input type="number" class="form-control @error('stock_quantity') is-invalid @enderror"
-                                        id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity') }}"
-                                        required>
-                                    @error('stock_quantity')
+                                    <label class="form-label">كمية المخزون المبدئية</label>
+                                    <input type="number"
+                                        class="form-control @error('initial_stock_quantity') is-invalid @enderror"
+                                        name="initial_stock_quantity" value="{{ old('initial_stock_quantity') }}">
+                                    @error('initial_stock_quantity')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+
                                 <div class="col-md-6">
-                                    <label for="minimum_alert_quantity" class="form-label">حد التنبيه الأدنى</label>
+                                    <label class="form-label">حد التنبيه الأدنى</label>
                                     <input type="number"
                                         class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
-                                        id="minimum_alert_quantity" name="minimum_alert_quantity"
-                                        value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}" required>
+                                        name="minimum_alert_quantity"
+                                        value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}">
                                     @error('minimum_alert_quantity')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -120,22 +124,21 @@
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="expiry_date" class="form-label">
-                                        تاريخ الانتهاء
-                                    </label>
-                                    <input type="date" class="form-control @error('expiry_date') is-invalid @enderror"
-                                        id="expiry_date" name="expiry_date" value="{{ old('expiry_date') }}" required>
-                                    @error('expiry_date')
+                                    <label class="form-label">رقم الدفعة</label>
+                                    <input type="text"
+                                        class="form-control @error('initial_batch_number') is-invalid @enderror"
+                                        name="initial_batch_number" value="{{ old('initial_batch_number') }}">
+                                    @error('initial_batch_number')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
+
                                 <div class="col-md-6">
-                                    <label for="batch_number" class="form-label">
-                                        رقم الدفعة
-                                    </label>
-                                    <input type="text" class="form-control @error('batch_number') is-invalid @enderror"
-                                        id="batch_number" name="batch_number" value="{{ old('batch_number') }}" required>
-                                    @error('batch_number')
+                                    <label class="form-label">تاريخ الانتهاء</label>
+                                    <input type="date"
+                                        class="form-control @error('initial_expiry_date') is-invalid @enderror"
+                                        name="initial_expiry_date" value="{{ old('initial_expiry_date') }}">
+                                    @error('initial_expiry_date')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -143,16 +146,17 @@
 
                             <div class="row mb-3">
                                 <div class="col-md-12">
-                                    <label for="cost_price" class="form-label">سعر التكلفة</label>
-                                    <input type="number" class="form-control @error('cost_price') is-invalid @enderror"
-                                        id="cost_price" name="cost_price" value="{{ old('cost_price') }}"
-                                        step="0.001" required>
-                                    @error('cost_price')
+                                    <label class="form-label">سعر التكلفة</label>
+                                    <input type="number" step="0.001"
+                                        class="form-control @error('initial_cost_price') is-invalid @enderror"
+                                        name="initial_cost_price" value="{{ old('initial_cost_price') }}">
+                                    @error('initial_cost_price')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
                         </div>
+
 
                         <div class="mb-3">
                             <label for="categories" class="form-label">التصنيفات</label>
@@ -201,7 +205,7 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const enableInventoryCheckbox = document.getElementById('enable_inventory');
+            const enableInventoryCheckbox = document.getElementById('enable_initial_stock');
             const inventoryFieldsContainer = document.getElementById('inventory_fields');
             const inventoryInputs = inventoryFieldsContainer.querySelectorAll('input');
 

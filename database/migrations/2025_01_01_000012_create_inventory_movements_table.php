@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('transaction_type', ['sale', 'restock', 'reservation', 'adjustment', 'damaged']);
             $table->integer('quantity_change');
             $table->integer('reserved_change')->default(0);
-            $table->decimal('cost_price', 10, 3)->nullable();
+            $table->decimal('cost_price', 10, 2)->nullable();
             $table->string('reference')->nullable();
             $table->text('reason')->nullable();
             $table->timestamp('created_at')->useCurrent();

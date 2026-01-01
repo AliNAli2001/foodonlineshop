@@ -67,8 +67,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="selling_price" class="form-label">السعر</label>
-                                <input type="number" class="form-control @error('selling_price') is-invalid @enderror"
-                                    id="selling_price" name="selling_price" value="{{ $product->selling_price }}" step="0.01" required>
+                                <input type="text" class="form-control @error('selling_price') is-invalid @enderror"
+                                    id="selling_price" name="selling_price" value="{{ $product->selling_price }}" required>
                                 @error('selling_price')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror

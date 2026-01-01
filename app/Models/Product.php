@@ -21,13 +21,13 @@ class Product extends Model
         'name_en',
         'description_ar',
         'description_en',
-        'price',
+        'selling_price',
         'max_order_item',
         'featured',
     ];
 
     protected $casts = [
-        'price' => 'decimal:3',
+        'selling_price' => 'decimal:3',
         'featured' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -119,7 +119,7 @@ class Product extends Model
     public function getTotalAvailableStockAttribute(): int
     {
         // Use the loaded inventories relationship if available
-        $inventories = $this->relationLoaded('inventories') ? $this->getRelation('inventories') : $this->inventories()->get();
+        $inventories = $this->relationLoaded('inventoryBatches') ? $this->getRelation('inventoryBatches') : $this->inventoryBatches()->get();
 
         return $inventories
             ->filter(function ($inventory) {
@@ -136,7 +136,7 @@ class Product extends Model
     public function getTotalReservedStockAttribute(): int
     {
         // Use the loaded inventories relationship if available
-        $inventories = $this->getRelation('inventories') ?? $this->inventories()->get();
+        $inventories = $this->getRelation('inventoryBatches') ?? $this->inventoryBatches()->get();
 
         return $inventories
             ->filter(function ($inventory) {
@@ -150,8 +150,9 @@ class Product extends Model
      */
     public function getTotalStockAttribute(): int
     {
-        $inventories = $this->getRelation('inventories') ?? $this->inventories()->get();
 
+        // Use the loaded inventories relationship if available
+        $inventories = $this->relationLoaded('inventoryBatches') ? $this->getRelation('inventoryBatches') : $this->inventoryBatches()->get();
         return $inventories
             ->filter(function ($inventory) {
                 return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();

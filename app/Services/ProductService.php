@@ -18,12 +18,13 @@ class ProductService
      */
     public function createProduct(array $data): Product
     {
+       
         $product = Product::create([
             'name_ar' => $data['name_ar'],
             'name_en' => $data['name_en'],
             'description_ar' => $data['description_ar'] ?? null,
             'description_en' => $data['description_en'] ?? null,
-            'selling_price' => $data['selling_price'],
+            'selling_price' => $data['selling_price'] ?? 0,
             'max_order_item' => $data['max_order_item'] ?? null,
             'minimum_alert_quantity' => $data['minimum_alert_quantity'] ?? 5,
             'featured' => $data['featured'] ?? false,
@@ -43,6 +44,7 @@ class ProductService
                 'cost_price' => $data['initial_cost_price'],
             ]);
         }
+         
 
         return $product;
     }

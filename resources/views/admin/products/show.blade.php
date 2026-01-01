@@ -21,7 +21,7 @@
                 <div class="card-body">
                     <p><strong>الاسم (بالإنجليزية):</strong> {{ $product->name_en }}</p>
                     <p><strong>الاسم (بالعربية):</strong> {{ $product->name_ar }}</p>
-                    <p><strong>السعر:</strong> ${{ number_format($product->price, 2) }}</p>
+                    <p><strong>السعر:</strong> ${{ number_format($product->selling_price, 2) }}</p>
                     <p><strong>الحد الأقصى للطلب:</strong> {{ $product->max_order_item ?? 'غير محدود' }}</p>
                     <p><strong>مميز:</strong> 
                         <span class="badge {{ $product->featured ? 'bg-success' : 'bg-secondary' }}">
