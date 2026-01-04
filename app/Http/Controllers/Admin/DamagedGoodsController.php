@@ -68,7 +68,7 @@ class DamagedGoodsController extends Controller
             $this->damagedGoodsService->createDamagedGoods($validated);
 
             return redirect()->route('admin.damaged-goods.index')
-                ->with('success', 'Damaged goods record created successfully.');
+                ->with('success', 'تم تسجيل بيانات البضاعة المخربة بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -96,7 +96,7 @@ class DamagedGoodsController extends Controller
             $this->damagedGoodsService->deleteDamagedGoods($damagedGoodsId);
 
             return redirect()->route('admin.damaged-goods.index')
-                ->with('success', 'Damaged goods record deleted successfully.');
+                ->with('success', 'تم حذف بيانات البضاعة المخربة بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

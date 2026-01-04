@@ -36,7 +36,7 @@ class ProductCategoryController extends Controller
         $product->categories()->sync($validated['categories'] ?? []);
 
         return redirect()->route('admin.products.categories.index', $productId)
-            ->with('success', 'Product categories updated successfully.');
+            ->with('success', 'تم تحديث تصنيفات المنتج بنجاح');
     }
 }
 

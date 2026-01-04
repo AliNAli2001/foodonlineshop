@@ -64,7 +64,7 @@ class OrderController extends Controller
             $order = $this->orderService->createAdminOrder($validated, auth('admin')->id());
 
             return redirect()->route('admin.orders.show', $order->id)
-                ->with('success', 'Order created and confirmed successfully.');
+                ->with('success', 'تم إنشاء طلب يدوي بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -88,7 +88,7 @@ class OrderController extends Controller
     {
         try {
             $this->orderService->confirmOrder($orderId);
-            return back()->with('success', 'Order confirmed and stock deducted successfully.');
+            return back()->with('success', 'تم تأكيد الطلب و إنقاص الكمية من المستودع.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -103,7 +103,7 @@ class OrderController extends Controller
 
         try {
             $this->orderService->rejectOrder($orderId, $validated['reason']);
-            return back()->with('success', 'Order rejected and reservation released.');
+            return back()->with('success', 'تم رفض الطلب و تحرير البضاعة المحجوزة.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -126,7 +126,7 @@ class OrderController extends Controller
                 $validated['delivery_id'] ?? null
             );
 
-            return back()->with('success', "Order status updated to {$validated['status']}.");
+            return back()->with('success', "تم تحديث حالة الطلب إلى {$validated['status']}.");
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -141,7 +141,7 @@ class OrderController extends Controller
 
         try {
             $this->orderService->assignDelivery($orderId, $validated['delivery_id']);
-            return back()->with('success', 'Delivery person assigned.');
+            return back()->with('success', 'تم إسناد الطلب لعامل التوصيل بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -160,7 +160,7 @@ class OrderController extends Controller
 
         try {
             $this->orderService->updateDeliveryMethod($orderId, $validated);
-            return back()->with('success', 'Delivery method updated.');
+            return back()->with('success', 'تم تحديث طريقة التوصيل بنجاح');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

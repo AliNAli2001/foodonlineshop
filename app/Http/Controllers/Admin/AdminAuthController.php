@@ -31,12 +31,12 @@ class AdminAuthController extends Controller
         $admin = Admin::where('email', $validated['email'])->first();
 
         if (!$admin || !Hash::check($validated['password'], $admin->password_hash)) {
-            return back()->withErrors(['email' => 'Invalid credentials.']);
+            return back()->withErrors(['email' => 'بيانات ملغوطة.']);
         }
 
         Auth::guard('admin')->login($admin);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Logged in successfully.');
+        return redirect()->route('admin.dashboard')->with('success', 'تم تسجيل الدخول و بنجاح.');
     }
 
     /**
@@ -45,7 +45,7 @@ class AdminAuthController extends Controller
     public function logout()
     {
         Auth::guard('admin')->logout();
-        return redirect()->route('admin.login')->with('success', 'Logged out successfully.');
+        return redirect()->route('admin.login')->with('success', 'تم تسجيل الخروج بنجاح.');
     }
 }
 

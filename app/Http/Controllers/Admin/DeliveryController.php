@@ -44,7 +44,7 @@ class DeliveryController extends Controller
         Delivery::create($validated);
 
         return redirect()->route('admin.delivery.index')
-            ->with('success', 'Delivery person created successfully.');
+            ->with('success', 'تمت إضافة عامل توصيل بنجاح.');
     }
 
     /**
@@ -88,7 +88,7 @@ class DeliveryController extends Controller
         $delivery->update($validated);
 
         return redirect()->route('admin.delivery.index')
-            ->with('success', 'Delivery person updated successfully.');
+            ->with('success', 'تم تحديث بيانات عامل التوصيل بنجاح.');
     }
 
     /**
@@ -100,7 +100,7 @@ class DeliveryController extends Controller
         $delivery->delete();
 
         return redirect()->route('admin.delivery.index')
-            ->with('success', 'Delivery person deleted successfully.');
+            ->with('success', 'تم حذف بيانات عامل التوصيل بنجاح.');
     }
 }
 

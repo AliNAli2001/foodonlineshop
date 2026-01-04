@@ -32,7 +32,7 @@ class SettingsController extends Controller
         $settings->update($validated);
 
         return redirect()->route('admin.settings.index')
-            ->with('success', 'Settings updated successfully.');
+            ->with('success', 'تم تحديث الإعدادات بنجاح.');
     }
 }
 

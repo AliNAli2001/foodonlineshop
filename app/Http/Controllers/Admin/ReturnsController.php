@@ -50,7 +50,7 @@ class ReturnsController extends Controller
             $this->returnService->createReturn($validated);
 
             return redirect()->route('admin.returns.index')
-                ->with('success', 'Return created successfully.');
+                ->with('success', 'تم إنشاء المرتجع بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -78,7 +78,7 @@ class ReturnsController extends Controller
             $this->returnService->deleteReturn($returnId);
 
             return redirect()->route('admin.returns.index')
-                ->with('success', 'Return deleted successfully.');
+                ->with('success', 'تم حذف المرتجع بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

@@ -49,7 +49,7 @@ class InventoryController extends Controller
             $this->inventoryService->createBatch($productId, $validated);
 
             return redirect()->route('admin.inventory.product', $product->id)
-                ->with('success', 'New inventory batch added successfully.');
+                ->with('success', 'تمت إضافة دفعة مستودع جديدة للمنتج.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -119,7 +119,7 @@ class InventoryController extends Controller
             $batch = $this->inventoryService->updateBatch($batchId, $validated);
 
             return redirect()->route('admin.inventory.show', $batch->id)
-                ->with('success', 'Inventory batch updated successfully.');
+                ->with('success', 'تم تحديث بيانات دفعة المستودع.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

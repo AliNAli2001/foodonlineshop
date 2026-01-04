@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\OrderItem;
-use App\Models\InventoryTransaction;
+use App\Models\InventoryMovement;
 
 class ProductDetailsController extends Controller
 {
@@ -24,7 +24,7 @@ class ProductDetailsController extends Controller
             ->get();
 
         // Get recent inventory transactions
-        $recentInventory = InventoryTransaction::where('product_id', $productId)
+        $recentInventory = InventoryMovement::where('product_id', $productId)
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
