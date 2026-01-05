@@ -35,6 +35,11 @@ class ProductService
             $product->categories()->attach($data['categories']);
         }
 
+         // Attach tags
+        if (!empty($data['tags'])) {
+            $product->tags()->attach($data['tags']);
+        }
+
         // Create initial inventory batch if enabled
         if ($data['enable_initial_stock'] ?? false) {
             $this->inventoryService->createBatch($product->id, [
@@ -72,6 +77,11 @@ class ProductService
             $product->categories()->sync($data['categories']);
         }
 
+        // Update tags if provided
+        if (isset($data['tags'])) {
+            $product->tags()->sync($data['tags']);
+        }
+
         return $product;
     }
 
@@ -80,7 +90,7 @@ class ProductService
      */
     public function getAllProducts(int $perPage = 15)
     {
-        return Product::with(['inventoryBatches', 'categories', 'primaryImage'])
+        return Product::with(['inventoryBatches', 'categories', 'tags', 'primaryImage'])
             ->paginate($perPage);
     }
 
@@ -89,7 +99,7 @@ class ProductService
      */
     public function getProduct(int $productId): Product
     {
-        return Product::with(['inventory', 'categories', 'images'])
+        return Product::with(['inventory', 'categories', 'tags', 'images'])
             ->findOrFail($productId);
     }
 

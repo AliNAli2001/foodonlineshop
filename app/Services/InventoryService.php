@@ -105,8 +105,22 @@ class InventoryService
             'stock',
             'inventoryBatches' => function ($q) {
                 $q->orderByRaw('expiry_date IS NULL ASC')
-                  ->orderBy('expiry_date', 'asc');
+                    ->orderBy('expiry_date', 'asc');
             }
+        ])
+            ->has('inventoryBatches')
+            ->paginate($perPage);
+    }
+
+
+    /**
+     * Get all products with out inventory batches.
+     */
+    public function getAllProductsWithoutBatches(int $perPage = 10)
+    {
+        return Product::with([
+            'stock',
+
         ])
             ->has('inventoryBatches')
             ->paginate($perPage);

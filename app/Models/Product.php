@@ -95,6 +95,15 @@ class Product extends Model
         return $this->belongsToMany(Category::class, 'product_categories', 'product_id', 'category_id');
     }
 
+
+    /**
+     * Get all tags this product belongs to.
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'product_tags', 'product_id', 'tag_id');
+    }
+
     /**
      * Get all order items for this product.
      */

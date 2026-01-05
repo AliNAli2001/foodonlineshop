@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Tag;
 use App\Models\ProductImage;
 use App\Models\Setting;
 use App\Services\ProductService;
@@ -24,7 +25,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['inventoryBatches', 'categories', 'primaryImage'])->paginate(15);
+        $products = Product::with(['inventoryBatches', 'categories', 'tags', 'primaryImage'])->paginate(15);
 
         return view('admin.products.index', compact('products'));
     }
@@ -35,11 +36,13 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all();
+        $tags = Tag::all();
         $maxOrderItems = Setting::get('max_order_items');
         $generalMinimumAlertQuantity = Setting::get('general_minimum_alert_quantity');
 
         return view('admin.products.create', compact(
             'categories',
+            'tags',
             'maxOrderItems',
             'generalMinimumAlertQuantity'
         ));
@@ -61,6 +64,8 @@ class ProductController extends Controller
             'featured' => 'boolean',
             'categories' => 'array',
             'categories.*' => 'exists:categories,id',
+            'tags' => 'array',
+            'tags.*' => 'exists:tags,id',
 
             // Initial inventory batch (optional)
             'enable_initial_stock' => 'boolean',
@@ -94,10 +99,11 @@ class ProductController extends Controller
      */
     public function edit($productId)
     {
-        $product = Product::with(['categories', 'images'])->findOrFail($productId);
+        $product = Product::with(['categories', 'tags', 'images'])->findOrFail($productId);
         $categories = Category::all();
+        $tags = Tag::all();
 
-        return view('admin.products.edit', compact('product', 'categories'));
+        return view('admin.products.edit', compact('product', 'tags', 'categories'));
     }
 
     /**
@@ -116,6 +122,8 @@ class ProductController extends Controller
             'featured' => 'boolean',
             'categories' => 'array',
             'categories.*' => 'exists:categories,id',
+            'tags' => 'array',
+            'tags.*' => 'exists:tags,id',
 
             // Image management
             'image_ids_to_delete' => 'nullable|array',

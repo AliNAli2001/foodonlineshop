@@ -60,7 +60,7 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        $products = $this->inventoryService->getAllProductsWithBatches();
+        $products = $this->inventoryService->getAllProductsWithOutBatches();
         return view('admin.inventory.index', compact('products'));
     }
 

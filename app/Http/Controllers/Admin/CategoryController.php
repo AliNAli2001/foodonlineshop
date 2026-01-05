@@ -52,7 +52,7 @@ class CategoryController extends Controller
         ]);
 
         return redirect()->route('admin.categories.index')
-            ->with('success', 'Category created successfully.');
+            ->with('success', 'تم إنشاء الصنف بنجاح.');
     }
 
     /**
@@ -104,7 +104,7 @@ class CategoryController extends Controller
         ]);
 
         return redirect()->route('admin.categories.index')
-            ->with('success', 'Category updated successfully.');
+            ->with('success', 'تم تحديث الصنف بنجاح.');
     }
 
     /**
@@ -116,7 +116,7 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()->route('admin.categories.index')
-            ->with('success', 'Category deleted successfully.');
+            ->with('success', 'تم حذف الصنف بنجاح.');
     }
 }
 

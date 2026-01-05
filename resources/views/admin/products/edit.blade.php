@@ -99,6 +99,21 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="tags" class="form-label">الوسوم</label>
+                            <div>
+                                @foreach ($tags as $tag)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="tags[]"
+                                            id="tag_{{ $tag->id }}" value="{{ $tag->id }}"
+                                            {{ $product->tags->contains($tag->id) ? 'checked' : '' }}>
+                                        <label class="form-check-label"
+                                            for="tag_{{ $tag->id }}">{{ $tag->name_en }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">الصور الحالية</label>
                             @if ($product->images->count() > 0)
                                 <div class="row">

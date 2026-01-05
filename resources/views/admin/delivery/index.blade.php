@@ -36,7 +36,7 @@
                             <form action="{{ route('admin.delivery.destroy', $delivery->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد؟')">حذف</button>
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')">حذف</button>
                             </form>
                             <a href="{{ route('admin.delivery.show', $delivery->id) }}" class="btn btn-sm btn-info">عرض</a>
                         </td>

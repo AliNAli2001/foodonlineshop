@@ -172,6 +172,20 @@
                             </div>
                         </div>
 
+                         <div class="mb-3">
+                            <label for="tags" class="form-label">الوسوم</label>
+                            <div>
+                                @foreach ($tags as $tag)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="tags[]"
+                                            id="tag_{{ $tag->id }}" value="{{ $tag->id }}">
+                                        <label class="form-check-label"
+                                            for="tag_{{ $tag->id }}">{{ $tag->name_ar }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="images" class="form-label">صور المنتج</label>
                             <input type="file" class="form-control @error('images') is-invalid @enderror"

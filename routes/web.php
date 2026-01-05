@@ -11,11 +11,13 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\MessageTemplateController;
 use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\ProductTagController;
 use App\Http\Controllers\Admin\ProductDetailsController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ReturnsController;
@@ -55,8 +57,14 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/products/{product}/categories', [ProductCategoryController::class, 'index'])->name('products.categories.index');
     Route::put('/products/{product}/categories', [ProductCategoryController::class, 'update'])->name('products.categories.update');
 
+    Route::get('/products/{product}/tags', [ProductTagController::class, 'index'])->name('products.tags.index');
+    Route::put('/products/{product}/tags', [ProductTagController::class, 'update'])->name('products.tags.update');
+
     // Categories
     Route::resource('categories', AdminCategoryController::class);
+
+    // Tags
+    Route::resource('tags', AdminTagController::class);
 
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
