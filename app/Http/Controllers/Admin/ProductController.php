@@ -228,4 +228,11 @@ class ProductController extends Controller
             }
         }
     }
+
+    public function batches($productId)
+    {
+        $product = Product::with(['inventoryBatches' => fn($q) => $q->orderBy('expiry_date')])->findOrFail($productId);
+        return response()->json($product);
+    }
+
 }

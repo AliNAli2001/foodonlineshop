@@ -60,7 +60,7 @@ class DamagedGoodsController extends Controller
             'quantity' => 'required|integer|min:1',
             'source' => 'required|in:inventory,external,returned',
             'inventory_batch_id' => 'required_if:source,inventory|nullable|exists:inventory_batches,id',
-            'return_item_id' => 'required_if:source,returned|nullable|exists:return_items,id',
+           
             'reason' => 'required|string|max:500',
         ]);
 

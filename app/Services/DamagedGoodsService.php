@@ -66,8 +66,6 @@ class DamagedGoodsService
             'quantity' => $data['quantity'],
             'source' => $data['source'],
             'inventory_batch_id' => $data['source'] === 'inventory' ? $data['inventory_batch_id'] : null,
-            'return_item_id' => $data['source'] === 'returned' ? $data['return_item_id'] : null,
-            'inventory_movement_id' => $movementId,
             'reason' => $data['reason'],
         ]);
 

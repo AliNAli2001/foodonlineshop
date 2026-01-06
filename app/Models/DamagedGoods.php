@@ -13,7 +13,7 @@ class DamagedGoods extends Model
         'product_id',
         'quantity',
         'source',
-        'inventory_movement_id',
+        'inventory_batch_id',
         'reason',
     ];
 
@@ -38,8 +38,8 @@ class DamagedGoods extends Model
     /**
      * Get the inventory movement associated with this damaged goods record.
      */
-    public function inventoryMovement(): BelongsTo
+    public function inventoryBatch(): BelongsTo
     {
-        return $this->belongsTo(InventoryMovement::class, 'inventory_movement_id');
+        return $this->belongsTo(InventoryBatch::class, 'inventory_batch_id');
     }
 }

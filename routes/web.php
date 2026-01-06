@@ -54,6 +54,7 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
     // Products
     Route::resource('products', AdminProductController::class);
+    Route::get('/products/{product}/batches', [AdminProductController::class, 'batches'])->name('products.batches');
     Route::get('/products/{product}/categories', [ProductCategoryController::class, 'index'])->name('products.categories.index');
     Route::put('/products/{product}/categories', [ProductCategoryController::class, 'update'])->name('products.categories.update');
 
