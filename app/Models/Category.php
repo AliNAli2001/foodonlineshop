@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
@@ -13,7 +13,6 @@ class Category extends Model
         'name_ar',
         'name_en',
         'featured',
-        'type',
         'category_image',
     ];
 
@@ -23,17 +22,13 @@ class Category extends Model
         'updated_at' => 'datetime',
     ];
 
-    const TYPES = [
-        'company' => 'Company',
-        'class' => 'Class',
-    ];
 
     /**
      * Get all products in this category.
-     */
-    public function products(): BelongsToMany
+     */ 
+    public function products(): HasMany
     {
-        return $this->belongsToMany(Product::class, 'product_categories', 'category_id', 'product_id');
+        return $this->hasMany(Product::class, 'category_id');
     }
 
     /**
@@ -44,4 +39,3 @@ class Category extends Model
         return $language === 'ar' ? $this->name_ar : $this->name_en;
     }
 }
-

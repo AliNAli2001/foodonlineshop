@@ -21,6 +21,8 @@
                 <div class="card-body">
                     <p><strong>الاسم (بالإنجليزية):</strong> {{ $product->name_en }}</p>
                     <p><strong>الاسم (بالعربية):</strong> {{ $product->name_ar }}</p>
+                    <p><strong>الشركة:</strong> {{ $product->company?->name_ar ?? 'غير محددة' }}</p>
+                    <p><strong>الفئة:</strong> {{ $product->category?->name_ar ?? 'غير محددة' }}</p>
                     <p><strong>السعر:</strong> ${{ number_format($product->selling_price, 2) }}</p>
                     <p><strong>الحد الأقصى للطلب:</strong> {{ $product->max_order_item ?? 'غير محدود' }}</p>
                     <p><strong>مميز:</strong> 
@@ -58,18 +60,20 @@
         </div>
     </div>
 
-    <div class="row mb-4">
+    
+
+     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>الفئات</h5>
+                    <h5>الوسوم</h5>
                 </div>
                 <div class="card-body">
-                    @if ($product->categories->count() > 0)
+                    @if ($product->tags->count() > 0)
                         <div class="row">
-                            @foreach ($product->categories as $category)
+                            @foreach ($product->tags as $tag)
                                 <div class="col-md-3 mb-2">
-                                    <span class="badge bg-info">{{ $category->name_ar }}</span>
+                                    <span class="badge bg-info">{{ $tag->name_ar }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -111,7 +115,7 @@
         <div class="col-md-12">
             <div class="d-flex gap-2">
                 <a href="{{ route('admin.inventory.product', $product->id) }}" class="btn btn-info">عرض المخزون</a>
-                <a href="{{ route('admin.products.categories.index', $product->id) }}" class="btn btn-secondary">إدارة الفئات</a>
+                <a href="{{ route('admin.products.tags.index', $product->id) }}" class="btn btn-secondary">إدارة الوسوم</a>
                 <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">العودة إلى المنتجات</a>
             </div>
         </div>

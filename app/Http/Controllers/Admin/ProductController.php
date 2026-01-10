@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Company;
 use App\Models\Tag;
 use App\Models\ProductImage;
 use App\Models\Setting;
@@ -25,7 +26,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['inventoryBatches', 'categories', 'tags', 'primaryImage'])->paginate(15);
+        $products = Product::with(['inventoryBatches', 'company', 'category', 'tags', 'primaryImage'])->paginate(15);
 
         return view('admin.products.index', compact('products'));
     }
@@ -37,12 +38,14 @@ class ProductController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
+        $companies = Company::all();
         $maxOrderItems = Setting::get('max_order_items');
         $generalMinimumAlertQuantity = Setting::get('general_minimum_alert_quantity');
 
         return view('admin.products.create', compact(
             'categories',
             'tags',
+            'companies',
             'maxOrderItems',
             'generalMinimumAlertQuantity'
         ));
@@ -62,8 +65,8 @@ class ProductController extends Controller
             'max_order_item' => 'nullable|integer|min:1',
             'minimum_alert_quantity' => 'nullable|integer|min:0',
             'featured' => 'boolean',
-            'categories' => 'array',
-            'categories.*' => 'exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
+            'company_id' => 'exists:companies,id',
             'tags' => 'array',
             'tags.*' => 'exists:tags,id',
 
@@ -99,11 +102,12 @@ class ProductController extends Controller
      */
     public function edit($productId)
     {
-        $product = Product::with(['categories', 'tags', 'images'])->findOrFail($productId);
+        $product = Product::with(['category', 'tags', 'images'])->findOrFail($productId);
         $categories = Category::all();
+        $companies = Company::all();
         $tags = Tag::all();
 
-        return view('admin.products.edit', compact('product', 'tags', 'categories'));
+        return view('admin.products.edit', compact('product', 'tags', 'companies', 'categories'));
     }
 
     /**
@@ -120,8 +124,9 @@ class ProductController extends Controller
             'max_order_item' => 'nullable|integer|min:1',
             'minimum_alert_quantity' => 'nullable|integer|min:0',
             'featured' => 'boolean',
-            'categories' => 'array',
-            'categories.*' => 'exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
+
+            'company_id' => 'exists:companies,id',
             'tags' => 'array',
             'tags.*' => 'exists:tags,id',
 
@@ -159,7 +164,9 @@ class ProductController extends Controller
     {
         $product = Product::with([
             'inventoryBatches' => fn($q) => $q->orderBy('expiry_date'),
-            'categories',
+            'category',
+            'company',
+            'tags',
             'images' => fn($q) => $q->orderBy('is_primary', 'desc')->orderBy('id')
         ])->findOrFail($productId);
 
@@ -234,5 +241,4 @@ class ProductController extends Controller
         $product = Product::with(['inventoryBatches' => fn($q) => $q->orderBy('expiry_date')])->findOrFail($productId);
         return response()->json($product);
     }
-
 }

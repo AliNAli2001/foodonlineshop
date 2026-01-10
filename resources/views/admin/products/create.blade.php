@@ -157,22 +157,45 @@
                             </div>
                         </div>
 
-
-                        <div class="mb-3">
-                            <label for="categories" class="form-label">التصنيفات</label>
-                            <div>
-                                @foreach ($categories as $category)
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="categories[]"
-                                            id="category_{{ $category->id }}" value="{{ $category->id }}">
-                                        <label class="form-check-label"
-                                            for="category_{{ $category->id }}">{{ $category->name_ar }}</label>
-                                    </div>
-                                @endforeach
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="company_id" class="form-label">الشركة</label>
+                                <select name="company_id" id="company_id"
+                                    class="form-control @error('company_id') is-invalid @enderror">
+                                    <option value="">-- اختر الشركة --</option>
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                            {{ $company->name_ar }} - {{ $company->name_en }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('company_id')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
-                         <div class="mb-3">
+                        <div class="mb-3">
+                            <label for="category_id" class="form-label">التصنيف</label>
+                            <select name="category_id" id="category_id"
+                                class="form-control @error('category_id') is-invalid @enderror" required>
+                                <option value="">-- اختر التصنيف --</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name_ar }} - {{ $category->name_en }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('category_id')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+
+                        <div class="mb-3">
                             <label for="tags" class="form-label">الوسوم</label>
                             <div>
                                 @foreach ($tags as $tag)

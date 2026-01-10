@@ -39,6 +39,8 @@ class InventoryService
         $this->inventoryMovementService->logMovement([
             'product_id' => $product->id,
             'inventory_batch_id' => $batch->id,
+            'batch_number' => $data['batch_number'],
+            'expiry_date' => $data['expiry_date'] ?? null,
             'transaction_type' => 'restock',
             'quantity_change' => $data['available_quantity'],
             'reserved_change' => 0,

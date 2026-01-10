@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CompanyController as AdminCompanyController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\DeliveryController;
@@ -55,14 +56,17 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     // Products
     Route::resource('products', AdminProductController::class);
     Route::get('/products/{product}/batches', [AdminProductController::class, 'batches'])->name('products.batches');
-    Route::get('/products/{product}/categories', [ProductCategoryController::class, 'index'])->name('products.categories.index');
-    Route::put('/products/{product}/categories', [ProductCategoryController::class, 'update'])->name('products.categories.update');
+    //Route::get('/products/{product}/categories', [ProductCategoryController::class, 'index'])->name('products.categories.index');
+    //Route::put('/products/{product}/categories', [ProductCategoryController::class, 'update'])->name('products.categories.update');
 
     Route::get('/products/{product}/tags', [ProductTagController::class, 'index'])->name('products.tags.index');
     Route::put('/products/{product}/tags', [ProductTagController::class, 'update'])->name('products.tags.update');
 
     // Categories
     Route::resource('categories', AdminCategoryController::class);
+
+    // Companies
+    Route::resource('companies', AdminCompanyController::class);
 
     // Tags
     Route::resource('tags', AdminTagController::class);

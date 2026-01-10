@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\InventoryBatch;
@@ -24,6 +25,9 @@ class Product extends Model
         'description_en',
         'selling_price',
         'max_order_item',
+        'minimum_alert_quantity',
+        'company_id',
+        'category_id',
         'featured',
     ];
 
@@ -88,12 +92,15 @@ class Product extends Model
     }
 
     /**
-     * Get all categories this product belongs to.
+     * Get category that this product belongs to.
      */
-    public function categories(): BelongsToMany
+
+
+    public function category(): BelongsTo
     {
-        return $this->belongsToMany(Category::class, 'product_categories', 'product_id', 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
+
 
 
     /**
@@ -102,6 +109,14 @@ class Product extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'product_tags', 'product_id', 'tag_id');
+    }
+
+    /**
+     * Get product company
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 
     /**

@@ -16,7 +16,6 @@
                     <th>الرقم</th>
                     <th>الاسم (إنجليزي)</th>
                     <th>الاسم (عربي)</th>
-                    <th>النوع</th>
                     <th>مميز</th>
                     <th>الإجراءات</th>
                 </tr>
@@ -27,7 +26,6 @@
                         <td>{{ $category->id }}</td>
                         <td>{{ $category->name_en }}</td>
                         <td>{{ $category->name_ar }}</td>
-                        <td><span class="badge bg-info">{{ ucfirst($category->type) }}</span></td>
                         <td>
                             @if ($category->featured)
                                 <span class="badge bg-success">نعم</span>

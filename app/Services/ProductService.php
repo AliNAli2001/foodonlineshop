@@ -18,7 +18,7 @@ class ProductService
      */
     public function createProduct(array $data): Product
     {
-       
+
         $product = Product::create([
             'name_ar' => $data['name_ar'],
             'name_en' => $data['name_en'],
@@ -26,16 +26,13 @@ class ProductService
             'description_en' => $data['description_en'] ?? null,
             'selling_price' => $data['selling_price'] ?? 0,
             'max_order_item' => $data['max_order_item'] ?? null,
+            'company_id' => $data['company_id'] ?? null,
+            'category_id' => $data['category_id'] ?? null,
             'minimum_alert_quantity' => $data['minimum_alert_quantity'] ?? 5,
             'featured' => $data['featured'] ?? false,
         ]);
 
-        // Attach categories
-        if (!empty($data['categories'])) {
-            $product->categories()->attach($data['categories']);
-        }
-
-         // Attach tags
+        // Attach tags
         if (!empty($data['tags'])) {
             $product->tags()->attach($data['tags']);
         }
@@ -49,7 +46,7 @@ class ProductService
                 'cost_price' => $data['initial_cost_price'],
             ]);
         }
-         
+
 
         return $product;
     }
@@ -68,14 +65,12 @@ class ProductService
             'description_en' => $data['description_en'] ?? $product->description_en,
             'selling_price' => $data['selling_price'] ?? $product->selling_price,
             'max_order_item' => $data['max_order_item'] ?? $product->max_order_item,
+            'company_id' => $data['company_id'] ?? $product->company_id,
+            'category_id' => $data['category_id'] ?? $product->category_id,
             'minimum_alert_quantity' => $data['minimum_alert_quantity'] ?? $product->minimum_alert_quantity,
             'featured' => $data['featured'] ?? $product->featured,
         ]);
 
-        // Update categories if provided
-        if (isset($data['categories'])) {
-            $product->categories()->sync($data['categories']);
-        }
 
         // Update tags if provided
         if (isset($data['tags'])) {
@@ -90,7 +85,7 @@ class ProductService
      */
     public function getAllProducts(int $perPage = 15)
     {
-        return Product::with(['inventoryBatches', 'categories', 'tags', 'primaryImage'])
+        return Product::with(['inventoryBatches', 'category', 'tags', 'primaryImage'])
             ->paginate($perPage);
     }
 
@@ -99,7 +94,7 @@ class ProductService
      */
     public function getProduct(int $productId): Product
     {
-        return Product::with(['inventory', 'categories', 'tags', 'images'])
+        return Product::with(['inventory', 'category', 'company', 'tags', 'images'])
             ->findOrFail($productId);
     }
 

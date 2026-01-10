@@ -34,7 +34,6 @@ class CategoryController extends Controller
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'featured' => 'boolean',
-            'type' => 'required|in:company,class',
             'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -47,7 +46,6 @@ class CategoryController extends Controller
             'name_ar' => $validated['name_ar'],
             'name_en' => $validated['name_en'],
             'featured' => $validated['featured'] ?? false,
-            'type' => $validated['type'],
             'category_image' => $imagePath,
         ]);
 
@@ -86,7 +84,6 @@ class CategoryController extends Controller
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'featured' => 'boolean',
-            'type' => 'required|in:company,class',
             'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -99,7 +96,6 @@ class CategoryController extends Controller
             'name_ar' => $validated['name_ar'],
             'name_en' => $validated['name_en'],
             'featured' => $validated['featured'] ?? false,
-            'type' => $validated['type'],
             'category_image' => $imagePath,
         ]);
 

@@ -3,7 +3,7 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-md-12">
-        <h1>إضافة تصنيف</h1>
+        <h1>إضافة شركة</h1>
     </div>
 </div>
 
@@ -21,7 +21,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.companies.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="mb-3">
@@ -42,28 +42,21 @@
                         @enderror
                     </div>
 
-                    
+                  
 
                     <div class="mb-3">
-                        <label for="category_image" class="form-label">صورة التصنيف</label>
-                        <input type="file" class="form-control @error('category_image') is-invalid @enderror"
-                               id="category_image" name="category_image" accept="image/*">
-                        @error('category_image')
+                        <label for="logo" class="form-label">صورة الشركة</label>
+                        <input type="file" class="form-control @error('logo') is-invalid @enderror"
+                               id="logo" name="logo" accept="image/*">
+                        @error('logo')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="featured" name="featured" value="1">
-                            <label class="form-check-label" for="featured">
-                                مميز
-                            </label>
-                        </div>
-                    </div>
+                 
 
-                    <button type="submit" class="btn btn-primary">إنشاء التصنيف</button>
-                    <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">إلغاء</a>
+                    <button type="submit" class="btn btn-primary">إضافة الشركة</button>
+                    <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary">إلغاء</a>
                 </form>
             </div>
         </div>

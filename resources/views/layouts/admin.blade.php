@@ -33,6 +33,9 @@
                         <a class="nav-link" href="{{ route('admin.categories.index') }}">الفئات</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.companies.index') }}">الشركات</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('admin.tags.index') }}">الوسوم</a>
                     </li>
                     <li class="nav-item">

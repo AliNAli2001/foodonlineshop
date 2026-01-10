@@ -16,14 +16,12 @@ return new class extends Migration
             $table->string('name_ar');
             $table->string('name_en');
             $table->boolean('featured')->default(false);
-            $table->enum('type', ['company', 'class'])->default('class');
             $table->string('category_image')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->index('name_ar');
             $table->index('name_en');
             $table->index('featured');
-            $table->index('type');
         });
     }
 

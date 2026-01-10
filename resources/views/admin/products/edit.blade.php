@@ -82,21 +82,43 @@
                                 @enderror
                             </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="categories" class="form-label">الفئات</label>
-                            <div>
-                                @foreach ($categories as $category)
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="categories[]"
-                                            id="category_{{ $category->id }}" value="{{ $category->id }}"
-                                            {{ $product->categories->contains($category->id) ? 'checked' : '' }}>
-                                        <label class="form-check-label"
-                                            for="category_{{ $category->id }}">{{ $category->name_en }}</label>
-                                    </div>
-                                @endforeach
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="company_id" class="form-label">الشركة</label>
+                                <select name="company_id" id="company_id"
+                                    class="form-control @error('company_id') is-invalid @enderror">
+                                    <option value="">-- اختر الشركة --</option>
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ old('company_id', $product->company_id) == $company->id ? 'selected' : '' }}>
+                                            {{ $company->name_ar }} - {{ $company->name_en }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('company_id')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="category_id" class="form-label">التصنيف</label>
+                            <select name="category_id" id="category_id"
+                                class="form-control @error('category_id') is-invalid @enderror" required>
+                                <option value="">-- اختر التصنيف --</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name_ar }} - {{ $category->name_en }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('category_id')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
 
                         <div class="mb-3">
                             <label for="tags" class="form-label">الوسوم</label>
@@ -125,9 +147,11 @@
                                                 <span class="badge bg-primary">رئيسية</span>
                                             @endif
                                             <div class="form-check mt-2">
-                                                <input class="form-check-input" type="checkbox" name="image_ids_to_delete[]"
-                                                    id="image_{{ $image->id }}" value="{{ $image->id }}">
-                                                <label class="form-check-label" for="image_{{ $image->id }}">حذف هذه الصورة</label>
+                                                <input class="form-check-input" type="checkbox"
+                                                    name="image_ids_to_delete[]" id="image_{{ $image->id }}"
+                                                    value="{{ $image->id }}">
+                                                <label class="form-check-label" for="image_{{ $image->id }}">حذف هذه
+                                                    الصورة</label>
                                             </div>
                                         </div>
                                     @endforeach
@@ -139,8 +163,8 @@
 
                         <div class="mb-3">
                             <label for="images" class="form-label">إضافة صور جديدة للمنتج</label>
-                            <input type="file" class="form-control @error('images') is-invalid @enderror" id="images"
-                                name="images[]" accept="image/*" multiple>
+                            <input type="file" class="form-control @error('images') is-invalid @enderror"
+                                id="images" name="images[]" accept="image/*" multiple>
                             <small class="form-text text-muted">يمكنك اختيار عدة صور لإضافتها لهذا المنتج.</small>
                             @error('images')
                                 <span class="invalid-feedback">{{ $message }}</span>
