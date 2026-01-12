@@ -30,16 +30,32 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">اختر العميل</label>
-                            <select name="client_id" id="clientSelect"
-                                class="form-control @error('client_id') is-invalid @enderror">
-                                <option value="">-- بدون عميل (طلب إداري) --</option>
-                            </select>
+
+                            <div class="d-flex gap-2 align-items-center p-3">
+                                <input type="text" id="selectedClientName" class="form-control" disabled
+                                    placeholder="لم يتم اختيار عميل">
+
+                                <input type="hidden" name="client_id" id="selectedClientId" value="{{ old('client_id') }}">
+
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#clientModal">
+                                    اختيار
+                                </button>
+
+                                <button type="button" class="btn btn-danger" id="clearClientBtn">
+                                    مسح
+                                </button>
+                            </div>
+
                             @error('client_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">ابحث عن العميل بالاسم أو رقم الهاتف، أو اتركه فارغًا لإنشاء
-                                طلب بدون عميل.</small>
+
+                            <small class="form-text text-muted">
+                                ابحث عن العميل بالاسم أو رقم الهاتف، أو اتركه فارغًا لإنشاء طلب بدون عميل.
+                            </small>
                         </div>
+
                         <div class="mb-3">
                             <label for="client_name" class="form-label">اسم العميل (اختياري)</label>
                             <input type="text" class="form-control @error('client_name') is-invalid @enderror"
@@ -237,6 +253,31 @@
         </div>
     </div>
 
+    <div class="modal fade" id="clientModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title">اختيار عميل</h5>
+                    <button type="button" class="btn btn-close m-0" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="text" id="clientSearchInput" class="form-control mb-3"
+                        placeholder="ابحث بالاسم أو رقم الهاتف...">
+
+                    <div id="clientsList" class="list-group">
+                        <div class="text-muted text-center">ابدأ بالبحث...</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -279,33 +320,10 @@
 
 
     <script>
-        
-
         // Initialize Select2 for Client Search
         $(document).ready(function() {
-             $('#addItemBtn').click();
-            $('#clientSelect').select2({
-                theme: 'bootstrap-5',
-                placeholder: '-- بدون عميل (طلب إداري) --',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('admin.orders.autocomplete.clients') }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            q: params.term
-                        };
-                    },
-                    processResults: function(data) {
-                        return {
-                            results: data.results
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 0
-            });
+            $('#addItemBtn').click();
+            
 
             // Initialize first product select
             initializeProductSelect($('.product-select').first());
@@ -592,6 +610,67 @@
         $(document).ready(function() {
             attachEventListeners();
             updateSummary();
+        });
+
+
+        // ================= CLIENT MODAL SEARCH =================
+
+        // Search clients via AJAX
+        $('#clientSearchInput').on('input', function() {
+            let query = $(this).val().trim();
+
+            if (query.length < 1) {
+                $('#clientsList').html('<div class="text-muted text-center">ابدأ بالبحث...</div>');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route('admin.orders.autocomplete.clients') }}',
+                data: {
+                    q: query
+                },
+                success: function(data) {
+                    let html = '';
+
+                    if (data.results.length === 0) {
+                        html = '<div class="text-muted text-center">لا توجد نتائج</div>';
+                    } else {
+                        data.results.forEach(client => {
+                            html += `
+                        <button type="button"
+                            class="list-group-item list-group-item-action select-client"
+                            data-id="${client.id}"
+                            data-name="${client.text}">
+                            ${client.text}
+                        </button>
+                    `;
+                        });
+                    }
+
+                    $('#clientsList').html(html);
+                },
+                error: function() {
+                    $('#clientsList').html(
+                        '<div class="text-danger text-center">حدث خطأ أثناء البحث</div>');
+                }
+            });
+        });
+
+        // Select client from modal
+        $(document).on('click', '.select-client', function() {
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+
+            $('#selectedClientId').val(id);
+            $('#selectedClientName').val(name);
+
+            $('#clientModal').modal('hide');
+        });
+
+        // Clear selected client
+        $('#clearClientBtn').on('click', function() {
+            $('#selectedClientId').val('');
+            $('#selectedClientName').val('');
         });
     </script>
 @endsection

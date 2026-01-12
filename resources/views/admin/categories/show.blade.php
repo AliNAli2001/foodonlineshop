@@ -69,7 +69,7 @@
                                 <td>
                                     <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-sm btn-info">عرض</a>
                                     <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-warning">تعديل</a>
-                                    <a href="{{ route('admin.products.categories.index', $product->id) }}" class="btn btn-sm btn-secondary">التصنيفات</a>
+                                    {{-- <a href="{{ route('admin.products.categories.index', $product->id) }}" class="btn btn-sm btn-secondary">التصنيفات</a> --}}
                                 </td>
                             </tr>
                         @endforeach
