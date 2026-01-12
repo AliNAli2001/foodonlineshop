@@ -65,8 +65,8 @@ class ProductController extends Controller
             'max_order_item' => 'nullable|integer|min:1',
             'minimum_alert_quantity' => 'nullable|integer|min:0',
             'featured' => 'boolean',
-            'category_id' => 'required|exists:categories,id',
-            'company_id' => 'exists:companies,id',
+            'category_id' => 'nullable|exists:categories,id',
+            'company_id' => 'nullable|exists:companies,id',
             'tags' => 'array',
             'tags.*' => 'exists:tags,id',
 
@@ -124,9 +124,9 @@ class ProductController extends Controller
             'max_order_item' => 'nullable|integer|min:1',
             'minimum_alert_quantity' => 'nullable|integer|min:0',
             'featured' => 'boolean',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
 
-            'company_id' => 'exists:companies,id',
+            'company_id' => 'nullable|exists:companies,id',
             'tags' => 'array',
             'tags.*' => 'exists:tags,id',
 

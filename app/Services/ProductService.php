@@ -19,6 +19,8 @@ class ProductService
     public function createProduct(array $data): Product
     {
 
+
+    
         $product = Product::create([
             'name_ar' => $data['name_ar'],
             'name_en' => $data['name_en'],
@@ -31,7 +33,6 @@ class ProductService
             'minimum_alert_quantity' => $data['minimum_alert_quantity'] ?? 5,
             'featured' => $data['featured'] ?? false,
         ]);
-
         // Attach tags
         if (!empty($data['tags'])) {
             $product->tags()->attach($data['tags']);

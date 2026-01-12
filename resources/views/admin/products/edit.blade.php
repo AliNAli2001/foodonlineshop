@@ -104,7 +104,7 @@
                         <div class="mb-3">
                             <label for="category_id" class="form-label">التصنيف</label>
                             <select name="category_id" id="category_id"
-                                class="form-control @error('category_id') is-invalid @enderror" required>
+                                class="form-control @error('category_id') is-invalid @enderror">
                                 <option value="">-- اختر التصنيف --</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}"

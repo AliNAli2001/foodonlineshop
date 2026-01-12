@@ -17,20 +17,22 @@ class DashboardController extends Controller
      */
     public function index(InventoryQueryService $service)
     {
-        $totalOrders = Order::count();
+       
         $pendingOrders = Order::where('status', 'pending')->count();
-        $totalProducts = Product::count();
+        $confirmedOrders = Order::where('status', 'confirmed')->count();
+       
         $totalClients = Client::count();
         $lowStockProducts = $service->lowStockProducts();
+        $lowStockProductsCount = $service->lowStockProducts()->count() ?? 0;
 
 
 
         $recentOrders = Order::latest()->take(5)->with('client')->get();
 
         return view('admin.dashboard', compact(
-            'totalOrders',
+            'lowStockProductsCount',
             'pendingOrders',
-            'totalProducts',
+            'confirmedOrders',
             'totalClients',
             'lowStockProducts',
             'recentOrders'

@@ -1,38 +1,98 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <style>
+        .top-card {
+            box-shadow: 0px 0px 2px rgb(96, 92, 92);
+        }
+
+        .card-border-primary {
+            border-bottom: 4px solid #0d6efd;
+        }
+
+        .card-border-success {
+            border-bottom: 4px solid #198754;
+        }
+
+        .card-border-warning {
+            border-bottom: 4px solid #ffc107;
+        }
+
+        .card-border-danger {
+            border-bottom: 4px solid #dc3545;
+        }
+
+        .card-border-info {
+            border-bottom: 4px solid #0dcaf0;
+        }
+
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0d6efd;
+            background-color: #e7f1ff;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .action-link i {
+            font-size: 12px;
+        }
+
+        .action-link:hover {
+            background-color: #0d6efd;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(13, 110, 253, 0.25);
+        }
+
+
+
+        td,
+        th {
+            vertical-align: middle;
+        }
+    </style>
+@endpush
+
 @section('content')
     <h1>لوحة التحكم</h1>
 
     <div class="row mt-4">
         <div class="col-md-3 mb-3">
-            <div class="card">
+            <div class="card top-card card-border-primary">
                 <div class="card-body">
-                    <h5 class="card-title">إجمالي الطلبات</h5>
-                    <p class="card-text display-4">{{ $totalOrders }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">الطلبات المعلقة</h5>
+                    <h5 class="card-title">الطلبات الجديدة</h5>
                     <p class="card-text display-4">{{ $pendingOrders }}</p>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="card">
+            <div class="card top-card card-border-success">
                 <div class="card-body">
-                    <h5 class="card-title">إجمالي المنتجات</h5>
-                    <p class="card-text display-4">{{ $totalProducts }}</p>
+                    <h5 class="card-title">الطلبات المؤكدة</h5>
+                    <p class="card-text display-4">{{ $confirmedOrders }}</p>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="card">
+            <div class="card top-card card-border-danger">
+                <div class="card-body">
+                    <h5 class="card-title">منتجات منخفضة المخزون</h5>
+                    <p class="card-text display-4">{{ $lowStockProductsCount }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card top-card card-border-info">
                 <div class="card-body">
                     <h5 class="card-title">إجمالي الزبائن</h5>
                     <p class="card-text display-4">{{ $totalClients }}</p>
@@ -55,14 +115,17 @@
                                     <th>المنتج</th>
                                     <th>كمية المخزن</th>
                                     <th>حد التحذير</th>
+                                    <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($lowStockProducts as $inventory)
+                                @foreach ($lowStockProducts as $product)
                                     <tr>
-                                        <td>{{ $inventory->product->name_en }}</td>
-                                        <td>{{ $inventory->stock_quantity }}</td>
-                                        <td>{{ $inventory->minimum_alert_quantity }}</td>
+                                        <td>{{ $product->name_en }}</td>
+                                        <td>{{ $product->total_stock }}</td>
+                                        <td>{{ $product->minimum_alert_quantity }}</td>
+                                        <td><a href="{{ route('admin.inventory.product', $product->id) }}"
+                                                class="action-link">عرض<i class="fa fa-eye"></i></a></td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -87,6 +150,7 @@
                                 <th>الزبون</th>
                                 <th>الإجمالي</th>
                                 <th>الحالة</th>
+                                <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -103,6 +167,8 @@
                                     <td><span
                                             class="badge bg-info">{{ \App\Models\Order::STATUSES[$order->status] ?? 'غير معروفة' }}
                                         </span></td>
+                                    <td><a href="{{ route('admin.orders.show', $order->id) }}" class="action-link">عرض<i
+                                                class="fa fa-eye"></i></a></td>
                                 </tr>
                             @endforeach
                         </tbody>

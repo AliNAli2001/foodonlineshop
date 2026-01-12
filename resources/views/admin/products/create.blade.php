@@ -82,6 +82,18 @@
                                 @enderror
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">حد التنبيه الأدنى</label>
+                                <input type="number"
+                                    class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
+                                    name="minimum_alert_quantity"
+                                    value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}">
+                                @error('minimum_alert_quantity')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
 
                         <!-- تفعيل حقول المخزون -->
                         <!-- تفعيل المخزون المبدئي -->
@@ -110,16 +122,7 @@
                                     @enderror
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label">حد التنبيه الأدنى</label>
-                                    <input type="number"
-                                        class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
-                                        name="minimum_alert_quantity"
-                                        value="{{ old('minimum_alert_quantity', $generalMinimumAlertQuantity) }}">
-                                    @error('minimum_alert_quantity')
-                                        <span class="invalid-feedback">{{ $message }}</span>
-                                    @enderror
-                                </div>
+
                             </div>
 
                             <div class="row mb-3">
@@ -179,7 +182,7 @@
                         <div class="mb-3">
                             <label for="category_id" class="form-label">التصنيف</label>
                             <select name="category_id" id="category_id"
-                                class="form-control @error('category_id') is-invalid @enderror" required>
+                                class="form-control @error('category_id') is-invalid @enderror">
                                 <option value="">-- اختر التصنيف --</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}"
