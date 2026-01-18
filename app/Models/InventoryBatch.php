@@ -15,9 +15,9 @@ class InventoryBatch extends Model
         'batch_number',
         'expiry_date',
         'available_quantity',
-        'reserved_quantity',
         'cost_price',
         'version',
+        'inventory_batch_id',
         'status',
     ];
 
@@ -25,7 +25,6 @@ class InventoryBatch extends Model
         'cost_price' => 'decimal:3',
         'expiry_date' => 'date',
         'available_quantity' => 'integer',
-        'reserved_quantity' => 'integer',
         'version' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -47,21 +46,7 @@ class InventoryBatch extends Model
         return $this->hasMany(InventoryMovement::class, 'inventory_batch_id');
     }
 
-    /**
-     * Get available stock quantity.
-     */
-    public function getAvailableStock(): int
-    {
-        return $this->available_quantity;
-    }
-
-    /**
-     * Get total stock quantity.
-     */
-    public function getTotalStockAttribute(): int
-    {
-        return $this->available_quantity + $this->reserved_quantity;
-    }
+  
     /**
      * Check if inventory batch has expired.
      */

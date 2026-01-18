@@ -27,9 +27,7 @@
                             <small>{{ $product->name_ar }}</small>
                         </div>
                         <div class="col-md-4 text-end">
-                            <span class="badge bg-info">إجمالي المخزون: {{ $product->total_stock }}</span>
-                            <span class="badge bg-success">المتاح: {{ $product->total_available_stock }}</span>
-                            <span class="badge bg-warning">المحجوز: {{ $product->total_reserved_stock }}</span>
+                            <span class="badge bg-info">إجمالي المخزون: {{ $product->stock_available_quantity }}</span>
                             <a href="{{ route('admin.inventory.product', $product->id) }}" class="btn btn-sm btn-info"><i
                                     class="fa fa-eye"></i> عرض</a>
                         </div>

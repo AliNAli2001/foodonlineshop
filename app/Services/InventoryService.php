@@ -30,7 +30,6 @@ class InventoryService
             'batch_number' => $data['batch_number'],
             'expiry_date' => $data['expiry_date'] ?? null,
             'available_quantity' => $data['available_quantity'],
-            'reserved_quantity' => 0,
             'cost_price' => $data['cost_price'],
             'status' => 'active',
         ]);
@@ -42,8 +41,7 @@ class InventoryService
             'batch_number' => $data['batch_number'],
             'expiry_date' => $data['expiry_date'] ?? null,
             'transaction_type' => 'restock',
-            'available_change' => $data['available_quantity'],
-            'reserved_change' => 0,
+            'available_change' => $data['available_quantity'],   
             'cost_price' => $data['cost_price'],
             'reason' => $data['reason'] ?? 'دفعة جديدة',
             'reference' => "Batch #{$batch->batch_number}",
@@ -83,7 +81,6 @@ class InventoryService
                 'expiry_date' => $batch->expiry_date,
                 'transaction_type' => 'adjustment',
                 'available_change' => $availableChange,
-                'reserved_change' => 0,
                 'cost_price' => $data['cost_price'],
                 'reason' => $data['reason'],
                 'reference' => 'Manual stock adjustment',
@@ -92,8 +89,7 @@ class InventoryService
             // Update ProductStock
             $this->productStockService->updateProductStock(
                 $batch->product_id,
-                $availableChange,
-                0
+                $availableChange
             );
         }
 

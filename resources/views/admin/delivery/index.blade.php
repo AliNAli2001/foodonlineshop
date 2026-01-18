@@ -22,9 +22,10 @@
             </thead>
             <tbody>
                 @forelse ($deliveryPersons as $delivery)
+                
                     <tr>
                         <td>{{ $delivery->id }}</td>
-                        <td>{{ $delivery->first_name }} {{ $delivery->last_name }}</td>
+                        <td>{{ $delivery->full_name }}</td>
                         <td>{{ $delivery->phone }}</td>
                         <td>
                             <span class="badge bg-{{ $delivery->status === 'active' ? 'success' : 'secondary' }}">

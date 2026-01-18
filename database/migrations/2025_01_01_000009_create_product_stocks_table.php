@@ -14,7 +14,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->unsignedInteger('available_quantity')->default(0);
-            $table->unsignedInteger('reserved_quantity')->default(0);
             $table->timestamps();
             $table->unique('product_id');
             $table->index('available_quantity');

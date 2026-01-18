@@ -25,20 +25,17 @@ class ProductStockService
             })
             ->where('status', '!=', 'expired')
             ->selectRaw('
-                SUM(available_quantity) as total_available,
-                SUM(reserved_quantity) as total_reserved
+                SUM(available_quantity) as total_available
             ')
             ->first();
 
         $availableQuantity = $totals->total_available ?? 0;
-        $reservedQuantity = $totals->total_reserved ?? 0;
 
         // Update or create ProductStock record
         return ProductStock::updateOrCreate(
             ['product_id' => $productId],
             [
                 'available_quantity' => $availableQuantity,
-                'reserved_quantity' => $reservedQuantity,
             ]
         );
     }
@@ -54,15 +51,12 @@ class ProductStockService
     ): ProductStock {
         $stock = ProductStock::firstOrCreate(
             ['product_id' => $productId],
-            ['available_quantity' => 0, 'reserved_quantity' => 0]
+            ['available_quantity' => 0]
         );
 
         DB::transaction(function () use ($stock, $availableChange, $reservedChange) {
             if ($availableChange !== 0) {
                 $stock->increment('available_quantity', $availableChange);
-            }
-            if ($reservedChange !== 0) {
-                $stock->increment('reserved_quantity', $reservedChange);
             }
             $stock->refresh();
         });
@@ -70,34 +64,14 @@ class ProductStockService
         return $stock;
     }
 
-    /**
-     * Reserve stock for an order.
-     */
-    public function reserveStock(int $productId, int $quantity): ProductStock
-    {
-        return $this->updateProductStock($productId, -$quantity, $quantity);
-    }
-
-    /**
-     * Release reserved stock (e.g., when order is cancelled).
-     */
-    public function releaseReservedStock(int $productId, int $quantity): ProductStock
-    {
-        return $this->updateProductStock($productId, $quantity, -$quantity);
-    }
 
     /**
      * Deduct stock (e.g., when order is confirmed/shipped).
      */
-    public function deductStock(int $productId, int $quantity, bool $fromReserved = false): ProductStock
+    public function deductStock(int $productId, int $quantity): ProductStock
     {
-        if ($fromReserved) {
-            // Deduct from reserved quantity only
-            return $this->updateProductStock($productId, 0, -$quantity);
-        } else {
-            // Deduct from available quantity
-            return $this->updateProductStock($productId, -$quantity, 0);
-        }
+        // Deduct from available quantity
+        return $this->updateProductStock($productId, -$quantity);
     }
 
     /**
@@ -105,7 +79,7 @@ class ProductStockService
      */
     public function addStock(int $productId, int $quantity): ProductStock
     {
-        return $this->updateProductStock($productId, $quantity, 0);
+        return $this->updateProductStock($productId, $quantity);
     }
 
     /**
@@ -128,13 +102,11 @@ class ProductStockService
     /**
      * Get or create ProductStock for a product.
      */
-    public function getOrCreateProductStock(int $productId): ProductStock
+    public function getProductStock(int $productId): ProductStock
     {
         $stock = ProductStock::where('product_id', $productId)->first();
 
-        if (!$stock) {
-            return $this->syncProductStock($productId);
-        }
+
 
         return $stock;
     }
@@ -144,8 +116,10 @@ class ProductStockService
      */
     public function hasAvailableStock(int $productId, int $quantity): bool
     {
-        $stock = $this->getOrCreateProductStock($productId);
+        $stock = $this->getProductStock($productId);
+        if (!$stock) {
+            return false;
+        }
         return $stock->available_quantity >= $quantity;
     }
 }
-

@@ -122,7 +122,7 @@
                                 @foreach ($lowStockProducts as $product)
                                     <tr>
                                         <td>{{ $product->name_en }}</td>
-                                        <td>{{ $product->total_stock }}</td>
+                                        <td>{{ $product->stock_available_quantity }}</td>
                                         <td>{{ $product->minimum_alert_quantity }}</td>
                                         <td><a href="{{ route('admin.inventory.product', $product->id) }}"
                                                 class="action-link">عرض<i class="fa fa-eye"></i></a></td>
@@ -177,4 +177,54 @@
             </div>
         </div>
     </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5>الدفعات القريبة من تاريخ الانتهاء</h5>
+                </div>
+
+                <div class="card-body">
+                    @if ($expiredSoonInventories->count() > 0)
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>المنتج</th>
+                                    <th>رقم الدفعة</th>
+                                    <th>الكمية المتوفرة</th>
+                                    <th>تاريخ الانتهاء</th>
+                                    <th>الأيام المتبقية</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($expiredSoonInventories as $batch)
+                                    <tr>
+                                        <td>{{ $batch->product->name_en ?? '-' }}</td>
+                                        <td>{{ $batch->batch_number }}</td>
+                                        <td>{{ $batch->available_quantity }}</td>
+                                        <td>{{ $batch->expiry_date->format('Y-m-d') }}</td>
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                {{ $batch->getDaysUntilExpiry() }} يوم
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.inventory.product', $batch->product_id) }}"
+                                                class="action-link">
+                                                عرض <i class="fa fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <p>لا توجد دفعات قريبة من تاريخ الانتهاء.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection

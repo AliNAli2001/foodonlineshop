@@ -63,7 +63,7 @@ class Product extends Model
     //         InventoryTransaction::class, // Target model
     //         Inventory::class,           // Intermediate model
     //         'product_id',               // Foreign key on Inventory table
-    //         'inventory_id',             // Foreign key on InventoryTransaction table
+    //         'inventory_batch_id',             // Foreign key on InventoryTransaction table
     //         'id',                       // Local key on Product table
     //         'id'                        // Local key on Inventory table
     //     );
@@ -143,12 +143,13 @@ class Product extends Model
         return $language === 'ar' ? $this->description_ar : $this->description_en;
     }
 
+
     /**
-     * Get total available stock quantity (from ProductStock table if available, otherwise calculate).
+     * Get total stock quantity (available + reserved).
      */
-    public function getTotalAvailableStockAttribute(): int
+    public function getStockAvailableQuantityAttribute(): int
     {
-        // Use ProductStock if relationship is loaded or exists
+        // Use ProductStock if available
         if ($this->relationLoaded('stock') && $this->stock) {
             return $this->stock->available_quantity;
         }
@@ -159,104 +160,16 @@ class Product extends Model
             return $stock->available_quantity;
         }
 
-        // Fallback: calculate from inventory batches
-        $inventories = $this->relationLoaded('inventoryBatches')
-            ? $this->getRelation('inventoryBatches')
-            : $this->inventoryBatches()->get();
-
-        return $inventories
-            ->filter(function ($inventory) {
-                return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
-            })
-            ->sum(function ($inventory) {
-                return $inventory->available_quantity - $inventory->reserved_quantity;
-            });
+        return 0;
     }
 
-    /**
-     * Get total reserved stock quantity (from ProductStock table if available, otherwise calculate).
-     */
-    public function getTotalReservedStockAttribute(): int
-    {
-        // Use ProductStock if relationship is loaded or exists
-        if ($this->relationLoaded('stock') && $this->stock) {
-            return $this->stock->reserved_quantity;
-        }
-
-        // Try to load from database
-        $stock = $this->stock;
-        if ($stock) {
-            return $stock->reserved_quantity;
-        }
-
-        // Fallback: calculate from inventory batches
-        $inventories = $this->relationLoaded('inventoryBatches')
-            ? $this->getRelation('inventoryBatches')
-            : $this->inventoryBatches()->get();
-
-        return $inventories
-            ->filter(function ($inventory) {
-                return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
-            })
-            ->sum('reserved_quantity');
-    }
-
-    /**
-     * Get total stock quantity (available + reserved).
-     */
-    public function getTotalStockAttribute(): int
-    {
-        // Use ProductStock if available
-        if ($this->relationLoaded('stock') && $this->stock) {
-            return $this->stock->available_quantity + $this->stock->reserved_quantity;
-        }
-
-        // Try to load from database
-        $stock = $this->stock;
-        if ($stock) {
-            return $stock->available_quantity + $stock->reserved_quantity;
-        }
-
-        // Fallback: calculate from inventory batches
-        $inventories = $this->relationLoaded('inventoryBatches')
-            ? $this->getRelation('inventoryBatches')
-            : $this->inventoryBatches()->get();
-
-        return $inventories
-            ->filter(function ($inventory) {
-                return is_null($inventory->expiry_date) || $inventory->expiry_date >= now()->toDate();
-            })
-            ->sum('available_quantity');
-    }
-
-    /**
-     * Get total reserved quantity across all expiry dates. for delete (we optimized on above)
-     * optimized version getTotalReservedStockAttribute
-     */
-    public function getTotalReserved(): int
-    {
-        return $this->inventoryBatches()
-            ->where(function ($query) {
-                $query->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now()->toDate());
-            })
-            ->sum('reserved_quantity');
-    }
-
-    /**
-     * Get available stock quantity (for backward compatibility).
-     */
-    public function getAvailableStock(): int
-    {
-        return $this->getTotalAvailableStockAttribute();
-    }
 
     /**
      * Check if product is in stock.
      */
     public function isInStock(): bool
     {
-        return $this->getTotalAvailableStockAttribute() > 0;
+        return $this->getStockAvailableQuantityAttribute() > 0;
     }
 
     /**

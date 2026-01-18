@@ -123,6 +123,8 @@ class OrderController extends Controller
             'delivery_id' => 'nullable|exists:delivery,id',
         ]);
 
+  
+
         try {
             $this->orderService->updateOrderStatus(
                 $orderId,
@@ -221,7 +223,7 @@ class OrderController extends Controller
         ->limit(30)
         ->get()
         ->map(function ($product) {
-            $availableStock = $product->total_available_stock;
+            $availableStock = $product->stock_available_quantity;
             $isAvailable = $availableStock > 0;
 
             return [

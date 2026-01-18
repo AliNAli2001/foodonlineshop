@@ -24,16 +24,9 @@
                 <div class="row">
                     <div class="col-md-3">
                         <strong>إجمالي المخزون:</strong>
-                        <p>{{ $product->total_stock }}</p>
+                        <p>{{ $product->stock_available_quantity }}</p>
                     </div>
-                    <div class="col-md-3">
-                        <strong>المتاح:</strong>
-                        <p>{{ $product->total_available_stock }}</p>
-                    </div>
-                    <div class="col-md-3">
-                        <strong>المحجوز:</strong>
-                        <p>{{ $product->total_reserved_stock }}</p>
-                    </div>
+                   
                     <div class="col-md-3">
                         <strong>تنبيه الحد الأدنى:</strong>
                         <p>
@@ -61,8 +54,6 @@
                                 <th>تاريخ الانتهاء</th>
                                 <th>سعر التكلفة</th>
                                 <th>المخزون</th>
-                                <th>المتاح</th>
-                                <th>المحجوز</th>
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>
                             </tr>
@@ -93,9 +84,8 @@
                                         @endif
                                     </td>
                                     <td>{{ $inventory->cost_price }}</td>
-                                    <td>{{ $inventory->total_stock }}</td>
-                                    <td><strong>{{ $inventory->available_quantity }}</strong></td>
-                                    <td>{{ $inventory->reserved_quantity }}</td>
+                                    <td>{{ $inventory->available_quantity }}</td>
+                                   
 
                                     <td>
                                         @if ($inventory->isExpired())

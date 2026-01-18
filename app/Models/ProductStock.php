@@ -15,12 +15,10 @@ class ProductStock extends Model
     protected $fillable = [
         'product_id',
         'available_quantity',
-        'reserved_quantity',
     ];
 
     protected $casts = [
         'available_quantity' => 'integer',
-        'reserved_quantity' => 'integer',
     ];
 
     /**

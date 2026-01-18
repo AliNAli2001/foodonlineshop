@@ -27,7 +27,7 @@
                         <td>{{ $product->id }}</td>
                         <td>{{ $product->name_en }}</td>
                         <td>${{ number_format($product->selling_price, 2) }}</td>
-                        <td>{{ $product->total_available_stock }}</td>
+                        <td>{{ $product->stock_available_quantity }}</td>
                         <td>
                             @if ($product->featured)
                                 <span class="badge bg-success">نعم</span>

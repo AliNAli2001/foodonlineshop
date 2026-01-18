@@ -24,6 +24,7 @@ class DashboardController extends Controller
         $totalClients = Client::count();
         $lowStockProducts = $service->lowStockProducts();
         $lowStockProductsCount = $service->lowStockProducts()->count() ?? 0;
+        $expiredSoonInventories = $service->expiredSoonInventories(14);
 
 
 
@@ -35,7 +36,8 @@ class DashboardController extends Controller
             'confirmedOrders',
             'totalClients',
             'lowStockProducts',
-            'recentOrders'
+            'recentOrders',
+            'expiredSoonInventories'
         ));
     }
 }

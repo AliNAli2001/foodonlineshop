@@ -44,9 +44,7 @@
                     <h5>معلومات المخزون</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>إجمالي الكمية:</strong> {{ $product->total_stock }}</p>
-                    <p><strong>الكمية المحجوزة:</strong> {{ $product->total_reserved_stock }}</p>
-                    <p><strong>المتوفر:</strong> {{ $product->total_available_stock }}</p>
+                    <p><strong>إجمالي الكمية:</strong> {{ $product->stock_available_quantity }}</p>
                     {{-- <p><strong>حد التنبيه الأدنى:</strong> {{ $product->inventory->minimum_alert_quantity }}</p>
                     <p><strong>الحالة:</strong> 
                         @if ($product->inventory->isBelowMinimum())

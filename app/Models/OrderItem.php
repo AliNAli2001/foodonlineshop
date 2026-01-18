@@ -16,7 +16,7 @@ class OrderItem extends Model
         'quantity',
         'unit_price',
         'status',
-        'inventory_id'
+        'inventory_batch_id'
     ];
 
     public const STATUSES = [
@@ -68,6 +68,6 @@ class OrderItem extends Model
      */
     public function inventoryBatch(): BelongsTo
     {
-        return $this->belongsTo(InventoryBatch::class, 'inventory_id');
+        return $this->belongsTo(InventoryBatch::class, 'inventory_batch_id');
     }
 }

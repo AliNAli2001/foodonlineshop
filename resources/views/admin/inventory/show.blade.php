@@ -20,7 +20,7 @@
                 </div>
                 <div class="card-body">
                     <p><strong>المنتج:</strong> {{ $product->name_en }}</p>
-                    <p><strong>كمية المخزون:</strong> {{ $batch->total_stock }}</p>
+                    <p><strong>كمية المخزون:</strong> {{ $batch->available_quantity }}</p>
                     <p><strong>رقم الدفعة:</strong> {{ $batch->batch_number }}</p>
                     <p><strong>تاريخ الانتهاء:</strong> {{ $batch->expiry_date->format('Y-m-d') }}</p>
                     <p><strong>سعر التكلفة:</strong> {{ $batch->cost_price }}</p>
@@ -51,7 +51,6 @@
                         <tr>
                             <th>النوع</th>
                             <th>تغيير الكمية</th>
-                            <th>تغيير المحجوز</th>
                             <th>السبب</th>
                             <th>سعر التكلفة</th>
                             <th>تاريخ الانتهاء</th>
@@ -64,7 +63,6 @@
                             <tr>
                                 <td><span class="badge bg-info">{{ ucfirst($transaction->transaction_type) }}</span></td>
                                 <td>{{ $transaction->available_change > 0 ? '+' : '' }}{{ $transaction->available_change }}</td>
-                                <td>{{ $transaction->reserved_change > 0 ? '+' : '' }}{{ $transaction->reserved_change }}</td>
                                 <td>{{ $transaction->reason }}</td>
                                 <td>{{ $transaction->cost_price }}</td>
                                 <td>{{ $transaction->expiry_date }}</td>

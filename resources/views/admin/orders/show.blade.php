@@ -119,6 +119,7 @@
                                 {{-- Other statuses: Show available transitions --}}
                                 @foreach ($availableTransitions as $transition)
                                     @if ($transition === 'delivered' && $order->delivery_method === 'delivery' && !$order->delivery_id)
+                                    
                                         {{-- Special case: Need to assign delivery person --}}
                                         <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#assignDeliveryModal">
                                             <i class="fas fa-truck"></i> تعيين موظف التوصيل & وضع كتم التوصيل
