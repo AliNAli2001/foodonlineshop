@@ -81,89 +81,148 @@
                     <h5>إدارة حالة الطلب</h5>
                 </div>
                 <div class="card-body">
-                    <p class="mb-3"><strong>الحالة الحالية:</strong> <span
-                            class="badge bg-info">{{ ucfirst($order->status) }}</span></p>
+                    <p class="mb-3"><strong>الحالة الحالية:</strong>
+                        <span class="badge
+                            @if($order->status === 'pending') bg-warning
+                            @elseif($order->status === 'confirmed') bg-info
+                            @elseif($order->status === 'shipped') bg-primary
+                            @elseif($order->status === 'delivered') bg-primary
+                            @elseif($order->status === 'done') bg-success
+                            @elseif($order->status === 'canceled') bg-danger
+                            @elseif($order->status === 'returned') bg-secondary
+                            @endif">
+                            {{ ucfirst($order->status) }}
+                        </span>
+                    </p>
 
-                    @if ($order->status === 'pending')
-                        <div class="btn-group" role="group">
-                            <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                <button type="submit" class="btn btn-success">تأكيد الطلب</button>
-                            </form>
-                            <form action="{{ route('admin.orders.reject', $order->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                <textarea name="reason" placeholder="سبب الرفض"></textarea>
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('هل أنت متأكد؟')">رفض
-                                    الطلب</button>
-                            </form>
-                        </div>
-                    @elseif ($order->status === 'confirmed')
-                        <div class="btn-group" role="group">
-                            @if ($order->order_source == 'inside_city')
-                                <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST"
-                                    style="display:inline;">
-                                    @csrf
-                                    <input type="hidden" name="status" value="delivered">
-                                    @if ($order->delivery_method === 'delivery' && $order->order_source === 'inside_city' && !$order->delivery_id)
-                                        <div class="mb-3">
-                                            <label for="delivery_id" class="form-label">اختر موظف التوصيل (مطلوب)</label>
-                                            <select class="form-control" id="delivery_id" name="delivery_id" required>
-                                                <option value="">-- اختر موظف التوصيل --</option>
-                                                @foreach ($deliveryPersons as $delivery)
-                                                    <option value="{{ $delivery->id }}">{{ $delivery->first_name }}
-                                                        {{ $delivery->last_name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    @endif
-                                    <button type="submit" class="btn btn-primary">
-                                        @if ($order->delivery_method === 'delivery' && $order->order_source === 'inside_city' && !$order->delivery_id)
-                                            تعيين موظف التوصيل & وضع كتم التوصيل
-                                        @else
-                                            وضع كتم التوصيل
-                                        @endif
+                    @if (count($availableTransitions) > 0)
+                        <div class="mb-3">
+                            <p><strong>الإجراءات المتاحة:</strong></p>
+
+                            @if ($order->status === 'pending')
+                                {{-- Pending orders: Confirm or Reject --}}
+                                @if (in_array('confirmed', $availableTransitions))
+                                    <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success mb-2">
+                                            <i class="fas fa-check"></i> تأكيد الطلب
+                                        </button>
+                                    </form>
+                                @endif
+
+                                @if (in_array('canceled', $availableTransitions))
+                                    <button type="button" class="btn btn-danger mb-2" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                        <i class="fas fa-times"></i> رفض الطلب
                                     </button>
-                                </form>
+                                @endif
                             @else
-                                <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST"
-                                    style="display:inline;">
-                                    @csrf
-                                    <input type="hidden" name="status" value="shipped">
-                                    <button type="submit" class="btn btn-primary">
-                                        وضع كتم الشحن
-                                    </button>
-                                </form>
+                                {{-- Other statuses: Show available transitions --}}
+                                @foreach ($availableTransitions as $transition)
+                                    @if ($transition === 'delivered' && $order->delivery_method === 'delivery' && !$order->delivery_id)
+                                        {{-- Special case: Need to assign delivery person --}}
+                                        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#assignDeliveryModal">
+                                            <i class="fas fa-truck"></i> تعيين موظف التوصيل & وضع كتم التوصيل
+                                        </button>
+                                    @else
+                                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="status" value="{{ $transition }}">
+                                            <button type="submit"
+                                                class="btn mb-2
+                                                    @if($transition === 'done') btn-success
+                                                    @elseif($transition === 'canceled') btn-danger
+                                                    @elseif($transition === 'returned') btn-warning
+                                                    @elseif($transition === 'shipped') btn-primary
+                                                    @elseif($transition === 'delivered') btn-primary
+                                                    @else btn-secondary
+                                                    @endif"
+                                                @if(in_array($transition, ['canceled', 'returned']))
+                                                    onclick="return confirm('هل أنت متأكد من {{ $transition === 'canceled' ? 'إلغاء' : 'إرجاع' }} الطلب؟')"
+                                                @endif>
+                                                <i class="fas
+                                                    @if($transition === 'done') fa-check-circle
+                                                    @elseif($transition === 'canceled') fa-times-circle
+                                                    @elseif($transition === 'returned') fa-undo
+                                                    @elseif($transition === 'shipped') fa-shipping-fast
+                                                    @elseif($transition === 'delivered') fa-truck
+                                                    @endif"></i>
+                                                @if($transition === 'done') إنجاز الطلب
+                                                @elseif($transition === 'canceled') إلغاء الطلب
+                                                @elseif($transition === 'returned') إرجاع الطلب
+                                                @elseif($transition === 'shipped') شحن الطلب
+                                                @elseif($transition === 'delivered') تم التوصيل
+                                                @else {{ ucfirst($transition) }}
+                                                @endif
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endforeach
                             @endif
-
-                            <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                <input type="hidden" name="status" value="canceled">
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('هل أنت متأكد؟')">إلغاء الطلب</button>
-                            </form>
                         </div>
-                    @elseif ($order->status === 'shipped' || $order->status === 'delivered')
-                        <div class="btn-group" role="group">
-                            <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                <input type="hidden" name="status" value="done">
-                                <button type="submit" class="btn btn-success">وضع كتم الإنجاز</button>
-                            </form>
-                            <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                <input type="hidden" name="status" value="returned">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('هل أنت متأكد؟')">تم
-                                    إرجاع الطلب</button>
-                            </form>
-                        </div>
-                    @elseif ($order->status === 'done' || $order->status === 'canceled')
-                        <p class="text-muted">هذا الطلب {{ $order->status }}. لا توجد إجراءات أخرى متاحة.</p>
+                    @else
+                        <p class="text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            هذا الطلب في حالة نهائية ({{ $order->status }}). لا توجد إجراءات أخرى متاحة.
+                        </p>
                     @endif
+                </div>
+            </div>
+
+            {{-- Modal for rejecting pending orders --}}
+            <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="{{ route('admin.orders.reject', $order->id) }}" method="POST">
+                            @csrf
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="rejectModalLabel">رفض الطلب</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">سبب الرفض <span class="text-danger">*</span></label>
+                                    <textarea name="reason" id="reason" class="form-control" rows="3" required placeholder="أدخل سبب رفض الطلب..."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                <button type="submit" class="btn btn-danger">رفض الطلب</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Modal for assigning delivery person --}}
+            <div class="modal fade" id="assignDeliveryModal" tabindex="-1" aria-labelledby="assignDeliveryModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="delivered">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="assignDeliveryModalLabel">تعيين موظف التوصيل</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="delivery_id" class="form-label">اختر موظف التوصيل <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="delivery_id" name="delivery_id" required>
+                                        <option value="">-- اختر موظف التوصيل --</option>
+                                        @foreach ($deliveryPersons as $delivery)
+                                            <option value="{{ $delivery->id }}">
+                                                {{ $delivery->first_name }} {{ $delivery->last_name }} - {{ $delivery->phone }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                <button type="submit" class="btn btn-primary">تعيين و تحديث الحالة</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 

@@ -25,9 +25,7 @@ class InventoryController extends Controller
     public function create($productId)
     {
         $product = Product::findOrFail($productId);
-        $generalMinimumAlertQuantity = Setting::get('general_minimum_alert_quantity') ?? 5;
-
-        return view('admin.inventory.create', compact('product', 'generalMinimumAlertQuantity'));
+        return view('admin.inventory.create', compact('product'));
     }
 
     /**
@@ -60,7 +58,7 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        $products = $this->inventoryService->getAllProductsWithOutBatches();
+        $products = $this->inventoryService->getAllProductsWithBatches();
         return view('admin.inventory.index', compact('products'));
     }
 

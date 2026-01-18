@@ -145,7 +145,7 @@ class OrderController extends Controller
 
                     InventoryTransaction::create([
                         'product_id' => $productId,
-                        'quantity_change' => 0,
+                        'available_change' => 0,
                         'reserved_change' => $reserveAmount,
                         'transaction_type' => 'reservation',
                         'reason' => "Order #{$order->id} created",

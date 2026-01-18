@@ -42,10 +42,10 @@ class InventoryService
             'batch_number' => $data['batch_number'],
             'expiry_date' => $data['expiry_date'] ?? null,
             'transaction_type' => 'restock',
-            'quantity_change' => $data['available_quantity'],
+            'available_change' => $data['available_quantity'],
             'reserved_change' => 0,
             'cost_price' => $data['cost_price'],
-            'reason' => $data['reason'] ?? 'New stock received',
+            'reason' => $data['reason'] ?? 'دفعة جديدة',
             'reference' => "Batch #{$batch->batch_number}",
         ]);
 
@@ -64,7 +64,7 @@ class InventoryService
 
         $oldQuantity = $batch->available_quantity;
         $newQuantity = $data['available_quantity'];
-        $quantityChange = $newQuantity - $oldQuantity;
+        $availableChange = $newQuantity - $oldQuantity;
 
         // Update batch details
         $batch->update([
@@ -75,12 +75,14 @@ class InventoryService
         ]);
 
         // Only log movement if quantity changed
-        if ($quantityChange !== 0) {
+        if ($availableChange !== 0) {
             $this->inventoryMovementService->logMovement([
                 'product_id' => $batch->product_id,
                 'inventory_batch_id' => $batch->id,
+                'batch_number' => $batch->batch_number,
+                'expiry_date' => $batch->expiry_date,
                 'transaction_type' => 'adjustment',
-                'quantity_change' => $quantityChange,
+                'available_change' => $availableChange,
                 'reserved_change' => 0,
                 'cost_price' => $data['cost_price'],
                 'reason' => $data['reason'],
@@ -90,7 +92,7 @@ class InventoryService
             // Update ProductStock
             $this->productStockService->updateProductStock(
                 $batch->product_id,
-                $quantityChange,
+                $availableChange,
                 0
             );
         }

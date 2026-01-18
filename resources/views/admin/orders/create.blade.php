@@ -184,9 +184,23 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label class="form-label">المنتج</label>
-                                        <select class="form-control product-select" required>
-                                            <option value="">-- ابحث عن المنتج --</option>
-                                        </select>
+
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <input type="text" class="form-control selected-product-name" disabled
+                                                placeholder="لم يتم اختيار منتج">
+
+
+                                            <input type="hidden" class="selected-product-id"
+                                                name="products[__INDEX__][product_id]" required>
+
+                                            <button type="button" class="btn btn-primary open-product-modal">
+                                                اختيار
+                                            </button>
+
+                                            <button type="button" class="btn btn-danger clear-product-btn">
+                                                مسح
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div class="col-md-4">
@@ -208,10 +222,18 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label class="form-label">المنتج</label>
-                                        <select name="products[0][product_id]" class="form-control product-select"
-                                            required>
-                                            <option value="">-- ابحث عن المنتج --</option>
-                                        </select>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <input type="text" class="form-control selected-product-name" disabled
+                                                placeholder="لم يتم اختيار منتج">
+
+                                            <input type="hidden" class="selected-product-id"
+                                                name="products[0][product_id]" required>
+
+                                            <button type="button"
+                                                class="btn btn-primary open-product-modal">اختيار</button>
+                                            <button type="button" class="btn btn-danger clear-product-btn">مسح</button>
+                                        </div>
+
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">الكمية</label>
@@ -277,12 +299,32 @@
         </div>
     </div>
 
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title">اختيار منتج</h5>
+                    <button type="button" class="btn btn-close m-0" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text" id="productSearchInput" class="form-control mb-3"
+                        placeholder="ابحث باسم المنتج...">
+
+                    <div id="productsList" class="list-group">
+                        <div class="text-muted text-center">ابدأ بالبحث...</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 
-    <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
-        rel="stylesheet" />
+
+
+
 
     <style>
         /* Style for unavailable products in Select2 dropdown */
@@ -320,15 +362,6 @@
 
 
     <script>
-        // Initialize Select2 for Client Search
-        $(document).ready(function() {
-            $('#addItemBtn').click();
-            
-
-            // Initialize first product select
-            initializeProductSelect($('.product-select').first());
-        });
-
         // Function to initialize Select2 on product select elements
         function initializeProductSelect($element) {
             $element.select2({
@@ -544,22 +577,25 @@
         // === Order Items Logic ===
         function getSelectedProductIds() {
             const selectedIds = new Set();
-            $('.product-select').each(function() {
+            $('.selected-product-id').each(function() {
                 const val = $(this).val();
                 if (val) selectedIds.add(val);
             });
             return selectedIds;
         }
 
+
         function updateSummary() {
             let total = 0,
                 count = 0;
             $('.order-item').each(function() {
-                const $select = $(this).find('.product-select');
-                const quantity = parseInt($(this).find('.quantity-input').val()) || 0;
-                const price = parseFloat($select.data('price')) || 0;
+                const productId = $(this).find('.selected-product-id').val();
 
-                if ($select.val() && quantity > 0) {
+                const quantity = parseInt($(this).find('.quantity-input').val()) || 0;
+                const price = parseFloat($(this).data('price')) || 0;
+
+                if (productId && quantity > 0) {
+
                     total += price * quantity;
                     count++;
                 }
@@ -567,7 +603,7 @@
             $('#totalItems').text(count);
             $('#totalAmount').text(total.toFixed(2));
         }
-        let itemCount = 0;
+        let itemCount = 1;
 
         $('#addItemBtn').on('click', function() {
             const template = document.getElementById('orderItemTemplate');
@@ -575,13 +611,11 @@
             const $row = $(clone).find('.order-item');
 
             // Set unique names
-            $row.find('.product-select').attr('name', `products[${itemCount}][product_id]`);
+            $row.find('.selected-product-id').attr('name', `products[${itemCount}][product_id]`);
             $row.find('.quantity-input').attr('name', `products[${itemCount}][quantity]`);
 
-            $('#itemsContainer').append($row);
 
-            // Init Select2 for THIS select only
-            initializeProductSelect($row.find('.product-select'));
+            $('#itemsContainer').append($row);
 
             attachEventListeners();
             updateSummary();
@@ -598,8 +632,7 @@
             $('.remove-item').off('click').on('click', function() {
                 const $item = $(this).closest('.order-item');
 
-                // Destroy Select2 before removing
-                $item.find('.product-select').select2('destroy');
+
 
                 $item.remove();
                 updateSummary();
@@ -671,6 +704,96 @@
         $('#clearClientBtn').on('click', function() {
             $('#selectedClientId').val('');
             $('#selectedClientName').val('');
+        });
+
+
+        let activeProductRow = null;
+
+        // Open product modal
+        $(document).on('click', '.open-product-modal', function() {
+            activeProductRow = $(this).closest('.order-item');
+            $('#productSearchInput').val('');
+            $('#productsList').html('<div class="text-muted text-center">ابدأ بالبحث...</div>');
+            $('#productModal').modal('show');
+        });
+
+        $('#productSearchInput').on('input', function() {
+            let query = $(this).val().trim();
+
+            if (query.length < 1) {
+                $('#productsList').html('<div class="text-muted text-center">ابدأ بالبحث...</div>');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route('admin.orders.autocomplete.products') }}',
+                data: {
+                    q: query
+                },
+                success: function(data) {
+                    let html = '';
+
+                    if (data.results.length === 0) {
+                        html = '<div class="text-muted text-center">لا توجد نتائج</div>';
+                    } else {
+                        const selectedIds = getSelectedProductIds();
+
+                        data.results.forEach(product => {
+                            const isSelected = selectedIds.has(String(product.id));
+
+                            html += `
+        <button type="button"
+            class="list-group-item list-group-item-action select-product ${isSelected ? 'disabled' : ''}"
+            data-id="${product.id}"
+            data-name="${product.text}"
+            data-price="${product.price}"
+            ${isSelected ? 'disabled' : ''}>
+            ${product.text} ${isSelected ? '(تم اختياره مسبقًا)' : ''}
+        </button>
+    `;
+                        });
+
+                    }
+
+                    $('#productsList').html(html);
+                },
+                error: function() {
+                    $('#productsList').html(
+                        '<div class="text-danger text-center">حدث خطأ أثناء البحث</div>');
+                }
+            });
+        });
+
+        $(document).on('click', '.select-product', function() {
+            if ($(this).hasClass('disabled')) return;
+
+            if (!activeProductRow) return;
+
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+            const price = $(this).data('price');
+
+            // Prevent duplicate selection
+            const selectedIds = getSelectedProductIds();
+            if (selectedIds.has(String(id))) {
+                alert('هذا المنتج مضاف مسبقًا إلى الطلب.');
+                return;
+            }
+
+            activeProductRow.find('.selected-product-id').val(id);
+            activeProductRow.find('.selected-product-name').val(name);
+            activeProductRow.data('price', price);
+
+            $('#productModal').modal('hide');
+            updateSummary();
+        });
+
+        $(document).on('click', '.clear-product-btn', function() {
+            const row = $(this).closest('.order-item');
+            row.find('.selected-product-id').val('');
+            row.find('.selected-product-name').val('');
+            row.data('price', 0);
+            updateSummary();
         });
     </script>
 @endsection

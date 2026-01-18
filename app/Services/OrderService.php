@@ -108,8 +108,10 @@ class OrderService
                     $this->inventoryMovementService->logMovement([
                         'product_id' => $item['product_id'],
                         'inventory_batch_id' => $batch->id,
+                        'batch_number' => $batch->batch_number,
+                        'expiry_date' => $batch->expiry_date,
                         'transaction_type' => 'sale',
-                        'quantity_change' => -$sellFromThisBatch,
+                        'available_change' => -$sellFromThisBatch,
                         'reserved_change' => 0, // nothing reserved in admin order
                         'cost_price' => $batch->cost_price,
                         'reference' => "Admin Order #{$order->id}",
@@ -234,7 +236,7 @@ class OrderService
                         'product_id' => $productId,
                         'inventory_batch_id' => $batch->id,
                         'transaction_type' => 'reservation',
-                        'quantity_change' => 0,
+                        'available_change' => 0,
                         'reserved_change' => $reserveThisBatch,
                         'cost_price' => $batch->cost_price,
                         'reference' => "Order #{$order->id}",
@@ -309,7 +311,7 @@ class OrderService
                             'product_id' => $item->product_id,
                             'inventory_batch_id' => $batch->id,
                             'transaction_type' => 'sale',
-                            'quantity_change' => -$deductAmount,
+                            'available_change' => -$deductAmount,
                             'reserved_change' => -$deductAmount,
                             'cost_price' => $batch->cost_price,
                             'reference' => "Order #{$order->id} confirmed",
@@ -371,7 +373,7 @@ class OrderService
                             'product_id' => $item->product_id,
                             'inventory_batch_id' => $batch->id,
                             'transaction_type' => 'adjustment',
-                            'quantity_change' => 0,
+                            'available_change' => 0,
                             'reserved_change' => -$releaseAmount,
                             'reference' => "Order #{$order->id} rejected",
                             'reason' => $reason,
@@ -414,7 +416,7 @@ class OrderService
                 'product_id' => $item->product_id,
                 'inventory_batch_id' => $batch->id,
                 'transaction_type' => $transactionType,
-                'quantity_change' => $item->quantity,
+                'available_change' => $item->quantity,
                 'reserved_change' => 0,
                 'cost_price' => $batch->cost_price,
                 'reference' => "Order #{$order->id} {$reasonPrefix}",
@@ -435,9 +437,9 @@ class OrderService
 
         $previousStatus = $order->status;
 
-        $validTransitions = $this->getValidStatusTransitions($previousStatus);
+        $validTransitions = $this->getValidStatusTransitions($previousStatus, $order);
         if (!in_array($newStatus, $validTransitions)) {
-            throw new Exception("Cannot change status from {$previousStatus} to {$newStatus}.");
+            throw new Exception("Cannot change status from {$previousStatus} to {$newStatus} for this order.");
         }
 
         DB::transaction(function () use ($order, $newStatus, $previousStatus, $deliveryId) {
@@ -463,19 +465,50 @@ class OrderService
     }
 
     /**
-     * Valid status transitions.
+     * Valid status transitions based on order source and delivery method.
      */
-    private function getValidStatusTransitions(string $currentStatus): array
+    private function getValidStatusTransitions(string $currentStatus, ?Order $order = null): array
     {
-        return [
+        // Base transitions that apply to all orders
+        $baseTransitions = [
             'pending' => ['confirmed', 'canceled'],
-            'confirmed' => ['shipped', 'delivered', 'canceled'],
-            'shipped' => ['delivered', 'done', 'returned'],
-            'delivered' => ['done', 'returned'],
             'done' => [],
             'canceled' => [],
             'returned' => [],
-        ][$currentStatus] ?? [];
+        ];
+
+        // If no order context, return base transitions
+        if (!$order) {
+            return $baseTransitions[$currentStatus] ?? [];
+        }
+
+        // Transitions for confirmed orders depend on order_source and delivery_method
+        if ($currentStatus === 'confirmed') {
+            if ($order->order_source === 'inside_city') {
+                if ($order->delivery_method === 'hand_delivered') {
+                    // hand_delivered: confirmed -> done or canceled
+                    return ['done', 'canceled'];
+                } elseif ($order->delivery_method === 'delivery') {
+                    // delivery: confirmed -> delivered or canceled
+                    return ['delivered', 'canceled'];
+                }
+            } elseif ($order->order_source === 'outside_city') {
+                // outside_city: confirmed -> shipped or canceled
+                return ['shipped', 'canceled'];
+            }
+        }
+
+        // Transitions for delivered orders (inside_city with delivery method)
+        if ($currentStatus === 'delivered') {
+            return ['done', 'returned'];
+        }
+
+        // Transitions for shipped orders (outside_city)
+        if ($currentStatus === 'shipped') {
+            return ['done', 'returned'];
+        }
+
+        return $baseTransitions[$currentStatus] ?? [];
     }
 
     /**
@@ -544,5 +577,13 @@ class OrderService
             'order' => $order,
             'items' => $items,
         ];
+    }
+
+    /**
+     * Get available status transitions for an order (for UI display).
+     */
+    public function getAvailableStatusTransitions(Order $order): array
+    {
+        return $this->getValidStatusTransitions($order->status, $order);
     }
 }

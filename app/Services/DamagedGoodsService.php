@@ -47,7 +47,7 @@ class DamagedGoodsService
                 'product_id' => $data['product_id'],
                 'inventory_batch_id' => $batch->id,
                 'transaction_type' => 'damaged',
-                'quantity_change' => -$data['quantity'],
+                'available_change' => -$data['quantity'],
                 'reserved_change' => 0,
                 'cost_price' => $batch->cost_price,
                 'reason' => $data['reason'],

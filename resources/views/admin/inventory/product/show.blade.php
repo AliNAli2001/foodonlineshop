@@ -149,7 +149,7 @@
                                 <tr>
                                     <td><span class="badge bg-info">{{ ucfirst($transaction->transaction_type) }}</span>
                                     </td>
-                                    <td>{{ $transaction->quantity_change > 0 ? '+' : '' }}{{ $transaction->quantity_change }}
+                                    <td>{{ $transaction->available_change > 0 ? '+' : '' }}{{ $transaction->available_change }}
                                     </td>
                                     <td>{{ $transaction->reserved_change > 0 ? '+' : '' }}{{ $transaction->reserved_change }}
                                     </td>

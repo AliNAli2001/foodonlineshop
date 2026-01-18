@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('inventory_batch_id')->nullable()->constrained('inventory_batches')->onDelete('set null');
             $table->enum('transaction_type', ['sale', 'restock', 'reservation', 'adjustment', 'damaged']);
-            $table->integer('quantity_change');
+            $table->integer('available_change');
             $table->integer('reserved_change')->default(0);
             $table->decimal('cost_price', 10, 2)->nullable();
             $table->date('expiry_date')->nullable();

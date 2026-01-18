@@ -135,7 +135,7 @@
                         @foreach ($recentInventory as $transaction)
                             <tr>
                                 <td><span class="badge bg-info">{{ ucfirst($transaction->transaction_type) }}</span></td>
-                                <td>{{ $transaction->quantity_change > 0 ? '+' : '' }}{{ $transaction->quantity_change }}</td>
+                                <td>{{ $transaction->available_change > 0 ? '+' : '' }}{{ $transaction->available_change }}</td>
                                 <td>{{ $transaction->reserved_change > 0 ? '+' : '' }}{{ $transaction->reserved_change }}</td>
                                 <td>{{ $transaction->reason }}</td>
                                 <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>

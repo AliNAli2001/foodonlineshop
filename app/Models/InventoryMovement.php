@@ -16,7 +16,7 @@ class InventoryMovement extends Model
         'product_id',
         'inventory_batch_id',
         'transaction_type',
-        'quantity_change',
+        'available_change',
         'reserved_change',
         'expiry_date',
         'batch_number',
