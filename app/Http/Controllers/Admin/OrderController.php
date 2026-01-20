@@ -75,7 +75,7 @@ class OrderController extends Controller
      */
     public function show($orderId)
     {
-        $order = Order::with(['client', 'delivery', 'items.product', 'items.inventoryBatch', 'createdByAdmin'])->findOrFail($orderId);
+        $order = Order::with(['client', 'delivery', 'items.product', 'items.batches', 'createdByAdmin'])->findOrFail($orderId);
         $deliveryPersons = Delivery::all();
 
         // Get available status transitions for this order
@@ -119,11 +119,11 @@ class OrderController extends Controller
     {
        
         $validated = $request->validate([
-            'status' => 'required|in:pending,confirmed,shipped,delivered,done,canceled,returned',
+            'status' => 'required|in:pending,confirmed,rejected,shipped,delivered,done,canceled,returned',
             'delivery_id' => 'nullable|exists:delivery,id',
         ]);
 
-  
+
 
         try {
             $this->orderService->updateOrderStatus(

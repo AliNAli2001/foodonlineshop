@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\OrderItemBatch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Exception;
@@ -30,9 +31,10 @@ class OrderService
         $totalAmount = 0;
         $totalCostPrice = 0;
 
-        // Pre-check stock availability
+        // 1️⃣ Pre-check stock availability
         foreach ($validated['products'] as $item) {
             $product = Product::findOrFail($item['product_id']);
+
             if ($product->stock_available_quantity < $item['quantity']) {
                 throw ValidationException::withMessages([
                     'products' => "الكمية المطلوبة غير متوفرة للمنتج {$product->name_ar} ذو الرقم {$item['product_id']}. " .
@@ -40,10 +42,13 @@ class OrderService
                         "المطلوب: {$item['quantity']}",
                 ]);
             }
+
             $totalAmount += $product->selling_price * $item['quantity'];
         }
 
         return DB::transaction(function () use ($validated, $totalAmount, $adminId, &$totalCostPrice) {
+
+            // 2️⃣ Create order (confirmed immediately)
             $order = Order::create([
                 'created_by_admin_id' => $adminId,
                 'client_id' => $validated['client_id'] ?? null,
@@ -61,13 +66,22 @@ class OrderService
                 'admin_order_client_notes' => $validated['admin_order_client_notes'] ?? null,
             ]);
 
+            // 3️⃣ Process each product
             foreach ($validated['products'] as $item) {
+
                 $product = Product::findOrFail($item['product_id']);
                 $quantityToSell = $item['quantity'];
                 $unitPrice = $product->selling_price;
-                $totalDeducted = 0;
 
-                // Get active batches: oldest expiry first (true FIFO)
+                // 3.1️⃣ Create ONE order item (logical line)
+                $orderItem = OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'quantity' => $quantityToSell,
+                    'unit_price' => $unitPrice,
+                ]);
+
+                // 3.2️⃣ Get eligible batches (FEFO)
                 $batches = $product->inventoryBatches()
                     ->where(function ($q) {
                         $q->whereNull('expiry_date')
@@ -76,33 +90,35 @@ class OrderService
                     ->where('status', 'active')
                     ->orderByRaw('expiry_date IS NULL DESC')
                     ->orderBy('expiry_date', 'asc')
+                    ->lockForUpdate()
                     ->get();
+
+                $totalDeducted = 0;
 
                 foreach ($batches as $batch) {
                     if ($quantityToSell <= 0) break;
+                    if ($batch->available_quantity <= 0) continue;
 
-                    $available = $batch->available_quantity;
-                    if ($available <= 0) continue;
+                    $sellFromThisBatch = min($quantityToSell, $batch->available_quantity);
 
-                    $sellFromThisBatch = min($quantityToSell, $available);
-
-                    // Deduct from stock
+                    // 3.3️⃣ Deduct stock from batch
                     $batch->decrement('available_quantity', $sellFromThisBatch);
 
+                    if ($batch->available_quantity === 0) {
+                        $batch->update(['status' => 'depleted']);
+                    }
 
-
-                    // Create order item linked to batch
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['product_id'],
-                        'quantity' => $sellFromThisBatch,
-                        'unit_price' => $unitPrice,
+                    // 3.4️⃣ Create pivot record (order_item_batches)
+                    OrderItemBatch::create([
+                        'order_item_id' => $orderItem->id,
                         'inventory_batch_id' => $batch->id,
+                        'quantity' => $sellFromThisBatch,
+                        'cost_price' => $batch->cost_price,
                     ]);
 
-                    // Log sale movement
+                    // 3.5️⃣ Log inventory movement
                     $this->inventoryMovementService->logMovement([
-                        'product_id' => $item['product_id'],
+                        'product_id' => $product->id,
                         'inventory_batch_id' => $batch->id,
                         'batch_number' => $batch->batch_number,
                         'expiry_date' => $batch->expiry_date,
@@ -118,19 +134,24 @@ class OrderService
                     $quantityToSell -= $sellFromThisBatch;
                 }
 
+                // 3.6️⃣ Safety check
                 if ($quantityToSell > 0) {
-                    throw new Exception("الكمية المطلوبة من المنتج {$product->name_ar} ذو الرقم {$item['product_id']} غير متوفرة.");
+                    throw new Exception(
+                        "الكمية المطلوبة من المنتج {$product->name_ar} ذو الرقم {$product->id} غير متوفرة."
+                    );
                 }
 
-                // Update ProductStock for this product
-                $this->productStockService->deductStock($item['product_id'], $totalDeducted);
+                // 3.7️⃣ Update product stock summary
+                $this->productStockService->deductStock($product->id, $totalDeducted);
             }
 
+            // 4️⃣ Update total cost price
             $order->update(['cost_price' => $totalCostPrice]);
 
             return $order;
         });
     }
+
 
     /**
      * Create a client order with inventory reservation.
@@ -196,7 +217,6 @@ class OrderService
                     'product_id' => $productId,
                     'quantity' => $quantityRequested,
                     'unit_price' => $unitPrice,
-                    'inventory_batch_id' => null,
                 ]);
             }
 
@@ -222,11 +242,16 @@ class OrderService
         }
 
         DB::transaction(function () use ($order) {
+
+            $totalOrderCost = 0;
+
             foreach ($order->items as $item) {
+
                 $product = $item->product;
                 $quantityToDeduct = $item->quantity;
                 $totalDeducted = 0;
 
+                // Get eligible batches (FEFO)
                 $batches = $product->inventoryBatches()
                     ->where(function ($q) {
                         $q->whereNull('expiry_date')
@@ -235,50 +260,69 @@ class OrderService
                     ->where('status', 'active')
                     ->orderByRaw('expiry_date IS NULL DESC')
                     ->orderBy('expiry_date', 'asc')
+                    ->lockForUpdate()
                     ->get();
 
                 foreach ($batches as $batch) {
                     if ($quantityToDeduct <= 0) break;
+                    if ($batch->available_quantity <= 0) continue;
 
-                    $available = $batch->available_quantity;
-                    $deductAmount = min($quantityToDeduct, $available);
+                    $deductAmount = min($quantityToDeduct, $batch->available_quantity);
 
-                    if ($deductAmount > 0) {
-                        $batch->decrement('available_quantity', $deductAmount);
+                    // Deduct from batch
+                    $batch->decrement('available_quantity', $deductAmount);
 
-                        // Link batch to order item if not already
-                        if (!$item->inventory_batch_id) {
-                            $item->update(['inventory_batch_id' => $batch->id]);
-                        }
-
-                        $this->inventoryMovementService->logMovement([
-                            'product_id' => $item->product_id,
-                            'inventory_batch_id' => $batch->id,
-                            'transaction_type' => 'sale',
-                            'available_change' => -$deductAmount,
-                            'cost_price' => $batch->cost_price,
-                            'reference' => "Order #{$order->id} confirmed",
-                            'reason' => 'Order confirmed by admin',
-                        ]);
-
-                        $totalDeducted += $deductAmount;
-                        $quantityToDeduct -= $deductAmount;
+                    if ($batch->available_quantity === 0) {
+                        $batch->update(['status' => 'depleted']);
                     }
+
+                    // Create pivot record
+                    OrderItemBatch::create([
+                        'order_item_id' => $item->id,
+                        'inventory_batch_id' => $batch->id,
+                        'quantity' => $deductAmount,
+                        'cost_price' => $batch->cost_price,
+                    ]);
+
+                    // Log inventory movement
+                    $this->inventoryMovementService->logMovement([
+                        'product_id' => $item->product_id,
+                        'inventory_batch_id' => $batch->id,
+                        'batch_number' => $batch->batch_number,
+                        'expiry_date' => $batch->expiry_date,
+                        'transaction_type' => 'sale',
+                        'available_change' => -$deductAmount,
+                        'cost_price' => $batch->cost_price,
+                        'reference' => "Order #{$order->id} confirmed",
+                        'reason' => 'Order confirmed by admin',
+                    ]);
+
+                    $totalOrderCost += $batch->cost_price * $deductAmount;
+                    $totalDeducted += $deductAmount;
+                    $quantityToDeduct -= $deductAmount;
                 }
 
+                // Safety check
                 if ($quantityToDeduct > 0) {
-                    throw new Exception("Insufficient stock to confirm order for product {$item->product_id}.");
+                    throw new Exception(
+                        "Insufficient stock to confirm order for product {$product->name_ar} ({$product->id})."
+                    );
                 }
 
-                // Update ProductStock: deduct from reserved
-                $this->productStockService->deductStock($item->product_id, $totalDeducted);
+                // Update product stock summary
+                $this->productStockService->deductStock($product->id, $totalDeducted);
             }
 
-            $order->update(['status' => 'confirmed']);
+            // Update order status + cost
+            $order->update([
+                'status' => 'confirmed',
+                'cost_price' => $totalOrderCost,
+            ]);
         });
 
-        return $order;
+        return $order->fresh(['items.batches.inventoryBatch']);
     }
+
 
     /**
      * Reject a pending order → release reservation.
@@ -300,45 +344,64 @@ class OrderService
     }
 
     /**
-     * Return stock for canceled/returned confirmed orders.
+     * Return stock for canceled / returned confirmed orders.
      */
-    public function restockFromOrderItems(Order $order, string $transactionType, string $reasonPrefix): void
-    {
+    public function restockFromOrderItems(
+        Order $order,
+        string $transactionType,
+        string $reasonPrefix
+    ): void {
+
+        // Make sure batches are loaded
+        $order->loadMissing('items.batches.inventoryBatch');
 
         foreach ($order->items as $item) {
-            $batch = $item->inventoryBatch;
 
-            if (!$batch) {
-                throw new Exception("No inventory batch linked for order item {$item->id}.");
+            if ($item->batches->isEmpty()) {
+                throw new Exception("No inventory batches linked for order item {$item->id}.");
             }
 
-            $batch->increment('available_quantity', $item->quantity);
+            foreach ($item->batches as $itemBatch) {
 
-            $this->inventoryMovementService->logMovement([
-                'product_id' => $item->product_id,
-                'inventory_batch_id' => $batch->id,
-                'transaction_type' => $transactionType,
-                'available_change' => $item->quantity,
-                'batch_number' => $batch->batch_number,
-                'expiry_date' => $batch->expiry_date,
-                'cost_price' => $batch->cost_price,
-                'reference' => "Order #{$order->id} {$reasonPrefix}",
-                'reason' => $reasonPrefix ?? "",
-              
-            ]);
+                $batch = $itemBatch->inventoryBatch;
+                $quantity = $itemBatch->quantity;
 
+                // Restore batch quantity
+                $batch->increment('available_quantity', $quantity);
 
-            // Update ProductStock: add back to available
-            $this->productStockService->addStock($item->product_id, $item->quantity);
+                // Reactivate batch if needed
+                if ($batch->status === 'depleted') {
+                    $batch->update(['status' => 'active']);
+                }
+
+                // Log inventory movement
+                $this->inventoryMovementService->logMovement([
+                    'product_id' => $item->product_id,
+                    'inventory_batch_id' => $batch->id,
+                    'batch_number' => $batch->batch_number,
+                    'expiry_date' => $batch->expiry_date,
+                    'transaction_type' => $transactionType, // return / cancel
+                    'available_change' => $quantity,
+                    'cost_price' => $itemBatch->cost_price, // snapshot
+                    'reference' => "Order #{$order->id} {$reasonPrefix}",
+                    'reason' => $reasonPrefix,
+                ]);
+
+                // Update product stock summary
+                $this->productStockService->addStock($item->product_id, $quantity);
+            }
+
+            
         }
     }
+
 
     /**
      * Update order status with proper inventory handling.
      */
     public function updateOrderStatus(int $orderId, string $newStatus, ?int $deliveryId = null): Order
     {
-        $order = Order::with(['items.product', 'items.inventoryBatch'])->findOrFail($orderId);
+        $order = Order::with(['items.product', 'items.batches'])->findOrFail($orderId);
 
         $previousStatus = $order->status;
 

@@ -15,8 +15,8 @@
                 </div>
                 <div class="card-body">
                     @if ($order->client_id)
-                        <p><strong>العميل:</strong> {{ $order->client->first_name }} {{ $order->client->last_name }}</p>
-                        <p><strong>هاتف العميل:</strong> {{ $order->client->phone }}</p>
+                        <p><strong>الزبون:</strong> {{ $order->client->first_name }} {{ $order->client->last_name }}</p>
+                        <p><strong>هاتف الزبون:</strong> {{ $order->client->phone }}</p>
                     @else
                         <p><strong>نوع الطلب:</strong> <span class="badge bg-warning">تم إنشاؤه بواسطة الإدارة</span></p>
                         @if ($order->createdByAdmin)
@@ -24,13 +24,14 @@
                                 {{ $order->createdByAdmin->last_name }}</p>
                         @endif
                     @endif
-                    <p><strong>الحالة:</strong> <span class="badge bg-info">{{ ucfirst($order->status) }}</span></p>
+                    <p><strong>الحالة:</strong> <span class="badge bg-info">{{ $order::STATUSES[$order->status] }}</span></p>
                     <p><strong>تاريخ الطلب:</strong> {{ $order->order_date->format('Y-m-d H:i') }}</p>
-                    <p><strong>مصدر الطلب:</strong> {{ ucfirst(str_replace('_', ' ', $order->order_source)) }}</p>
-                    <p><strong>طريقة التوصيل:</strong> {{ ucfirst(str_replace('_', ' ', $order->delivery_method)) }}</p>
+                    <p><strong>مصدر الطلب:</strong> {{ $order::SOURCES[$order->order_source] }}</p>
+                    <p><strong>طريقة التوصيل:</strong> {{ $order::DELIVERY_METHODS[$order->delivery_method] }}</p>
                     <p><strong>العنوان:</strong> {{ $order->address_details }}</p>
                     @if ($order->latitude && $order->longitude)
                         <p><strong>الموقع:</strong> {{ $order->latitude }}, {{ $order->longitude }}</p>
+                        <div id="map" style="height: 300px;"></div>
                     @endif
                     @if ($order->shipping_notes)
                         <p><strong>ملاحظات الشحن:</strong> {{ $order->shipping_notes }}</p>
@@ -53,7 +54,15 @@
                                 <th>سعر الوحدة</th>
                                 <th>الكمية</th>
                                 <th>المجموع الفرعي</th>
-                                <th>الحالة</th>
+                                @if (!in_array($order->status, ['pending', 'cancelled', 'returned']))
+                                    <th>
+                                        @if (in_array($order->status, ['returned', 'canceled']))
+                                            <span class="badge bg-warning text-dark">هذه الكميات أرجعت إلى المخازن المتعلقة
+                                                بها</span>
+                                        @endif <br>
+                                        الدفعة المستخدمة
+                                    </th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -63,11 +72,31 @@
                                     <td>${{ number_format($item->unit_price, 2) }}</td>
                                     <td>{{ $item->quantity }}</td>
                                     <td>${{ number_format($item->unit_price * $item->quantity, 2) }}</td>
-                                    <td>
-                                        <span class="badge {{ $item->status === 'normal' ? 'bg-success' : 'bg-warning' }}">
-                                            {{ ucfirst($item->status) }}
-                                        </span>
-                                    </td>
+                                    @if (!in_array($order->status, ['pending', 'cancelled', 'returned']))
+                                        <td>
+                                            @if ($item->batches->isNotEmpty())
+                                                <ul class="mb-0 ps-3">
+                                                    @foreach ($item->batches as $batchItem)
+                                                        <li>
+                                                            <strong>دفعة:</strong>
+                                                            {{ $batchItem->inventoryBatch->batch_number }}
+                                                            <br>
+                                                            <strong>كمية:</strong> {{ $batchItem->quantity }}
+                                                            <br>
+                                                            @if ($batchItem->inventoryBatch->expiry_date)
+                                                                <strong>تاريخ الانتهاء:</strong>
+                                                                {{ $batchItem->inventoryBatch->expiry_date }}
+                                                            @else
+                                                                <strong>تاريخ الانتهاء:</strong> غير محدد
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
@@ -82,16 +111,16 @@
                 </div>
                 <div class="card-body">
                     <p class="mb-3"><strong>الحالة الحالية:</strong>
-                        <span class="badge
-                            @if($order->status === 'pending') bg-warning
+                        <span
+                            class="badge
+                            @if ($order->status === 'pending') bg-warning
                             @elseif($order->status === 'confirmed') bg-info
                             @elseif($order->status === 'shipped') bg-primary
                             @elseif($order->status === 'delivered') bg-primary
                             @elseif($order->status === 'done') bg-success
                             @elseif($order->status === 'canceled') bg-danger
-                            @elseif($order->status === 'returned') bg-secondary
-                            @endif">
-                            {{ ucfirst($order->status) }}
+                            @elseif($order->status === 'returned') bg-secondary @endif">
+                            {{ $order::STATUSES[$order->status] }}
                         </span>
                     </p>
 
@@ -102,7 +131,8 @@
                             @if ($order->status === 'pending')
                                 {{-- Pending orders: Confirm or Reject --}}
                                 @if (in_array('confirmed', $availableTransitions))
-                                    <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST"
+                                        class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-success mb-2">
                                             <i class="fas fa-check"></i> تأكيد الطلب
@@ -111,7 +141,8 @@
                                 @endif
 
                                 @if (in_array('canceled', $availableTransitions))
-                                    <button type="button" class="btn btn-danger mb-2" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                    <button type="button" class="btn btn-danger mb-2" data-bs-toggle="modal"
+                                        data-bs-target="#rejectModal">
                                         <i class="fas fa-times"></i> رفض الطلب
                                     </button>
                                 @endif
@@ -119,40 +150,44 @@
                                 {{-- Other statuses: Show available transitions --}}
                                 @foreach ($availableTransitions as $transition)
                                     @if ($transition === 'delivered' && $order->delivery_method === 'delivery' && !$order->delivery_id)
-                                    
                                         {{-- Special case: Need to assign delivery person --}}
-                                        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#assignDeliveryModal">
+                                        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal"
+                                            data-bs-target="#assignDeliveryModal">
                                             <i class="fas fa-truck"></i> تعيين موظف التوصيل & وضع كتم التوصيل
                                         </button>
                                     @else
-                                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST"
+                                            class="d-inline">
                                             @csrf
                                             <input type="hidden" name="status" value="{{ $transition }}">
                                             <button type="submit"
                                                 class="btn mb-2
-                                                    @if($transition === 'done') btn-success
+                                                    @if ($transition === 'done') btn-success
                                                     @elseif($transition === 'canceled') btn-danger
                                                     @elseif($transition === 'returned') btn-warning
                                                     @elseif($transition === 'shipped') btn-primary
                                                     @elseif($transition === 'delivered') btn-primary
-                                                    @else btn-secondary
-                                                    @endif"
-                                                @if(in_array($transition, ['canceled', 'returned']))
-                                                    onclick="return confirm('هل أنت متأكد من {{ $transition === 'canceled' ? 'إلغاء' : 'إرجاع' }} الطلب؟')"
-                                                @endif>
-                                                <i class="fas
-                                                    @if($transition === 'done') fa-check-circle
+                                                    @else btn-secondary @endif"
+                                                @if (in_array($transition, ['canceled', 'returned'])) onclick="return confirm('هل أنت متأكد من {{ $transition === 'canceled' ? 'إلغاء' : 'إرجاع' }} الطلب؟')" @endif>
+                                                <i
+                                                    class="fas
+                                                    @if ($transition === 'done') fa-check-circle
                                                     @elseif($transition === 'canceled') fa-times-circle
                                                     @elseif($transition === 'returned') fa-undo
                                                     @elseif($transition === 'shipped') fa-shipping-fast
-                                                    @elseif($transition === 'delivered') fa-truck
-                                                    @endif"></i>
-                                                @if($transition === 'done') إنجاز الطلب
-                                                @elseif($transition === 'canceled') إلغاء الطلب
-                                                @elseif($transition === 'returned') إرجاع الطلب
-                                                @elseif($transition === 'shipped') شحن الطلب
-                                                @elseif($transition === 'delivered') تم التوصيل
-                                                @else {{ ucfirst($transition) }}
+                                                    @elseif($transition === 'delivered') fa-truck @endif"></i>
+                                                @if ($transition === 'done')
+                                                    إنجاز الطلب
+                                                @elseif($transition === 'canceled')
+                                                    إلغاء الطلب
+                                                @elseif($transition === 'returned')
+                                                    إرجاع الطلب
+                                                @elseif($transition === 'shipped')
+                                                    شحن الطلب
+                                                @elseif($transition === 'delivered')
+                                                    تم التوصيل
+                                                @else
+                                                    {{ ucfirst($transition) }}
                                                 @endif
                                             </button>
                                         </form>
@@ -163,7 +198,7 @@
                     @else
                         <p class="text-muted">
                             <i class="fas fa-info-circle"></i>
-                            هذا الطلب في حالة نهائية ({{ $order->status }}). لا توجد إجراءات أخرى متاحة.
+                            هذا الطلب في حالة نهائية ({{ $order::STATUSES[$order->status] }}). لا توجد إجراءات أخرى متاحة.
                         </p>
                     @endif
                 </div>
@@ -177,12 +212,15 @@
                             @csrf
                             <div class="modal-header">
                                 <h5 class="modal-title" id="rejectModalLabel">رفض الطلب</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="mb-3">
-                                    <label for="reason" class="form-label">سبب الرفض <span class="text-danger">*</span></label>
-                                    <textarea name="reason" id="reason" class="form-control" rows="3" required placeholder="أدخل سبب رفض الطلب..."></textarea>
+                                    <label for="reason" class="form-label">سبب الرفض <span
+                                            class="text-danger">*</span></label>
+                                    <textarea name="reason" id="reason" class="form-control" rows="3" required
+                                        placeholder="أدخل سبب رفض الطلب..."></textarea>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -195,7 +233,8 @@
             </div>
 
             {{-- Modal for assigning delivery person --}}
-            <div class="modal fade" id="assignDeliveryModal" tabindex="-1" aria-labelledby="assignDeliveryModalLabel" aria-hidden="true">
+            <div class="modal fade" id="assignDeliveryModal" tabindex="-1" aria-labelledby="assignDeliveryModalLabel"
+                aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST">
@@ -203,16 +242,19 @@
                             <input type="hidden" name="status" value="delivered">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="assignDeliveryModalLabel">تعيين موظف التوصيل</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="mb-3">
-                                    <label for="delivery_id" class="form-label">اختر موظف التوصيل <span class="text-danger">*</span></label>
+                                    <label for="delivery_id" class="form-label">اختر موظف التوصيل <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-control" id="delivery_id" name="delivery_id" required>
                                         <option value="">-- اختر موظف التوصيل --</option>
                                         @foreach ($deliveryPersons as $delivery)
                                             <option value="{{ $delivery->id }}">
-                                                {{ $delivery->first_name }} {{ $delivery->last_name }} - {{ $delivery->phone }}
+                                                {{ $delivery->first_name }} {{ $delivery->last_name }} -
+                                                {{ $delivery->phone }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -285,5 +327,27 @@
             </div>
         </div>
     </div>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            @if ($order->latitude && $order->longitude)
+                const lat = {{ $order->latitude }};
+                const lng = {{ $order->longitude }};
+
+                const map = L.map('map').setView([lat, lng], 13);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                L.marker([lat, lng]).addTo(map);
+            @endif
+        });
+    </script>
 @endsection

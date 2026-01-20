@@ -15,14 +15,8 @@ class OrderItem extends Model
         'product_id',
         'quantity',
         'unit_price',
-        'status',
-        'inventory_batch_id'
     ];
 
-    public const STATUSES = [
-        'normal' => 'Normal',
-        'returned' => 'Returned',
-    ];
 
     protected $casts = [
         'unit_price' => 'decimal:3',
@@ -63,11 +57,20 @@ class OrderItem extends Model
         return $this->subtotal;
     }
 
-    /**
-     * Get the inventory batch for this order item.
+
+     /**
+     * Batches used to fulfill this order item
      */
-    public function inventoryBatch(): BelongsTo
+    public function batches()
     {
-        return $this->belongsTo(InventoryBatch::class, 'inventory_batch_id');
+        return $this->hasMany(OrderItemBatch::class);
+    }
+
+    /**
+     * Total fulfilled quantity (safety check)
+     */
+    public function fulfilledQuantity(): int
+    {
+        return $this->batches()->sum('quantity');
     }
 }

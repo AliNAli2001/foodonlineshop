@@ -22,18 +22,18 @@
             <form action="{{ route('admin.orders.store') }}" method="POST" id="orderForm">
                 @csrf
 
-                <!-- معلومات العميل -->
+                <!-- معلومات الزبون -->
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h5>معلومات العميل (اختياري)</h5>
+                        <h5>معلومات الزبون (اختياري)</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label">اختر العميل</label>
+                            <label class="form-label">اختر الزبون</label>
 
                             <div class="d-flex gap-2 align-items-center p-3">
                                 <input type="text" id="selectedClientName" class="form-control" disabled
-                                    placeholder="لم يتم اختيار عميل">
+                                    placeholder="لم يتم اختيار زبون">
 
                                 <input type="hidden" name="client_id" id="selectedClientId" value="{{ old('client_id') }}">
 
@@ -52,12 +52,12 @@
                             @enderror
 
                             <small class="form-text text-muted">
-                                ابحث عن العميل بالاسم أو رقم الهاتف، أو اتركه فارغًا لإنشاء طلب بدون عميل.
+                                ابحث عن الزبون بالاسم أو رقم الهاتف، أو اتركه فارغًا لإنشاء طلب بدون زبون.
                             </small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="client_name" class="form-label">اسم العميل (اختياري)</label>
+                            <label for="client_name" class="form-label">اسم الزبون (اختياري)</label>
                             <input type="text" class="form-control @error('client_name') is-invalid @enderror"
                                 id="client_name" name="client_name" value="{{ old('client_name') }}">
                             @error('client_name')
@@ -65,7 +65,7 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="client_phone_number" class="form-label">رقم هاتف العميل (اختياري)</label>
+                            <label for="client_phone_number" class="form-label">رقم هاتف الزبون (اختياري)</label>
                             <input type="text" class="form-control @error('client_phone_number') is-invalid @enderror"
                                 id="client_phone_number" name="client_phone_number"
                                 value="{{ old('client_phone_number') }}">
@@ -162,13 +162,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">ملاحظات إدارية عن العميل (اختياري)</label>
+                            <label class="form-label">ملاحظات إدارية عن الزبون (اختياري)</label>
                             <textarea name="admin_order_client_notes" class="form-control @error('admin_order_client_notes') is-invalid @enderror"
                                 rows="2">{{ old('admin_order_client_notes') }}</textarea>
                             @error('admin_order_client_notes')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">ملاحظات داخلية عن العميل أو الطلب.</small>
+                            <small class="form-text text-muted">ملاحظات داخلية عن الزبون أو الطلب.</small>
                         </div>
                     </div>
                 </div>
@@ -280,7 +280,7 @@
             <div class="modal-content">
 
                 <div class="modal-header d-flex justify-content-between align-items-center">
-                    <h5 class="modal-title">اختيار عميل</h5>
+                    <h5 class="modal-title">اختيار زبون</h5>
                     <button type="button" class="btn btn-close m-0" data-bs-dismiss="modal"></button>
                 </div>
 

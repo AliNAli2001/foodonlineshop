@@ -46,7 +46,7 @@ class InventoryBatch extends Model
         return $this->hasMany(InventoryMovement::class, 'inventory_batch_id');
     }
 
-  
+
     /**
      * Check if inventory batch has expired.
      */
@@ -84,8 +84,8 @@ class InventoryBatch extends Model
     /**
      * Get all order items for this inventory batch.
      */
-    public function orderItems(): HasMany
+    public function orderItemBatches()
     {
-        return $this->hasMany(OrderItem::class, 'inventory_batch_id');
+        return $this->hasMany(OrderItemBatch::class);
     }
 }
