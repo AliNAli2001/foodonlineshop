@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('client_phone_number')->nullable();
             $table->timestamp('order_date')->useCurrent();
             $table->decimal('total_amount', 14, 2)->default(0.00);
+            $table->decimal('cost_price', 14, 2)->default(0.00);
             $table->enum('status', ['pending', 'confirmed', 'shipped', 'delivered', 'done', 'canceled', 'returned'])->default('pending');
             $table->enum('order_source', ['inside_city', 'outside_city']);
             $table->enum('delivery_method', ['delivery', 'shipping', 'hand_delivered']);

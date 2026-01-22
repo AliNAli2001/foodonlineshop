@@ -2,9 +2,11 @@
 
 @section('content')
 <div class="row mb-4">
-    <div class="col-md-12 d-flex justify-content-between align-items-center">
-        <h1>المنتجات</h1>
-        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">إضافة منتج</a>
+    <div class="col-md-8">
+    <h1>المنتجات</h1>
+    </div>
+     <div class="col-md-4 text-end">
+        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">+ إضافة منتج</a>
     </div>
 </div>
 
@@ -14,7 +16,7 @@
             <thead>
                 <tr>
                     <th>رقم المنتج</th>
-                    <th>الاسم (بالإنجليزية)</th>
+                    <th>الاسم (بالعربية)</th>
                     <th>السعر</th>
                     <th>المخزون</th>
                     <th>مميز</th>
@@ -25,7 +27,7 @@
                 @forelse ($products as $product)
                     <tr>
                         <td>{{ $product->id }}</td>
-                        <td>{{ $product->name_en }}</td>
+                        <td>{{ $product->name_ar }}</td>
                         <td>${{ number_format($product->selling_price, 2) }}</td>
                         <td>{{ $product->stock_available_quantity }}</td>
                         <td>

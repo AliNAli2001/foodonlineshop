@@ -24,6 +24,7 @@ class InventoryQueryService
             ->orderBy('product_stocks.available_quantity', 'asc')
             ->get();
     }
+  
 
     public function expiredSoonInventories(int $days = 7): Collection
     {

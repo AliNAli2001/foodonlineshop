@@ -20,6 +20,7 @@ class Order extends Model
         'client_phone_number',
         'order_date',
         'total_amount',
+        'cost_price',
         'status',
         'order_source',
         'delivery_method',

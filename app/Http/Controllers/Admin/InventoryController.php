@@ -14,6 +14,8 @@ class InventoryController extends Controller
     protected InventoryService $inventoryService;
     protected InventoryMovementService $inventoryMovementService;
 
+    
+
     public function __construct(InventoryService $inventoryService, InventoryMovementService $inventoryMovementService)
     {
         $this->inventoryService = $inventoryService;
@@ -58,9 +60,20 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        $products = $this->inventoryService->getAllProductsWithBatches();
+        $products = $this->inventoryService->getProductsWithBatchesOrderedByLowestStock();
         return view('admin.inventory.index', compact('products'));
     }
+
+    /**
+     * Show all products that have inventory batches.
+     */
+    public function indexLowStockProducts()
+    {
+        $products = $this->inventoryService->indexLowStockProducts();
+        return view('admin.inventory.index', compact('products'));
+    }
+
+    
 
     /**
      * Show all batches and movements for a specific product.

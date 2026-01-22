@@ -41,7 +41,7 @@ class InventoryService
             'batch_number' => $data['batch_number'],
             'expiry_date' => $data['expiry_date'] ?? null,
             'transaction_type' => 'restock',
-            'available_change' => $data['available_quantity'],   
+            'available_change' => $data['available_quantity'],
             'cost_price' => $data['cost_price'],
             'reason' => $data['reason'] ?? 'دفعة جديدة',
             'reference' => "Batch #{$batch->batch_number}",
@@ -113,8 +113,10 @@ class InventoryService
     }
 
 
+
+
     /**
-     * Get all products with out inventory batches.
+     * Get all products with out inventory batches. (old one replaced by getProductsWithBatchesOrderedByLowestStock)
      */
     public function getAllProductsWithoutBatches(int $perPage = 10)
     {
@@ -125,6 +127,53 @@ class InventoryService
             ->has('inventoryBatches')
             ->paginate($perPage);
     }
+
+    /**
+     * Get all products with inventory batches
+     * ordered by lowest available stock first.
+     */
+    public function getProductsWithBatchesOrderedByLowestStock(int $perPage = 10)
+    {
+        return Product::query()
+            ->select('products.*')
+            ->leftJoin('product_stocks', 'product_stocks.product_id', '=', 'products.id')
+            ->with([
+                'stock',
+                'inventoryBatches' => function ($q) {
+                    $q->orderByRaw('expiry_date IS NULL ASC')
+                        ->orderBy('expiry_date', 'asc');
+                }
+            ])
+            ->has('inventoryBatches')
+            ->orderByRaw('COALESCE(product_stocks.available_quantity, 0) ASC')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Get low-stock products with inventory batches (paginated).
+     */
+    public function indexLowStockProducts(int $perPage = 10)
+    {
+        return Product::query()
+            ->select('products.*')
+            ->join('product_stocks', 'products.id', '=', 'product_stocks.product_id')
+            ->with([
+                'stock',
+                'inventoryBatches' => function ($q) {
+                    $q->orderByRaw('expiry_date IS NULL ASC')
+                        ->orderBy('expiry_date', 'asc');
+                }
+            ])
+            ->whereColumn(
+                'product_stocks.available_quantity',
+                '<',
+                'products.minimum_alert_quantity'
+            )
+            ->has('inventoryBatches')
+            ->orderBy('product_stocks.available_quantity', 'asc')
+            ->paginate($perPage);
+    }
+
 
     /**
      * Get batches for a specific product.

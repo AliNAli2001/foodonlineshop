@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\OrderItemBatch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Brick\Math\BigDecimal;
 use Exception;
 
 class OrderService
@@ -28,8 +29,8 @@ class OrderService
      */
     public function createAdminOrder(array $validated, int $adminId): Order
     {
-        $totalAmount = 0;
-        $totalCostPrice = 0;
+        $totalAmount = BigDecimal::zero();
+        $totalCostPrice = BigDecimal::zero();
 
         // 1️⃣ Pre-check stock availability
         foreach ($validated['products'] as $item) {
@@ -43,7 +44,7 @@ class OrderService
                 ]);
             }
 
-            $totalAmount += $product->selling_price * $item['quantity'];
+            $totalAmount = $totalAmount->plus(BigDecimal::of($product->selling_price)->multipliedBy($item['quantity']));
         }
 
         return DB::transaction(function () use ($validated, $totalAmount, $adminId, &$totalCostPrice) {
@@ -129,7 +130,8 @@ class OrderService
                         'reason' => 'Direct sale by admin',
                     ]);
 
-                    $totalCostPrice += $batch->cost_price * $sellFromThisBatch;
+                    
+                    $totalCostPrice = $totalCostPrice->plus(BigDecimal::of($batch->cost_price)->multipliedBy($sellFromThisBatch));
                     $totalDeducted += $sellFromThisBatch;
                     $quantityToSell -= $sellFromThisBatch;
                 }
@@ -146,7 +148,7 @@ class OrderService
             }
 
             // 4️⃣ Update total cost price
-            $order->update(['cost_price' => $totalCostPrice]);
+            $order->update(['cost_price' => $totalCostPrice->toFloat()]);
 
             return $order;
         });
@@ -185,8 +187,7 @@ class OrderService
         }
 
         return DB::transaction(function () use ($client, $validated, $cart) {
-            $totalAmount = 0;
-            $totalCostPrice = 0;
+            $totalAmount = BigDecimal::zero();
 
             // Create the order
             $order = Order::create([
@@ -200,7 +201,7 @@ class OrderService
                 'general_notes' => $validated['general_notes'] ?? null,
                 'status' => 'pending',
                 'total_amount' => 0,
-                'cost_price' => 0,
+
             ]);
 
             foreach ($cart as $productId => $cartItem) {
@@ -208,8 +209,8 @@ class OrderService
 
                 $product = Product::findOrFail($productId);
                 $unitPrice = $product->selling_price;
-                $subtotal = $unitPrice * $quantityRequested;
-                $totalAmount += $subtotal;
+               $subtotal = BigDecimal::of($unitPrice)->multipliedBy($quantityRequested);
+            $totalAmount = $totalAmount->plus($subtotal);
 
                 // Create order item (no batch assigned yet — only on confirmation)
                 OrderItem::create([
@@ -222,8 +223,8 @@ class OrderService
 
             // Update order totals
             $order->update([
-                'total_amount' => $totalAmount,
-                'cost_price' => $totalCostPrice,
+                'total_amount' => $totalAmount->toFloat(),
+
             ]);
 
             return $order;
@@ -243,7 +244,7 @@ class OrderService
 
         DB::transaction(function () use ($order) {
 
-            $totalOrderCost = 0;
+            $totalOrderCost = BigDecimal::zero();
 
             foreach ($order->items as $item) {
 
@@ -297,7 +298,7 @@ class OrderService
                         'reason' => 'Order confirmed by admin',
                     ]);
 
-                    $totalOrderCost += $batch->cost_price * $deductAmount;
+                 $totalOrderCost = $totalOrderCost->plus(BigDecimal::of($batch->cost_price)->multipliedBy($deductAmount));
                     $totalDeducted += $deductAmount;
                     $quantityToDeduct -= $deductAmount;
                 }
@@ -316,7 +317,7 @@ class OrderService
             // Update order status + cost
             $order->update([
                 'status' => 'confirmed',
-                'cost_price' => $totalOrderCost,
+                'cost_price' => $totalOrderCost->toFloat(),
             ]);
         });
 
@@ -390,8 +391,6 @@ class OrderService
                 // Update product stock summary
                 $this->productStockService->addStock($item->product_id, $quantity);
             }
-
-            
         }
     }
 

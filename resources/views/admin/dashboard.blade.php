@@ -147,8 +147,10 @@
                         <thead>
                             <tr>
                                 <th>رقم الطلب</th>
+                                <th>النوع</th>
                                 <th>الزبون</th>
                                 <th>الإجمالي</th>
+                                
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>
                             </tr>
@@ -157,15 +159,32 @@
                             @foreach ($recentOrders as $order)
                                 <tr>
                                     <td>#{{ $order->id }}</td>
-                                    @if ($order->client)
-                                        <td>{{ $order->client->first_name }} {{ $order->client->last_name }}</td>
-                                    @else
-                                        <td>عن طريق المدير</td>
-                                    @endif
+                                    <td>
+                                        @if ($order->client_id)
+                                            <span class="badge bg-primary">زبون</span>
+                                        @else
+                                            <span class="badge bg-warning text-dark">يدوي</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($order->client_id)
+                                            {{ $order->client->first_name }} {{ $order->client->last_name }}
+                                        @else
+                                            {{ $order->client_name }}
+                                        @endif
+                                    </td>
 
                                     <td>${{ number_format($order->total_amount, 2) }}</td>
                                     <td><span
-                                            class="badge bg-info">{{ \App\Models\Order::STATUSES[$order->status] ?? 'غير معروفة' }}
+                                            class="badge
+                            @if ($order->status === 'pending') bg-warning
+                            @elseif($order->status === 'confirmed') bg-info
+                            @elseif($order->status === 'shipped') bg-primary
+                            @elseif($order->status === 'delivered') bg-primary
+                            @elseif($order->status === 'done') bg-success
+                            @elseif($order->status === 'canceled') bg-danger
+                            @elseif($order->status === 'returned') bg-secondary @endif">
+                                            {{ $order::STATUSES[$order->status] }}
                                         </span></td>
                                     <td><a href="{{ route('admin.orders.show', $order->id) }}" class="action-link">عرض<i
                                                 class="fa fa-eye"></i></a></td>
