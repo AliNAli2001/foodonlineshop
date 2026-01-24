@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->integer('quantity');
-            $table->enum('source', ['inventory', 'external']);
+            $table->enum('source', ['inventory', 'invoice']);
             $table->foreignId('inventory_batch_id')->nullable()->constrained('inventory_batches')->onDelete('set null');            
             $table->text('reason');
             $table->timestamp('created_at')->useCurrent();

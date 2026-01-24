@@ -21,11 +21,7 @@
                     </div>
                 @endif
 
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
+              
 
                 <form action="{{ route('admin.settings.update') }}" method="POST">
                     @csrf

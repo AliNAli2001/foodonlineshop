@@ -58,7 +58,7 @@ class DamagedGoodsController extends Controller
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
-            'source' => 'required|in:inventory,external,returned',
+            'source' => 'required|in:inventory,invoice',
             'inventory_batch_id' => 'required_if:source,inventory|nullable|exists:inventory_batches,id',
            
             'reason' => 'required|string|max:500',
@@ -68,7 +68,7 @@ class DamagedGoodsController extends Controller
             $this->damagedGoodsService->createDamagedGoods($validated);
 
             return redirect()->route('admin.damaged-goods.index')
-                ->with('success', 'تم تسجيل بيانات البضاعة المخربة بنجاح.');
+                ->with('success', 'تم تسجيل بيانات البضاعة التالفة بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -96,7 +96,7 @@ class DamagedGoodsController extends Controller
             $this->damagedGoodsService->deleteDamagedGoods($damagedGoodsId);
 
             return redirect()->route('admin.damaged-goods.index')
-                ->with('success', 'تم حذف بيانات البضاعة المخربة بنجاح.');
+                ->with('success', 'تم حذف بيانات البضاعة التالفة بنجاح.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

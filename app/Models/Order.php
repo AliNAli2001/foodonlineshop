@@ -95,13 +95,7 @@ class Order extends Model
         return $this->hasMany(OrderItem::class, 'order_id');
     }
 
-    /**
-     * Get all returned items for this order.
-     */
-    public function returnedItems(): HasMany
-    {
-        return $this->hasMany(ReturnItem::class, 'order_id');
-    }
+
 
     /**
      * Prepare a copiable message based on the order's status.

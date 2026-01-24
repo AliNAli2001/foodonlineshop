@@ -41,13 +41,7 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class, 'product_id');
     }
 
-    /**
-     * Get all returned items for this order item.
-     */
-    public function returnedItems(): HasMany
-    {
-        return $this->hasMany(ReturnItem::class, 'order_item_id');
-    }
+
 
     /**
      * Get the subtotal for this item.

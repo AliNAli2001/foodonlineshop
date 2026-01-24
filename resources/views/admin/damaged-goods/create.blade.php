@@ -25,7 +25,22 @@
             <div class="card-body">
                 <form action="{{ route('admin.damaged-goods.store') }}" method="POST">
                     @csrf
-
+<div class="mb-3">
+                        <label class="form-label">المصدر</label>
+                        <select name="source" id="source" class="form-control @error('source') is-invalid @enderror"
+                            required>
+                            <option value="">-- اختر المصدر --</option>
+                            <option value="inventory" {{ old('source') == 'inventory' ? 'selected' : '' }}>المخزون (سيتم
+                                إنشاء حركة مخزون)</option>
+                            <option value="invoice" {{ old('source') == 'invoice' ? 'selected' : '' }}>الفاتورة</option>
+                        </select>
+                        @error('source')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">
+                            اختيار "المخزون" سينشئ تلقائيًا سجل حركة مخزون ويخصم من المخزون الحالي.
+                        </small>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">المنتج</label>
                         <select name="product_id" id="product_id"
@@ -63,22 +78,7 @@
                         @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">المصدر</label>
-                        <select name="source" id="source" class="form-control @error('source') is-invalid @enderror"
-                            required>
-                            <option value="">-- اختر المصدر --</option>
-                            <option value="inventory" {{ old('source') == 'inventory' ? 'selected' : '' }}>المخزون (سيتم
-                                إنشاء حركة مخزون)</option>
-                            <option value="external" {{ old('source') == 'external' ? 'selected' : '' }}>خارجي</option>
-                        </select>
-                        @error('source')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-text text-muted">
-                            اختيار "المخزون" سينشئ تلقائيًا سجل حركة مخزون ويخصم من المخزون الحالي.
-                        </small>
-                    </div>
+                    
 
                     <div class="mb-3">
                         <label class="form-label">السبب</label>

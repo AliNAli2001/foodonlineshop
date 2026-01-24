@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\DamagedGoods;
 use App\Models\InventoryBatch;
 use App\Models\Product;
-use App\Models\ReturnItem;
+
 
 class DamagedGoodsService
 {
@@ -47,8 +47,10 @@ class DamagedGoodsService
                 'product_id' => $data['product_id'],
                 'inventory_batch_id' => $batch->id,
                 'transaction_type' => 'damaged',
+                'batch_number' => $batch->batch_number,
+                'expiry_date' => $batch->expiry_date,
                 'available_change' => -$data['quantity'],
-                'reserved_change' => 0,
+                
                 'cost_price' => $batch->cost_price,
                 'reason' => $data['reason'],
                 'reference' => 'Damaged goods reported',
@@ -69,16 +71,7 @@ class DamagedGoodsService
             'reason' => $data['reason'],
         ]);
 
-        // Handle returned item deduction
-        if ($data['source'] === 'returned') {
-            $returnItem = ReturnItem::findOrFail($data['return_item_id']);
-
-            if ($returnItem->quantity < $data['quantity']) {
-                throw new \Exception('Cannot mark more as damaged than currently returned.');
-            }
-
-            $returnItem->decrement('quantity', $data['quantity']);
-        }
+       
 
         return $damagedGoods;
     }
@@ -88,7 +81,7 @@ class DamagedGoodsService
      */
     public function getAllDamagedGoods(int $perPage = 15)
     {
-        return DamagedGoods::with(['product', 'inventoryBatch', 'returnItem'])
+        return DamagedGoods::with(['product', 'inventoryBatch'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }
@@ -100,9 +93,7 @@ class DamagedGoodsService
     {
         return DamagedGoods::with([
             'product',
-            'inventoryBatch',
-            'returnItem',
-            'inventoryMovement'
+            'inventoryBatch'
         ])->findOrFail($damagedGoodsId);
     }
 

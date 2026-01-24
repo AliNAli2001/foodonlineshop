@@ -12,13 +12,6 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
     <div class="card">
         <div class="card-body">
             <table class="table table-hover">
@@ -37,7 +30,7 @@
                         <tr>
                             <td>{{ $damaged->product->name_ar }}</td>
                             <td>{{ $damaged->quantity }}</td>
-                            <td><span class="badge bg-info">{{ ucfirst($damaged->source) }}</span></td>
+                            <td><span class="badge bg-info">{{ $damaged::SOURCES[$damaged->source] }}</span></td>
                             <td>{{ $damaged->reason }}</td>
                             <td>{{ $damaged->created_at->format('Y-m-d H:i') }}</td>
                             <td>

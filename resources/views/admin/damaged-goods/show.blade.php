@@ -20,9 +20,7 @@
             <p><strong>الكمية:</strong> {{ $damagedGoods->quantity }}</p>
             <p><strong>المصدر:</strong> <span class="badge bg-info">{{ ucfirst($damagedGoods->source) }}</span></p>
             <p><strong>السبب:</strong> {{ $damagedGoods->reason }}</p>
-            @if ($damagedGoods->returnItem)
-                <p><strong>مرتبط بالإرجاع:</strong> <a href="{{ route('admin.returns.show', $damagedGoods->returnItem->id) }}">إرجاع #{{ $damagedGoods->returnItem->id }}</a></p>
-            @endif
+          
             @if ($damagedGoods->inventoryTransaction)
                 <p><strong>حركة المخزون:</strong>
                     <span class="badge bg-success">{{ $damagedGoods->inventoryTransaction->transaction_type }}</span>

@@ -23,8 +23,8 @@ class DamagedGoods extends Model
     ];
 
     const SOURCES = [
-        'inventory' => 'Inventory',
-        'external' => 'External',
+        'inventory' => 'المخزن',
+        'invoice' => 'الفاتورة',
     ];
 
     /**

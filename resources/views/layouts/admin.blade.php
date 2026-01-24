@@ -98,7 +98,7 @@
                         <a class="nav-link {{ request()->routeIs('admin.damaged-goods.*') ? 'active' : '' }}"
                             href="{{ route('admin.damaged-goods.index') }}">
                             <i class="fas fa-exclamation-triangle ms-2"></i>
-                            البضاعة المخربة
+                            البضاعة التالفة
                         </a>
                     </li>
 
