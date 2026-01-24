@@ -20,7 +20,7 @@
             </div>
             <div class="col-md-4 text-end">
                 @if (request()->routeIs('admin.inventory.index'))
-                    <a href="{{ route('admin.inventory.index.low-stock') }}" class="btn btn-primary">المنتجات منخفضة
+                    <a href="{{ route('admin.inventory.index.low-stock') }}" class="btn btn-warning">المنتجات منخفضة
                         المخزون</a>
                 @else
                     <a href="{{ route('admin.inventory.index') }}" class="btn btn-primary">جميع المنتجات</a>
