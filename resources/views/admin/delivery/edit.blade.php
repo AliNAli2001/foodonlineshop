@@ -56,7 +56,7 @@
                     <div class="mb-3">
                         <label for="phone_plus" class="form-label">الهاتف +</label>
                         <input type="text" class="form-control @error('phone_plus') is-invalid @enderror" 
-                               id="phone_plus" name="phone_plus" value="{{ $delivery->phone_plus }}" required>
+                               id="phone_plus" name="phone_plus" value="{{ $delivery->phone_plus }}" >
                         @error('phone_plus')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror

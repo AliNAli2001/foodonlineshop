@@ -13,7 +13,7 @@ class DeliveryController extends Controller
      */
     public function index()
     {
-        $deliveryPersons = Delivery::paginate(15);
+        $deliveryPersons = Delivery::withCount('orders')->paginate(15);
         return view('admin.delivery.index', compact('deliveryPersons'));
     }
 

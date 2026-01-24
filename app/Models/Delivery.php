@@ -28,9 +28,9 @@ class Delivery extends Model
     ];
 
     const STATUSES = [
-        'available' => 'Available',
-        'busy' => 'Busy',
-        'inactive' => 'Inactive',
+        'available' => 'متاح',
+        'busy' => 'مشغول',
+        'inactive' => 'غير نشط',
     ];
 
     /**
