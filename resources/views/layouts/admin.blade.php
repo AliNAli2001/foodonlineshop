@@ -103,6 +103,14 @@
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.losses.*') ? 'active' : '' }}"
+                            href="{{ route('admin.losses.index') }}">
+                            <i class="fas fa-money-bill ms-2"></i>
+                            الخسائر
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.delivery.*') ? 'active' : '' }}"
                             href="{{ route('admin.delivery.index') }}">
                             <i class="fas fa-truck ms-2"></i>
