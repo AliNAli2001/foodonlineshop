@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('losses', function (Blueprint $table) {
+        Schema::create('adjustments', function (Blueprint $table) {
             $table->id();
 
-            $table->integer('quantity')->nullable(); // الكمية، يمكن أن تكون null إذا لم تكن ذات صلة ببعض الأنواع
+            $table->integer('quantity')->required();
 
-            $table->enum('type', ['shipping_costs', 'general_costs', 'delivery_costs', 'other'])->default('other'); // النوع، مع خيارات محددة وخيار 'other' للإضافات
+            $table->enum('adjustment_type', ['gain', 'loss'])->default('loss'); // نوع التعديل: ربح أو خسارة
 
             $table->text('reason'); // السبب، نص طويل
+            $table->date('date')->nullable()->default(now());
 
             $table->timestamps();
         });
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('losses');
+        Schema::dropIfExists('adjustments');
     }
 };

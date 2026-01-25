@@ -103,10 +103,10 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('admin.losses.*') ? 'active' : '' }}"
-                            href="{{ route('admin.losses.index') }}">
+                        <a class="nav-link {{ request()->routeIs('admin.adjustments.*') ? 'active' : '' }}"
+                            href="{{ route('admin.adjustments.index') }}">
                             <i class="fas fa-money-bill ms-2"></i>
-                            الخسائر
+                           التسويات المالية
                         </a>
                     </li>
 

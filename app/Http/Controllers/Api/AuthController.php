@@ -148,4 +148,4 @@ class AuthController extends Controller
             'expires_at' => now()->addHours(24),
         ]);
     }
-}
+} 

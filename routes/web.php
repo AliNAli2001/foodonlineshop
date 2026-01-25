@@ -23,7 +23,7 @@ use App\Http\Controllers\Admin\ProductDetailsController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ReturnsController;
 use App\Http\Controllers\Admin\DamagedGoodsController;
-use App\Http\Controllers\Admin\LossController;
+use App\Http\Controllers\Admin\AdjustmentController;
 use App\Models\Product;
 use App\Models\Category;
 
@@ -113,7 +113,7 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'show'])->name('damaged-goods.show');
     Route::delete('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'destroy'])->name('damaged-goods.destroy');
 
-    // Losses
-    Route::resource('losses', LossController::class);
+    // Adjustments (Gains & Losses)
+    Route::resource('adjustments', AdjustmentController::class);
     
 });
