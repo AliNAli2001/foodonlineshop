@@ -15,7 +15,7 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         $lang = $request->get('lang', 'en'); // default en
-
+        $isImagesLoaded = $this->relationLoaded('images');
         return [
             'id' => $this->id,
             'name' => $this->getName($lang),
@@ -25,9 +25,22 @@ class ProductResource extends JsonResource
             'in_stock' => $this->isInStock(),
             'available_quantity' => $this->stock_available_quantity,
 
-            // 🔥 Primary image logic (works even if images not eager loaded)
-            'image' => $this->primaryImage?->image_url,
-
+            $this->mergeWhen(!$isImagesLoaded, [
+                'image' => $this->primaryImage?->image_url,
+            ]),
+            $this->mergeWhen($isImagesLoaded, [
+                'images' => $this->images
+                    ->sortByDesc('is_primary') // Primary first
+                    ->values()
+                    ->map(function ($image) {
+                        return [
+                            'url' => $image->image_url,
+                            'is_primary' => $image->is_primary,
+                            'caption' => $image->caption, // include if useful, remove if not needed
+                            // 'id' => $image->id, // optional: if frontend needs to reference
+                        ];
+                    }),
+            ]),
             'category' => $this->whenLoaded('category', function () use ($lang) {
                 return [
                     'id' => $this->category->id,

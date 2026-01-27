@@ -132,7 +132,7 @@ class Product extends Model
      */
     public function getName(string $language = 'en'): string
     {
-        return $language === 'ar' ? $this->name_ar : $this->name_en;
+        return ($language === 'ar' ? $this->name_ar : $this->name_en) ?? "";
     }
 
     /**
