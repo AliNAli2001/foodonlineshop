@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Client\OrderResource;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 
@@ -22,7 +23,7 @@ class OrderController extends Controller
         $client = $request->user();
         $orders = $this->orderService->getClientOrders($client);
 
-        return response()->json($orders);
+        return OrderResource::collection($orders);
     }
 
     /**
@@ -33,7 +34,7 @@ class OrderController extends Controller
         $client = $request->user();
         $orderData = $this->orderService->getClientOrder($client, $orderId);
 
-        return response()->json($orderData);
+        return new OrderResource($orderData);
     }
 
     /**
@@ -60,7 +61,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'Order created successfully. Awaiting admin confirmation.',
-                'order' => $order,
+                'order' => new OrderResource($order),
             ], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);

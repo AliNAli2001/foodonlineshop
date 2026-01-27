@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
 
+use App\Http\Resources\Client\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
@@ -13,10 +15,10 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $language = $request->query('lang', 'en');
-        $categories = Category::paginate(12);
 
-        return response()->json($categories);
+        $categories = Category::withCount('products')->paginate(12);
+
+        return CategoryResource::collection($categories);
     }
 
     /**
@@ -24,10 +26,10 @@ class CategoryController extends Controller
      */
     public function featured(Request $request)
     {
-        $language = $request->query('lang', 'en');
-        $categories = Category::where('featured', true)->with('image')->get();
 
-        return response()->json($categories);
+        $categories = Category::withCount('products')->where('featured', true)->with('image')->get();
+
+        return CategoryResource::collection($categories);
     }
 
     /**
@@ -36,12 +38,10 @@ class CategoryController extends Controller
     public function show(Request $request, $category)
     {
         $language = $request->query('lang', 'en');
-        $category = Category::with('image')->findOrFail($category);
-        $products = $category->products()->with(['inventory', 'primaryImage'])->paginate(12);
 
-        return response()->json([
-            'category' => $category,
-            'products' => $products,
-        ]);
+        $category = Category::with(['products' => function ($query) {
+            $query->with(['primaryImage', 'company', 'tags']);
+        }])->findOrFail($category);
+        return new CategoryResource($category);
     }
 }

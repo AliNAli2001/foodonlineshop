@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Client\ProductResource;
 
 use App\Models\Product;
 use App\Models\Category;
@@ -24,14 +25,24 @@ class ProductController extends Controller
             $query->where($nameColumn, 'like', "%{$search}%");
         }
 
-        // Filter by categories
-        if ($request->filled('categories')) {
-            $categories = $request->input('categories');
-            if (!is_array($categories)) {
-                $categories = explode(',', $categories);
+        // Filter by category (one-to-many relationship)
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        // Filter by company (one-to-many relationship)
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->input('company_id'));
+        }
+
+        // Filter by tags (many-to-many relationship)
+        if ($request->filled('tags')) {
+            $tags = $request->input('tags');
+            if (!is_array($tags)) {
+                $tags = explode(',', $tags);
             }
-            $query->whereHas('categories', function ($q) use ($categories) {
-                $q->whereIn('category_id', $categories);
+            $query->whereHas('tags', function ($q) use ($tags) {
+                $q->whereIn('tags.id', $tags);
             });
         }
 
@@ -40,9 +51,28 @@ class ProductController extends Controller
             $query->where('featured', true);
         }
 
-        $products = $query->with(['inventory', 'primaryImage', 'categories'])->paginate(12);
+        // Filter by price range
+        if ($request->filled('min_price')) {
+            $query->where('selling_price', '>=', $request->input('min_price'));
+        }
+        if ($request->filled('max_price')) {
+            $query->where('selling_price', '<=', $request->input('max_price'));
+        }
 
-        return response()->json($products);
+        // Sort options
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+
+        $allowedSortFields = ['created_at', 'selling_price', 'name_en', 'name_ar'];
+        if (in_array($sortBy, $allowedSortFields)) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Eager load relationships
+        $products = $query->with(['primaryImage', 'category', 'company', 'tags'])
+            ->paginate($request->input('per_page', 12));
+
+        return ProductResource::collection($products);
     }
 
     /**
@@ -51,31 +81,15 @@ class ProductController extends Controller
     public function show(Request $request, $product)
     {
         $language = $request->query('lang', 'en');
-        $product = Product::with(['inventory', 'images', 'categories'])->findOrFail($product);
+        $product = Product::with([
+            
+            'images',
+            'category',
+            'company',
+            'tags',
+            
+        ])->findOrFail($product);
 
-        return response()->json($product);
-    }
-
-    /**
-     * Get products by category.
-     */
-    public function byCategory(Request $request, $category)
-    {
-        $language = $request->query('lang', 'en');
-        $category = Category::findOrFail($category);
-        $products = $category->products()->with(['inventory', 'primaryImage'])->paginate(12);
-
-        return response()->json($products);
-    }
-
-    /**
-     * Get featured products.
-     */
-    public function featured(Request $request)
-    {
-        $language = $request->query('lang', 'en');
-        $products = Product::where('featured', true)->with(['inventory', 'primaryImage'])->paginate(12);
-
-        return response()->json($products);
+        return new ProductResource($product);
     }
 }

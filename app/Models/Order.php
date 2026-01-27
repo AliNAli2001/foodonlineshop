@@ -34,7 +34,8 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'total_amount' => 'decimal:3',
+        'total_amount' => 'decimal:2',
+        'cost_price' => 'decimal:2',
         'latitude' => 'decimal:6',
         'longitude' => 'decimal:6',
         'order_date' => 'datetime',

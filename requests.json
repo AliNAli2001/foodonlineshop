@@ -187,7 +187,7 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/products?search=example&categories=1,2&featured=true&lang=en",
+              "raw": "{{base_url}}/products?search=example&category_id=1&company_id=1&tags=1,2&featured=true&min_price=10&max_price=100&sort_by=selling_price&sort_order=asc&per_page=12&lang=en",
               "host": [
                 "{{base_url}}"
               ],
@@ -197,19 +197,58 @@
               "query": [
                 {
                   "key": "search",
-                  "value": "example"
+                  "value": "example",
+                  "description": "Search by product name"
                 },
                 {
-                  "key": "categories",
-                  "value": "1,2"
+                  "key": "category_id",
+                  "value": "1",
+                  "description": "Filter by category ID"
+                },
+                {
+                  "key": "company_id",
+                  "value": "1",
+                  "description": "Filter by company ID"
+                },
+                {
+                  "key": "tags",
+                  "value": "1,2",
+                  "description": "Filter by tag IDs (comma-separated)"
                 },
                 {
                   "key": "featured",
-                  "value": "true"
+                  "value": "true",
+                  "description": "Filter featured products only"
+                },
+                {
+                  "key": "min_price",
+                  "value": "10",
+                  "description": "Minimum price filter"
+                },
+                {
+                  "key": "max_price",
+                  "value": "100",
+                  "description": "Maximum price filter"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "selling_price",
+                  "description": "Sort by: created_at, selling_price, name_en, name_ar"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "asc",
+                  "description": "Sort order: asc or desc"
+                },
+                {
+                  "key": "per_page",
+                  "value": "12",
+                  "description": "Items per page"
                 },
                 {
                   "key": "lang",
-                  "value": "en"
+                  "value": "en",
+                  "description": "Language: en or ar"
                 }
               ]
             }
@@ -238,19 +277,23 @@
           }
         },
         {
-          "name": "Featured Products (Assumed Route)",
+          "name": "Filter Products by Category",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/products/featured?lang=en",
+              "raw": "{{base_url}}/products?category_id=1&lang=en",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "products",
-                "featured"
+                "products"
               ],
               "query": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "description": "Filter by category ID"
+                },
                 {
                   "key": "lang",
                   "value": "en"
@@ -260,23 +303,127 @@
           }
         },
         {
-          "name": "Products by Category (Assumed Route)",
+          "name": "Filter Products by Company",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/products/category/1?lang=en",
+              "raw": "{{base_url}}/products?company_id=1&lang=en",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "products",
-                "category",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "company_id",
+                  "value": "1",
+                  "description": "Filter by company ID"
+                },
+                {
+                  "key": "lang",
+                  "value": "en"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Products by Tags",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/products?tags=1,2,3&lang=en",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "tags",
+                  "value": "1,2,3",
+                  "description": "Filter by tag IDs (comma-separated)"
+                },
+                {
+                  "key": "lang",
+                  "value": "en"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Featured Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/products?featured=true&lang=en",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "featured",
+                  "value": "true"
+                },
+                {
+                  "key": "lang",
+                  "value": "en"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "List Companies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/companies?lang=en",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "en",
+                  "description": "Language: en or ar"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Show Company with Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/companies/1?lang=en",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
                 "1"
               ],
               "query": [
                 {
                   "key": "lang",
-                  "value": "en"
+                  "value": "en",
+                  "description": "Language: en or ar"
                 }
               ]
             }

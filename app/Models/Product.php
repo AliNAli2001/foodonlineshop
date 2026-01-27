@@ -32,7 +32,7 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'selling_price' => 'decimal:3',
+        'selling_price' => 'decimal:2',
         'featured' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -140,7 +140,7 @@ class Product extends Model
      */
     public function getDescription(string $language = 'en'): string
     {
-        return $language === 'ar' ? $this->description_ar : $this->description_en;
+        return ($language === 'ar' ? $this->description_ar : $this->description_en) ?? "";
     }
 
 

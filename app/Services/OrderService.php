@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Brick\Math\BigDecimal;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -180,7 +181,7 @@ class OrderService
             if ($product->stock_available_quantity < $cartItem['quantity']) {
                 throw new Exception(
                     "الكمية المطلوبة غير متوفرة للمنتج {$product->name_ar} ذو الرقم {$productId}. " .
-                        "المتاح: {$product->getTotalAvailableStockAttribute()}, " .
+                        "المتاح: {$product->stock_available_quantity}, " .
                         "المطلوب: {$cartItem['quantity']}"
                 );
             }
@@ -542,13 +543,9 @@ class OrderService
      */
     public function getClientOrder($client, int $orderId)
     {
-        $order = $client->orders()->findOrFail($orderId);
-        $items = $order->items()->with(['product', 'inventoryBatch'])->get();
+        $order = $client->orders()->with(['delivery', 'items.product'])->findOrFail($orderId);
 
-        return [
-            'order' => $order,
-            'items' => $items,
-        ];
+        return $order;
     }
 
     /**

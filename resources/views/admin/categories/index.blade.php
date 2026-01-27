@@ -14,8 +14,8 @@
             <thead>
                 <tr>
                     <th>الرقم</th>
-                    <th>الاسم (إنجليزي)</th>
                     <th>الاسم (عربي)</th>
+                    <th>الاسم (إنجليزي)</th>
                     <th>مميز</th>
                     <th>الإجراءات</th>
                 </tr>
@@ -24,8 +24,8 @@
                 @forelse ($categories as $category)
                     <tr>
                         <td>{{ $category->id }}</td>
-                        <td>{{ $category->name_en }}</td>
                         <td>{{ $category->name_ar }}</td>
+                        <td>{{ $category->name_en }}</td>
                         <td>
                             @if ($category->featured)
                                 <span class="badge bg-success">نعم</span>

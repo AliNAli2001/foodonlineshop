@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ClientController;
@@ -23,11 +24,15 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/verify-phone', [AuthController::class, 'verifyPhone'])->name('api.verify-phone');
     });
 
-    // Public Product and Category Routes
+    // Public Product, Category, and Company Routes
     Route::get('/products', [ProductController::class, 'index'])->name('api.products.index');
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('api.products.show');
+
     Route::get('/categories', [CategoryController::class, 'index'])->name('api.categories.index');
     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('api.categories.show');
+
+    Route::get('/companies', [CompanyController::class, 'index'])->name('api.companies.index');
+    Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('api.companies.show');
 
     // Client Authenticated Routes
     Route::middleware('auth:sanctum')->group(function () {
