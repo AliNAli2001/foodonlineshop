@@ -26,7 +26,7 @@ class ProductResource extends JsonResource
             'available_quantity' => $this->stock_available_quantity,
 
             $this->mergeWhen(!$isImagesLoaded, [
-                'image' => $this->primaryImage?->image_url,
+                'image' => $this->primaryImage?->full_url,
             ]),
             $this->mergeWhen($isImagesLoaded, [
                 'images' => $this->images
@@ -34,7 +34,7 @@ class ProductResource extends JsonResource
                     ->values()
                     ->map(function ($image) {
                         return [
-                            'url' => $image->image_url,
+                            'url' => $image->full_url,
                             'is_primary' => $image->is_primary,
                             'caption' => $image->caption, // include if useful, remove if not needed
                             // 'id' => $image->id, // optional: if frontend needs to reference

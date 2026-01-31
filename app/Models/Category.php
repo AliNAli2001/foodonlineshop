@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Category extends Model
 {
@@ -25,7 +26,7 @@ class Category extends Model
 
     /**
      * Get all products in this category.
-     */ 
+     */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'category_id');
@@ -37,5 +38,10 @@ class Category extends Model
     public function getName(string $language = 'en'): string
     {
         return $language === 'ar' ? $this->name_ar : $this->name_en;
+    }
+
+    public function getFullUrlAttribute()
+    {
+        return $this->category ? Storage::disk('public')->url($this->category_image) : null;
     }
 }

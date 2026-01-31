@@ -20,7 +20,7 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
 
-            'image' => $this->whenLoaded('image', fn () => $this->image->url ?? null),
+            'image' => $this->full_url,
 
             'featured' => (bool) $this->featured,
 // Only include products_count if it was loaded

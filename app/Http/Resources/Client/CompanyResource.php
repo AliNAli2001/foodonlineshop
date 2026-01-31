@@ -19,6 +19,7 @@ class CompanyResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $lang === 'ar' ? $this->name_ar : $this->name_en,
+             'image' => $this->full_url,
             // Only include products_count if it was loaded
             $this->mergeWhen(isset($this->products_count), [
                 'products_count' => $this->products_count,
