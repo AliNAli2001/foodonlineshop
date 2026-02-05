@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ReturnsController;
 use App\Http\Controllers\Admin\DamagedGoodsController;
 use App\Http\Controllers\Admin\AdjustmentController;
+use App\Http\Controllers\Admin\StatisticsController;
 use App\Models\Product;
 use App\Models\Category;
 
@@ -115,5 +116,10 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
     // Adjustments (Gains & Losses)
     Route::resource('adjustments', AdjustmentController::class);
-    
+
+    // Statistics
+    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics.index');
+    Route::get('/statistics/sales', [StatisticsController::class, 'sales'])->name('statistics.sales');
+    Route::get('/statistics/earnings', [StatisticsController::class, 'earnings'])->name('statistics.earnings');
+
 });

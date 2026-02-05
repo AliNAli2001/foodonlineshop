@@ -45,6 +45,14 @@
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}"
+                            href="{{ route('admin.statistics.index') }}">
+                            <i class="fas fa-chart-bar ms-2"></i>
+                            الإحصائيات
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}"
                             href="{{ route('admin.orders.index') }}">
                             <i class="fas fa-shopping-cart ms-2"></i>
