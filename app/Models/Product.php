@@ -91,6 +91,7 @@ class Product extends Model
         return $this->hasOne(ProductImage::class, 'product_id')->where('is_primary', true);
     }
 
+
     /**
      * Get category that this product belongs to.
      */
@@ -194,5 +195,24 @@ class Product extends Model
         return $this->inventoryBatches()
             ->where('expiry_date', '<', now()->toDate())
             ->get();
+    }
+
+    /**
+     * Check if product is low on stock.
+     * 
+     * @return bool
+     */
+    public function isLowStock(): bool
+    {
+        $minQty = $this->minimum_alert_quantity ?? 0;
+        $currentQty = $this->getStockAvailableQuantityAttribute();
+
+        // If no minimum alert quantity is set, it's not low stock
+        if ($minQty <= 0) {
+            return false;
+        }
+
+        // Low stock = current quantity is less than minimum alert quantity
+        return $currentQty < $minQty;
     }
 }

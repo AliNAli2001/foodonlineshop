@@ -24,9 +24,34 @@ class ProductController extends Controller
     /**
      * Display a listing of products.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['inventoryBatches', 'company', 'category', 'tags', 'primaryImage'])->paginate(15);
+        if ($request->search) {
+            $search = trim($request->search);
+
+            $products = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])
+                ->when($search, function ($query) use ($search) {
+
+                    $query->where(function ($q) use ($search) {
+
+                        // لو الرقم المدخل رقم → ابحث بالـ ID
+                        if (is_numeric($search)) {
+                            $q->where('id', $search);
+                        }
+
+                        // البحث بالاسم عربي أو إنجليزي
+                        $q->orWhere('name_ar', 'like', "%{$search}%")
+                            ->orWhere('name_en', 'like', "%{$search}%");
+                    });
+                })
+                ->latest()
+                ->paginate(15)
+                ->withQueryString();
+        } else {
+            $products = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])->paginate(15);
+        }
+
+
 
         return view('admin.products.index', compact('products'));
     }
@@ -133,12 +158,16 @@ class ProductController extends Controller
             // Image management
             'image_ids_to_delete' => 'nullable|array',
             'image_ids_to_delete.*' => 'exists:product_images,id',
+            'primary_image_id' => 'nullable|exists:product_images,id',
+
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:3072',
         ]);
 
+
         try {
             $product = $this->productService->updateProduct($productId, $validated);
+            $product->refresh();
 
             // Delete selected images
             if (!empty($validated['image_ids_to_delete'])) {
@@ -149,6 +178,52 @@ class ProductController extends Controller
             if ($request->hasFile('images')) {
                 $this->storeProductImages($request->file('images'), $product);
             }
+
+
+            /*
+            |----------------------------------
+            | 3️⃣ تعيين الصورة الرئيسية
+            |----------------------------------
+            */
+            $primayWasSet = false;
+            if (!empty($validated['primary_image_id'])) {
+
+
+                $primaryImage = $product->images()
+                    ->where('id', $validated['primary_image_id'])
+                    ->first();
+
+
+
+
+
+                if ($primaryImage) {
+                    // إلغاء أي صورة رئيسية حالية
+                    $product->images()->where('is_primary', true)->update(['is_primary' => false]);
+                    $product->load('images');
+                    // تعيين المختارة كرئيسية
+                    $product->images()
+                        ->where('id', $validated['primary_image_id'])
+                        ->first()->update(['is_primary' => true]);
+                    $primayWasSet = true;
+                }
+            }
+
+
+
+            /*
+            |----------------------------------
+            | 4️⃣ ضمان وجود صورة رئيسية دائماً
+            |----------------------------------
+            */
+            if (!$primayWasSet) {
+                //dd($validated['primary_image_id']);
+                $firstImage = $product->images()->first();
+                if ($firstImage) {
+                    $firstImage->update(['is_primary' => true]);
+                }
+            }
+
 
             return redirect()->route('admin.products.show', $product->id)
                 ->with('success', 'تم تحديث بيانات المنتج بنجاح.');
@@ -170,7 +245,15 @@ class ProductController extends Controller
             'images' => fn($q) => $q->orderBy('is_primary', 'desc')->orderBy('id')
         ])->findOrFail($productId);
 
-        return view('admin.products.show', compact('product'));
+
+        $previousProduct = Product::where('id', '<', $product->id)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextProduct = Product::where('id', '>', $product->id)
+            ->orderBy('id', 'asc')
+            ->first();
+        return view('admin.products.show', compact('product','previousProduct','nextProduct'));
     }
 
     /**

@@ -83,6 +83,19 @@
                             </div>
                         </div>
                         <div class="row mb-3">
+
+                            <div class="col-md-6">
+                                <label for="minimum_alert_quantity" class="form-label">الحد الأدنى للتنبيه</label>
+                                <input type="number"
+                                    class="form-control @error('minimum_alert_quantity') is-invalid @enderror"
+                                    id="minimum_alert_quantity" name="minimum_alert_quantity"
+                                    value="{{ $product->minimum_alert_quantity }}">
+                                @error('minimum_alert_quantity')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-3">
                             <div class="col-md-12">
                                 <label for="company_id" class="form-label">الشركة</label>
                                 <select name="company_id" id="company_id"
@@ -140,18 +153,28 @@
                             @if ($product->images->count() > 0)
                                 <div class="row">
                                     @foreach ($product->images as $image)
-                                        <div class="col-md-3 mb-2">
+                                        <div class="col-md-3 mb-2 border p-2 rounded">
                                             <img src="{{ asset('storage/' . $image->image_url) }}" alt="صورة المنتج"
                                                 style="max-width: 100%; max-height: 150px;">
-                                            @if ($image->is_primary)
-                                                <span class="badge bg-primary">رئيسية</span>
-                                            @endif
+
+                                            {{-- اختيار الصورة الرئيسية --}}
                                             <div class="form-check mt-2">
+                                                <input class="form-check-input" type="radio" name="primary_image_id"
+                                                    id="primary_image_{{ $image->id }}" value="{{ $image->id }}"
+                                                    {{ $image->is_primary ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="primary_image_{{ $image->id }}">
+                                                    تعيين كصورة رئيسية
+                                                </label>
+                                            </div>
+
+                                            {{-- حذف الصورة --}}
+                                            <div class="form-check mt-1">
                                                 <input class="form-check-input" type="checkbox"
-                                                    name="image_ids_to_delete[]" id="image_{{ $image->id }}"
+                                                    name="image_ids_to_delete[]" id="delete_image_{{ $image->id }}"
                                                     value="{{ $image->id }}">
-                                                <label class="form-check-label" for="image_{{ $image->id }}">حذف هذه
-                                                    الصورة</label>
+                                                <label class="form-check-label" for="delete_image_{{ $image->id }}">
+                                                    حذف هذه الصورة
+                                                </label>
                                             </div>
                                         </div>
                                     @endforeach
