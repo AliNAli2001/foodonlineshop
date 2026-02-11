@@ -131,7 +131,7 @@ class Order extends Model
         // Item details
         $itemsList = "🛒 العناصر:\n";
         foreach ($this->items as $item) {
-            $itemsList .= "- " . ($item->product->name ?? 'منتج غير معروف') . " (كمية: {$item->quantity}, سعر الوحدة: {$item->unit_price})\n";
+            $itemsList .= "- " . ($item->product->name_ar ?? 'منتج غير معروف') . " (كمية: {$item->quantity}, سعر الوحدة: {$item->unit_price})\n";
         }
         $orderDetails .= $itemsList;
         $orderDetails .= "\n\n";
@@ -181,4 +181,150 @@ class Order extends Model
 
         return $message;
     }
+
+    /**
+ * Prepare a copiable message for the client based on the order's status.
+ *
+ * @param string|null $status Optional status to use (defaults to current status).
+ * @return string The formatted message for the client.
+ */
+public function prepareClientMessage(?string $status = null): string
+{
+    $status = $status ?? $this->status;
+
+    // Google Maps link (if coordinates exist)
+    if ($this->latitude && $this->longitude) {
+        $mapLink = "https://www.google.com/maps?q={$this->latitude},{$this->longitude}";
+        $locationText = "📍 الموقع على الخريطة:\n{$mapLink}\n";
+    } else {
+        $locationText = "📍 الموقع: غير متوفر\n";
+    }
+
+    // Common order details
+    $orderDetails = "📦 رقم الطلب: {$this->id}\n";
+    $orderDetails .= "👤 اسم الزبون: " . ($this->client_name ?? 'غير محدد') . "\n";
+    $orderDetails .= "📞 رقم الهاتف: " . ($this->client_phone_number ?? 'غير محدد') . "\n";
+    $orderDetails .= "\n\n";
+    $orderDetails .= "🌍 المصدر: " . (self::SOURCES[$this->order_source] ?? 'غير محدد') . "\n";
+    $orderDetails .= "🚚 طريقة التوصيل: " . (self::DELIVERY_METHODS[$this->delivery_method] ?? 'غير محدد') . "\n";
+    $orderDetails .= "🏠 العنوان: " . ($this->address_details ?? 'غير محدد') . "\n";
+    $orderDetails .= $locationText;
+    $orderDetails .= "📝 الملاحظات: " . ($this->general_notes ?? 'لا توجد') . "\n";
+    $orderDetails .= "\n\n";
+
+    // Item details
+    $itemsList = "🛒 العناصر:\n";
+    foreach ($this->items as $item) {
+        $itemsList .= "- " . ($item->product->name_ar ?? 'منتج غير معروف') . " (كمية: {$item->quantity}, سعر الوحدة: {$item->unit_price})\n";
+    }
+    $orderDetails .= $itemsList;
+    $orderDetails .= "\n\n";
+    
+    $orderDetails .= "💰 الإجمالي: {$this->total_amount}\n";
+
+    // Delivery info (if applicable)
+    $deliveryInfo = "";
+    if ($this->delivery) {
+        $deliveryInfo = "\n\n🚴 معلومات التوصيل:\n";
+        $deliveryInfo .= "👤 اسم عامل التوصيل: " . ($this->delivery->full_name ?? 'غير محدد') . "\n";
+        $deliveryInfo .= "📞 رقم هاتف عامل التوصيل: " . ($this->delivery->phone ?? 'غير محدد') . "\n";
+        // Add more delivery model fields as needed (assuming Delivery model has 'name', etc.)
+        $deliveryInfo .= "📝 ملاحظات الشحن: " . ($this->shipping_notes ?? 'لا توجد') . "\n\n\n";
+    }
+
+    // Status-specific message for client
+    switch ($status) {
+        case 'confirmed':
+            $message = "✅ تم قبول طلبك رقم {$this->id}\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+        case 'shipped':
+            $message = "🚚 طلبك رقم {$this->id} قيد الشحن\n";
+            $message .= "ملاحظات الشحن: " . ($this->shipping_notes ?? 'لا توجد') . "\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+        case 'delivered':
+            $message = "🚴 طلبك رقم {$this->id} قيد التوصيل\n";
+            $message .= $deliveryInfo;
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+        case 'returned':
+            $message = "🔙 طلبك رقم {$this->id} تم إرجاعه\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+        case 'canceled':
+            $message = "❌ طلبك رقم {$this->id} تم إلغاؤه\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+        // Add more cases for other statuses as needed (e.g., 'done', 'pending')
+        default:
+            $message = "📋 حالة الطلب: " . (self::STATUSES[$status] ?? 'غير معروفة') . "\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}{$deliveryInfo}";
+            break;
+    }
+
+    return $message;
+}
+
+/**
+ * Prepare a copiable message for the delivery person based on the order's status.
+ *
+ * @param string|null $status Optional status to use (defaults to current status).
+ * @return string The formatted message for the delivery person.
+ */
+public function prepareDeliveryMessage(?string $status = null): string
+{
+    $status = $status ?? $this->status;
+
+    // Google Maps link (if coordinates exist)
+    if ($this->latitude && $this->longitude) {
+        $mapLink = "https://www.google.com/maps?q={$this->latitude},{$this->longitude}";
+        $locationText = "📍 الموقع على الخريطة:\n{$mapLink}\n";
+    } else {
+        $locationText = "📍 الموقع: غير متوفر\n";
+    }
+
+    // Common order details for delivery
+    $orderDetails = "📦 رقم الطلب: {$this->id}\n";
+    $orderDetails .= "👤 اسم الزبون: " . ($this->client_name ?? 'غير محدد') . "\n";
+    $orderDetails .= "📞 رقم الهاتف: " . ($this->client_phone_number ?? 'غير محدد') . "\n";
+    $orderDetails .= "\n\n";
+    $orderDetails .= "🚚 طريقة التوصيل: " . (self::DELIVERY_METHODS[$this->delivery_method] ?? 'غير محدد') . "\n";
+    $orderDetails .= "🏠 العنوان: " . ($this->address_details ?? 'غير محدد') . "\n";
+    $orderDetails .= $locationText;
+    $orderDetails .= "📝 الملاحظات: " . ($this->general_notes ?? 'لا توجد') . "\n";
+    $orderDetails .= "📝 ملاحظات الشحن: " . ($this->shipping_notes ?? 'لا توجد') . "\n";
+    $orderDetails .= "\n\n";
+
+    // Item details
+    $itemsList = "🛒 العناصر:\n";
+    foreach ($this->items as $item) {
+        $itemsList .= "- " . ($item->product->name_ar ?? 'منتج غير معروف') . " (كمية: {$item->quantity})\n";
+    }
+    $orderDetails .= $itemsList;
+    $orderDetails .= "\n\n";
+    
+    $orderDetails .= "💰 الإجمالي: {$this->total_amount}\n";
+
+    // Status-specific message for delivery
+    switch ($status) {
+        case 'shipped':
+            $message = "🚚 طلب جديد للشحن رقم {$this->id}\n";
+            $message .= "يرجى التحقق من التفاصيل والبدء في الشحن.\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+        case 'delivered':
+            $message = "🚴 طلب جديد للتوصيل رقم {$this->id}\n";
+            $message .= "يرجى التوجه إلى العنوان وتسليم الطلب.\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+        // Add more cases for other relevant statuses
+        default:
+            $message = "📋 حالة الطلب: " . (self::STATUSES[$status] ?? 'غير معروفة') . "\n";
+            $message .= "تفاصيل الطلب:\n{$orderDetails}";
+            break;
+    }
+
+    return $message;
+}
 }

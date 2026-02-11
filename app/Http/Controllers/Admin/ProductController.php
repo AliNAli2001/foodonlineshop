@@ -11,6 +11,7 @@ use App\Models\ProductImage;
 use App\Models\Setting;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -26,35 +27,91 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->search) {
+        $query = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])
+            ->select('products.*')
+            ->leftJoin('product_stocks', 'products.id', '=', 'product_stocks.product_id');
+
+        $query->when($request->search, function ($q) use ($request) {
             $search = trim($request->search);
+            $q->where(function ($subq) use ($search) {
+                if (is_numeric($search)) {
+                    $subq->where('products.id', $search);
+                }
+                $subq->orWhere('products.name_ar', 'like', "%{$search}%")
+                    ->orWhere('products.name_en', 'like', "%{$search}%");
+            });
+        });
 
-            $products = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])
-                ->when($search, function ($query) use ($search) {
+        $query->when($request->min_price, function ($q) use ($request) {
+            $q->where('products.selling_price', '>=', $request->min_price);
+        });
 
-                    $query->where(function ($q) use ($search) {
+        $query->when($request->max_price, function ($q) use ($request) {
+            $q->where('products.selling_price', '<=', $request->max_price);
+        });
 
-                        // لو الرقم المدخل رقم → ابحث بالـ ID
-                        if (is_numeric($search)) {
-                            $q->where('id', $search);
-                        }
+        $query->when($request->min_stock, function ($q) use ($request) {
+            $q->where('product_stocks.available_quantity', '>=', $request->min_stock);
+        });
 
-                        // البحث بالاسم عربي أو إنجليزي
-                        $q->orWhere('name_ar', 'like', "%{$search}%")
-                            ->orWhere('name_en', 'like', "%{$search}%");
-                    });
-                })
-                ->latest()
-                ->paginate(15)
-                ->withQueryString();
-        } else {
-            $products = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])->paginate(15);
-        }
+        $query->when($request->max_stock, function ($q) use ($request) {
+            $q->where('product_stocks.available_quantity', '<=', $request->max_stock);
+        });
 
+        $query->when($request->low_stock, function ($q) {
+            $q->where('products.minimum_alert_quantity', '>', 0)
+                ->where('product_stocks.available_quantity', '<', DB::raw('products.minimum_alert_quantity'));
+        });
 
+        $query->when($request->sort, function ($q) use ($request) {
+            $sort = $request->sort;
+            $order = $request->order ?? 'asc';
+            if ($sort === 'stock') {
+                $q->orderBy('product_stocks.available_quantity', $order);
+            } elseif ($sort === 'price') {
+                $q->orderBy('products.selling_price', $order);
+            } elseif ($sort === 'created_at') {
+                $q->orderBy('products.created_at', $order);
+            }
+        }, function ($q) {
+            $q->latest();
+        });
+
+        $products = $query->paginate(15)->withQueryString();
 
         return view('admin.products.index', compact('products'));
     }
+    // public function index(Request $request)
+    // {
+    //     if ($request->search) {
+    //         $search = trim($request->search);
+
+    //         $products = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])
+    //             ->when($search, function ($query) use ($search) {
+
+    //                 $query->where(function ($q) use ($search) {
+
+    //                     // لو الرقم المدخل رقم → ابحث بالـ ID
+    //                     if (is_numeric($search)) {
+    //                         $q->where('id', $search);
+    //                     }
+
+    //                     // البحث بالاسم عربي أو إنجليزي
+    //                     $q->orWhere('name_ar', 'like', "%{$search}%")
+    //                         ->orWhere('name_en', 'like', "%{$search}%");
+    //                 });
+    //             })
+    //             ->latest()
+    //             ->paginate(15)
+    //             ->withQueryString();
+    //     } else {
+    //         $products = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])->paginate(15);
+    //     }
+
+
+
+    //     return view('admin.products.index', compact('products'));
+    // }
 
     /**
      * Show the form for creating a new product.
@@ -253,7 +310,7 @@ class ProductController extends Controller
         $nextProduct = Product::where('id', '>', $product->id)
             ->orderBy('id', 'asc')
             ->first();
-        return view('admin.products.show', compact('product','previousProduct','nextProduct'));
+        return view('admin.products.show', compact('product', 'previousProduct', 'nextProduct'));
     }
 
     /**

@@ -41,10 +41,10 @@
                             {{-- Product Names --}}
                             <div class="mb-3">
                                 <h6 class="fw-bold mb-1 text-dark">
-                                    {{ $product->name_en }}
+                                    {{ $product->name_ar }}
                                 </h6>
                                 <small class="text-muted">
-                                    {{ $product->name_ar }}
+                                    {{ $product->name_en }}
                                 </small>
                             </div>
 
@@ -70,7 +70,7 @@
         </div>
 
 
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center mt-3">
             {{ $products->links() }}
         </div>
     </div>

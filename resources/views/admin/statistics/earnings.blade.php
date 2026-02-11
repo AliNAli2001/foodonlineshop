@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <h6 class="text-muted mb-2">الربح من المبيعات</h6>
                     <h2 class="mb-0 text-success">{{ number_format($earningsStats['profit_from_sales'], 2) }}</h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -47,7 +47,7 @@
                 <div class="card-body">
                     <h6 class="text-muted mb-2">الأرباح من التسويات</h6>
                     <h2 class="mb-0 text-primary">{{ number_format($earningsStats['gains_from_adjustments'], 2) }}</h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -57,7 +57,7 @@
                 <div class="card-body">
                     <h6 class="text-muted mb-2">الخسائر من التسويات</h6>
                     <h2 class="mb-0 text-danger">{{ number_format($earningsStats['losses_from_adjustments'], 2) }}</h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
                     <h2 class="mb-0 {{ $earningsStats['net_earnings'] >= 0 ? 'text-success' : 'text-danger' }}">
                         {{ number_format($earningsStats['net_earnings'], 2) }}
                     </h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -91,15 +91,15 @@
                             </tr>
                             <tr>
                                 <td><strong>إجمالي الإيرادات:</strong></td>
-                                <td class="text-end text-success">{{ number_format($salesStats['total_revenue'], 2) }} دينار</td>
+                                <td class="text-end text-success">{{ number_format($salesStats['total_revenue'], 2) }} دولار</td>
                             </tr>
                             <tr>
                                 <td><strong>إجمالي التكلفة:</strong></td>
-                                <td class="text-end text-danger">{{ number_format($salesStats['total_cost'], 2) }} دينار</td>
+                                <td class="text-end text-danger">{{ number_format($salesStats['total_cost'], 2) }} دولار</td>
                             </tr>
                             <tr class="table-light">
                                 <td><strong>الربح من المبيعات:</strong></td>
-                                <td class="text-end text-success fw-bold">{{ number_format($salesStats['total_profit'], 2) }} دينار</td>
+                                <td class="text-end text-success fw-bold">{{ number_format($salesStats['total_profit'], 2) }} دولار</td>
                             </tr>
                             <tr>
                                 <td><strong>هامش الربح:</strong></td>
@@ -178,7 +178,7 @@
                         <h1 class="display-4 {{ $earningsStats['net_earnings'] >= 0 ? 'text-success' : 'text-danger' }}">
                             {{ number_format($earningsStats['net_earnings'], 2) }}
                         </h1>
-                        <p class="text-muted">دينار</p>
+                        <p class="text-muted">دولار</p>
                     </div>
                 </div>
             </div>

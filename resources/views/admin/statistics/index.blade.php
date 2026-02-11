@@ -44,7 +44,7 @@
                         <div>
                             <h6 class="text-muted mb-2">إجمالي الإيرادات</h6>
                             <h3 class="mb-0 text-primary">{{ number_format($statistics['summary']['total_revenue'], 2) }}</h3>
-                            <small class="text-muted">دينار</small>
+                            <small class="text-muted">دولار</small>
                         </div>
                         <div class="text-primary">
                             <i class="fas fa-dollar-sign fa-2x"></i>
@@ -61,7 +61,7 @@
                         <div>
                             <h6 class="text-muted mb-2">إجمالي التكلفة</h6>
                             <h3 class="mb-0 text-danger">{{ number_format($statistics['summary']['total_cost'], 2) }}</h3>
-                            <small class="text-muted">دينار</small>
+                            <small class="text-muted">دولار</small>
                         </div>
                         <div class="text-danger">
                             <i class="fas fa-money-bill-wave fa-2x"></i>
@@ -78,7 +78,7 @@
                         <div>
                             <h6 class="text-muted mb-2">الربح الإجمالي</h6>
                             <h3 class="mb-0 text-success">{{ number_format($statistics['summary']['gross_profit'], 2) }}</h3>
-                            <small class="text-muted">دينار</small>
+                            <small class="text-muted">دولار</small>
                         </div>
                         <div class="text-success">
                             <i class="fas fa-chart-line fa-2x"></i>
@@ -97,7 +97,7 @@
                             <h3 class="mb-0 {{ $statistics['summary']['net_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
                                 {{ number_format($statistics['summary']['net_profit'], 2) }}
                             </h3>
-                            <small class="text-muted">دينار</small>
+                            <small class="text-muted">دولار</small>
                         </div>
                         <div class="{{ $statistics['summary']['net_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
                             <i class="fas fa-wallet fa-2x"></i>
@@ -124,7 +124,7 @@
                             </tr>
                             <tr>
                                 <td><strong>متوسط قيمة الطلب:</strong></td>
-                                <td class="text-end">{{ number_format($statistics['sales']['average_order_value'], 2) }} دينار</td>
+                                <td class="text-end">{{ number_format($statistics['sales']['average_order_value'], 2) }} دولار</td>
                             </tr>
                             <tr>
                                 <td><strong>هامش الربح:</strong></td>
@@ -188,7 +188,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $product['product_name'] }}</td>
                                     <td class="text-center">{{ $product['total_quantity'] }}</td>
-                                    <td class="text-end">{{ number_format($product['total_revenue'], 2) }} دينار</td>
+                                    <td class="text-end">{{ number_format($product['total_revenue'], 2) }} دولار</td>
                                 </tr>
                             @endforeach
                         </tbody>

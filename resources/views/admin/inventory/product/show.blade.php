@@ -26,14 +26,24 @@
                         <strong>إجمالي المخزون:</strong>
                         <p>{{ $product->stock_available_quantity }}</p>
                     </div>
-                   
+
                     <div class="col-md-3">
                         <strong>تنبيه الحد الأدنى:</strong>
                         <p>
-                            @php
-                                $minAlert = $batches->min('minimum_alert_quantity');
-                            @endphp
-                            {{ $minAlert ?? '—' }}
+
+                            {{ $product->minimum_alert_quantity ?? '—' }}
+                        </p>
+
+                    </div>
+                    <div class="col-md-3">
+                        <strong>الحالة:</strong>
+
+                        <p>
+                            @if ($product->isLowStock())
+                                <span class="badge bg-warning text-dark">أقل من الحد الأدنى <i class="fa fa-exclamation-triangle"></i></span>
+                            @else
+                                <span class="badge bg-success">جيد</span>
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -85,7 +95,7 @@
                                     </td>
                                     <td>{{ $inventory->cost_price }}</td>
                                     <td>{{ $inventory->available_quantity }}</td>
-                                   
+
 
                                     <td>
                                         @if ($inventory->isExpired())
@@ -126,7 +136,7 @@
                             <tr>
                                 <th>النوع</th>
                                 <th>تغيير الكمية</th>
-                                <th>تغيير المحجوز</th>
+                                
                                 <th>السبب</th>
                                 <th>التاريخ</th>
                                 <th>رقم الدفعة</th>
@@ -141,8 +151,7 @@
                                     </td>
                                     <td>{{ $transaction->available_change > 0 ? '+' : '' }}{{ $transaction->available_change }}
                                     </td>
-                                    <td>{{ $transaction->reserved_change > 0 ? '+' : '' }}{{ $transaction->reserved_change }}
-                                    </td>
+                                    
                                     <td>{{ $transaction->reason }}</td>
                                     <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
                                     <td><a class="btn btn-sm btn-info"

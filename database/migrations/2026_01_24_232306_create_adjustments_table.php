@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->text('reason'); // السبب، نص طويل
             $table->date('date')->nullable()->default(now());
-
+            $table->morphs("adjustable"); // العلاقة مع الكائنات الأخرى
             $table->timestamps();
         });
     }

@@ -294,6 +294,107 @@
             </div>
             <div class="card mt-3">
                 <div class="card-body" style="direction: rtl;">
+                    <h5 class="card-title">رسائل قابلة للنسخ</h5>
+
+                    <h6>رسالة للزبون</h6>
+                    <textarea id="clientMessage" class="form-control mb-2" readonly onclick="this.select()"
+                        style="overflow:hidden; resize:none; width:100%; min-height:100px;">{{ $order->prepareClientMessage() }}</textarea>
+        
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0"
+                            onclick="copyClientMessage()">
+                            <i class="fa fa-copy"></i>
+                        </button>
+                        @if ($order->client_phone_number)
+                            <a href="tel:{{ preg_replace('/[^0-9+]/', '', $order->client_phone_number) }}"
+                                class="btn btn-sm btn-link text-decoration-none p-0" title="اتصال">
+                                <i class="fas fa-phone fa-lg text-primary"></i>
+                            </a>
+                            <a href="sms:{{ preg_replace('/[^0-9+]/', '', $order->client_phone_number) }}"
+                                class="btn btn-sm btn-link text-decoration-none p-0" title="رسالة">
+                                <i class="fas fa-sms fa-lg text-secondary"></i>
+                            </a>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->client_phone_number) }}?text={{ urlencode($order->prepareClientMessage()) }}"
+                                target="_blank" class="btn btn-sm btn-link text-decoration-none p-0" title="واتساب">
+                                <i class="fab fa-whatsapp fa-lg text-success"></i>
+                            </a>
+                        @endif
+                    </div>
+
+
+                    @if ($order->delivery_id)
+                        <h6>رسالة لموظف التوصيل</h6>
+                        <textarea id="deliveryMessage" class="form-control mb-2" readonly onclick="this.select()"
+                            style="overflow:hidden; resize:none; width:100%; min-height:100px;">{{ $order->prepareDeliveryMessage() }}</textarea>
+
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0"
+                                onclick="copyDeliveryMessage()">
+                                <i class="fa fa-copy"></i>
+                            </button>
+                            <a href="tel:{{ preg_replace('/[^0-9+]/', '', $order->delivery->phone) }}"
+                                class="btn btn-sm btn-link text-decoration-none p-0" title="اتصال">
+                                <i class="fas fa-phone fa-lg text-primary"></i>
+                            </a>
+                            <a href="sms:{{ preg_replace('/[^0-9+]/', '', $order->delivery->phone)  }}"
+                                class="btn btn-sm btn-link text-decoration-none p-0" title="رسالة">
+                                <i class="fas fa-sms fa-lg text-secondary"></i>
+                            </a>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $order->delivery->phone) }}?text={{ urlencode($order->prepareClientMessage()) }}"
+                                target="_blank" class="btn btn-sm btn-link text-decoration-none p-0" title="واتساب">
+                                <i class="fab fa-whatsapp fa-lg text-success"></i>
+                            </a>
+                        </div>
+                    @endif
+                </div>
+
+                <script>
+                    const clientTextarea = document.getElementById('clientMessage');
+                    @if ($order->delivery_id)
+                        const deliveryTextarea = document.getElementById('deliveryMessage');
+                    @endif
+
+
+                    // Automatically adjust height based on content
+
+                    function autoResize(textarea) {
+
+                        textarea.style.height = 'auto'; // reset
+                        textarea.style.height = textarea.scrollHeight + 'px';
+                    }
+
+                    clientTextarea.addEventListener('input', () => autoResize(clientTextarea));
+                    window.addEventListener('load', () => autoResize(clientTextarea)); // resize on page load
+
+                    @if ($order->delivery_id)
+                        deliveryTextarea.addEventListener('input', () => autoResize(deliveryTextarea));
+                        window.addEventListener('load', () => autoResize(deliveryTextarea));
+                    @endif
+
+                    // Copy to clipboard functions
+                    function copyClientMessage() {
+                        clientTextarea.select();
+                        clientTextarea.setSelectionRange(0, 99999); // for mobile
+                        navigator.clipboard.writeText(clientTextarea.value)
+                            .then(() => console.log('تم نسخ رسالة الزبون!'))
+                            .catch(err => console.log('فشل النسخ: ' + err));
+                    }
+
+                    @if ($order->delivery_id)
+                        function copyDeliveryMessage() {
+                            deliveryTextarea.select();
+                            deliveryTextarea.setSelectionRange(0, 99999); // for mobile
+                            navigator.clipboard.writeText(deliveryTextarea.value)
+                                .then(() => console.log('تم نسخ رسالة التوصيل!'))
+                                .catch(err => console.log('فشل النسخ: ' + err));
+                        }
+                    @endif
+                </script>
+
+            </div>
+            {{-- <div class="card mt-3">
+                <div class="card-body" style="direction: rtl;">
                     <h5 class="card-title">رسالة قابلة للنسخ</h5>
 
                     <textarea id="copiableMessage" class="form-control" readonly onclick="this.select()"
@@ -324,7 +425,7 @@
                     }
                 </script>
 
-            </div>
+            </div> --}}
         </div>
     </div>
     <!-- Leaflet CSS -->
@@ -334,7 +435,7 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             @if ($order->latitude && $order->longitude)
                 const lat = {{ $order->latitude }};

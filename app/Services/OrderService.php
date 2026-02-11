@@ -193,6 +193,8 @@ class OrderService
             // Create the order
             $order = Order::create([
                 'client_id' => $client->id,
+                'client_name' => $client->client_name ?? null,
+                'client_phone_number' => $client->client_phone_number ?? null,
                 'order_source' => $validated['order_source'],
                 'delivery_method' => $validated['delivery_method'],
                 'address_details' => $validated['address_details'],

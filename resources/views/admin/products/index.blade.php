@@ -1,8 +1,6 @@
 @extends('layouts.admin')
 @push('styles')
     <style>
-       
-
         .table thead th {
             font-weight: 600;
             font-size: 18px;
@@ -37,7 +35,7 @@
     </style>
 @endpush
 @section('content')
-    <div class="row mb-4 align-items-around shadow-sm border-0">
+    <div class="row mb-4 align-items-around shadow-sm border-0 g-2">
         <div class="col-md-2">
             <h1 class="mb-0">المنتجات</h1>
         </div>
@@ -60,7 +58,11 @@
                 </div>
             </form>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-4">
+            {{-- adding sort by stock amount link --}}
+            <a href="{{ route('admin.products.index', ['sort' => 'stock', 'order' => 'desc']) }}" class="btn btn-primary">
+                <i class="fa-solid fa-sort-amount-down me-1"></i> ترتيب حسب الكمية تنازلي
+            </a>
             <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus me-1"></i> إضافة منتج
             </a>
@@ -69,7 +71,87 @@
 
 
 
+    <!-- ==================== FILTERS SECTION ==================== -->
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.products.index') }}" class="row g-3 align-items-end">
 
+                <!-- Search -->
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label fw-semibold">بحث</label>
+                    <input type="text" name="search" class="form-control" placeholder="اسم المنتج أو رقم المنتج..."
+                        value="{{ request('search') }}">
+                </div>
+
+                <!-- Sort By -->
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label fw-semibold">ترتيب حسب</label>
+                    <select name="sort" class="form-select">
+                        <option value="">بدون ترتيب</option>
+                        <option value="stock" {{ request('sort') == 'stock' ? 'selected' : '' }}>الكمية (المخزون)</option>
+                        <option value="price" {{ request('sort') == 'price' ? 'selected' : '' }}>السعر</option>
+                        <option value="created_at" {{ request('sort') == 'created_at' ? 'selected' : '' }}>تاريخ الإضافة
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Order (ASC / DESC) -->
+                <div class="col-lg-2 col-md-3">
+                    <label class="form-label fw-semibold">الاتجاه</label>
+                    <select name="order" class="form-select">
+                        <option value="desc" {{ request('order') == 'desc' || !request('order') ? 'selected' : '' }}>
+                            تنازلي (الأكبر أولاً)</option>
+                        <option value="asc" {{ request('order') == 'asc' ? 'selected' : '' }}>تصاعدي (الأصغر أولاً)
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label fw-semibold">نطاق السعر ($)</label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" name="min_price" step="0.01" class="form-control" placeholder="من"
+                            value="{{ request('min_price') }}">
+                        <input type="number" name="max_price" step="0.01" class="form-control" placeholder="إلى"
+                            value="{{ request('max_price') }}">
+                    </div>
+                </div>
+
+                <!-- Stock Range -->
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label fw-semibold">نطاق المخزون</label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" name="min_stock" class="form-control" placeholder="من"
+                            value="{{ request('min_stock') }}">
+                        <input type="number" name="max_stock" class="form-control" placeholder="إلى"
+                            value="{{ request('max_stock') }}">
+                    </div>
+                </div>
+
+                <!-- Low Stock Only -->
+                <div class="col-lg-3 col-md-4">
+                    <div class="form-check mt-4">
+                        <input class="form-check-input" type="checkbox" name="low_stock" id="low_stock"
+                            {{ request('low_stock') ? 'checked' : '' }}>
+                        <label class="form-check-label fw-semibold" for="low_stock">
+                            فقط المنتجات ذات المخزون المنخفض
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-12 d-flex flex-wrap gap-2 mt-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-filter me-2"></i>تطبيق الفلاتر
+                    </button>
+
+                    <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-rotate-right me-2"></i>إعادة تعيين
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
@@ -113,7 +195,7 @@
                                         {{ $product->stock_available_quantity ?? 0 }}
                                     </span>
 
-                                
+
                                 </td>
 
 
@@ -163,7 +245,7 @@
                 </table>
             </div>
             <div class="row mt-4">
-                <div class="col-md-12"> {{ $products->links() }} </div>
+                <div class="d-flex justify-content-center"> {{ $products->links() }} </div>
             </div>
         </div>
     </div>

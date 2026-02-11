@@ -47,7 +47,7 @@
                 <div class="card-body">
                     <h6 class="text-muted mb-2">إجمالي الإيرادات</h6>
                     <h2 class="mb-0 text-success">{{ number_format($salesStats['total_revenue'], 2) }}</h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -57,7 +57,7 @@
                 <div class="card-body">
                     <h6 class="text-muted mb-2">متوسط قيمة الطلب</h6>
                     <h2 class="mb-0 text-info">{{ number_format($salesStats['average_order_value'], 2) }}</h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -70,7 +70,7 @@
                 <div class="card-body">
                     <h6 class="text-muted mb-2">إجمالي التكلفة</h6>
                     <h2 class="mb-0 text-danger">{{ number_format($salesStats['total_cost'], 2) }}</h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -80,7 +80,7 @@
                 <div class="card-body">
                     <h6 class="text-muted mb-2">إجمالي الربح</h6>
                     <h2 class="mb-0 text-success">{{ number_format($salesStats['total_profit'], 2) }}</h2>
-                    <small class="text-muted">دينار</small>
+                    <small class="text-muted">دولار</small>
                 </div>
             </div>
         </div>
@@ -121,7 +121,7 @@
                                     <td class="text-center">
                                         <span class="badge bg-primary">{{ $product['total_quantity'] }}</span>
                                     </td>
-                                    <td class="text-end">{{ number_format($product['total_revenue'], 2) }} دينار</td>
+                                    <td class="text-end">{{ number_format($product['total_revenue'], 2) }} دولار</td>
                                 </tr>
                             @endforeach
                         </tbody>
