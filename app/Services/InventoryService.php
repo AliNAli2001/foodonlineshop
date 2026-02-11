@@ -72,19 +72,21 @@ class InventoryService
             'cost_price' => $data['cost_price'],
         ]);
 
+        $this->inventoryMovementService->logMovement([
+            'product_id' => $batch->product_id,
+            'inventory_batch_id' => $batch->id,
+            'batch_number' => $batch->batch_number,
+            'expiry_date' => $batch->expiry_date,
+            'transaction_type' => 'adjustment',
+            'available_change' => $availableChange,
+            'cost_price' => $data['cost_price'],
+            'reason' => $data['reason'],
+            'reference' => 'Manual stock adjustment',
+        ]);
+
         // Only log movement if quantity changed
         if ($availableChange !== 0) {
-            $this->inventoryMovementService->logMovement([
-                'product_id' => $batch->product_id,
-                'inventory_batch_id' => $batch->id,
-                'batch_number' => $batch->batch_number,
-                'expiry_date' => $batch->expiry_date,
-                'transaction_type' => 'adjustment',
-                'available_change' => $availableChange,
-                'cost_price' => $data['cost_price'],
-                'reason' => $data['reason'],
-                'reference' => 'Manual stock adjustment',
-            ]);
+           
 
             // Update ProductStock
             $this->productStockService->updateProductStock(

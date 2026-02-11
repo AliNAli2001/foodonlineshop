@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class DamagedGoods extends Model
 {
@@ -41,5 +42,13 @@ class DamagedGoods extends Model
     public function inventoryBatch(): BelongsTo
     {
         return $this->belongsTo(InventoryBatch::class, 'inventory_batch_id');
+    }
+
+    /**
+     * Get all adjustments for this damaged goods record.
+     */
+    public function adjustments(): MorphMany
+    {
+        return $this->morphMany(Adjustment::class, 'adjustable');
     }
 }

@@ -43,18 +43,15 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">المنتج</label>
-                        <select name="product_id" id="product_id"
-                            class="form-control @error('product_id') is-invalid @enderror" required>
-                            <option value="">-- اختر المنتج --</option>
-                            @foreach ($products as $product)
-                                <option value="{{ $product->id }}"
-                                    {{ old('product_id') == $product->id ? 'selected' : '' }}>
-                                    {{ $product->name_en }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="d-flex gap-2 align-items-center">
+                            <input type="text" id="product_search" class="form-control" placeholder="ابحث عن المنتج..." autocomplete="off">
+                            <input type="hidden" name="product_id" id="product_id" required>
+                            <input type="text" id="selected_product_name" class="form-control" disabled placeholder="لم يتم اختيار منتج">
+                            <button type="button" class="btn btn-danger" id="clear_product_btn">مسح</button>
+                        </div>
+                        <div id="product_results" class="list-group mt-2" style="display: none; max-height: 300px; overflow-y: auto;"></div>
                         @error('product_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -97,25 +94,99 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const productSelect = document.getElementById('product_id');
-            const sourceSelect = document.getElementById('source');
-            const inventoryField = document.getElementById('inventory-field');
-            const inventorySelect = inventoryField.querySelector('select[name="inventory_batch_id"]');
+        $(document).ready(function() {
+            const productSearchInput = $('#product_search');
+            const productIdInput = $('#product_id');
+            const selectedProductName = $('#selected_product_name');
+            const productResults = $('#product_results');
+            const clearProductBtn = $('#clear_product_btn');
+            const sourceSelect = $('#source');
+            const inventoryField = $('#inventory-field');
+            const inventorySelect = inventoryField.find('select[name="inventory_batch_id"]');
 
             // Route لجلب دفعات المنتج
             const getBatchesUrlTemplate = '{{ route('admin.products.batches', ':product') }}';
 
+            // Product search autocomplete
+            let searchTimeout;
+            productSearchInput.on('input', function() {
+                clearTimeout(searchTimeout);
+                const query = $(this).val().trim();
+
+                if (query.length < 1) {
+                    productResults.hide().html('');
+                    return;
+                }
+
+                searchTimeout = setTimeout(function() {
+                    $.ajax({
+                        url: '{{ route('admin.damaged-goods.autocomplete.products') }}',
+                        data: { q: query },
+                        success: function(data) {
+                            let html = '';
+                            if (data.results.length === 0) {
+                                html = '<div class="list-group-item text-muted">لا توجد نتائج</div>';
+                            } else {
+                                data.results.forEach(product => {
+                                    html += `
+                                        <button type="button" class="list-group-item list-group-item-action select-product"
+                                            data-id="${product.id}"
+                                            data-name="${product.text}">
+                                            ${product.text}
+                                        </button>
+                                    `;
+                                });
+                            }
+                            productResults.html(html).show();
+                        },
+                        error: function() {
+                            productResults.html('<div class="list-group-item text-danger">حدث خطأ أثناء البحث</div>').show();
+                        }
+                    });
+                }, 300);
+            });
+
+            // Select product from results
+            $(document).on('click', '.select-product', function() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+
+                productIdInput.val(id);
+                selectedProductName.val(name);
+                productSearchInput.val('');
+                productResults.hide().html('');
+
+                // Load batches after product selection
+                loadBatches();
+            });
+
+            // Clear product selection
+            clearProductBtn.on('click', function() {
+                productIdInput.val('');
+                selectedProductName.val('');
+                productSearchInput.val('');
+                productResults.hide().html('');
+                resetBatches();
+            });
+
+            // Hide results when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#product_search, #product_results').length) {
+                    productResults.hide();
+                }
+            });
+
             function resetBatches() {
-                inventorySelect.innerHTML = '<option value="">-- اختر دفعة المخزون --</option>';
-                inventoryField.style.display = 'none';
-                inventorySelect.required = false;
+                inventorySelect.html('<option value="">-- اختر دفعة المخزون --</option>');
+                inventoryField.hide();
+                inventorySelect.prop('required', false);
             }
 
             function loadBatches() {
-                const productId = productSelect.value;
-                const source = sourceSelect.value;
+                const productId = productIdInput.val();
+                const source = sourceSelect.val();
 
                 // نظف الدفعات القديمة دائماً
                 resetBatches();
@@ -127,9 +198,9 @@
 
                 const url = getBatchesUrlTemplate.replace(':product', productId);
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
+                $.ajax({
+                    url: url,
+                    success: function(data) {
                         if (data.inventory_batches && data.inventory_batches.length > 0) {
                             data.inventory_batches.forEach(batch => {
                                 let optionText = '';
@@ -138,35 +209,30 @@
                                     optionText += 'Batch: ' + batch.batch_number + ' - ';
                                 }
 
-                                optionText +=
-                                    'Expiry: ' + (batch.expiry_date ?? 'N/A') +
+                                optionText += 'Expiry: ' + (batch.expiry_date ?? 'N/A') +
                                     ' - Stock: ' + batch.stock_quantity;
 
-                                const option = document.createElement('option');
-                                option.value = batch.id;
-                                option.textContent = optionText;
-                                inventorySelect.appendChild(option);
+                                inventorySelect.append(
+                                    $('<option></option>').val(batch.id).text(optionText)
+                                );
                             });
 
-                            inventoryField.style.display = 'block';
-                            inventorySelect.required = true;
+                            inventoryField.show();
+                            inventorySelect.prop('required', true);
                         } else {
-                            // لا توجد دفعات لهذا المنتج
-                            inventoryField.style.display = 'block';
-                            inventorySelect.required = false;
+                            inventoryField.show();
+                            inventorySelect.prop('required', false);
                         }
-                    })
-                    .catch(error => {
+                    },
+                    error: function(error) {
                         console.error('Error loading batches:', error);
                         resetBatches();
-                    });
+                    }
+                });
             }
 
-            // عند تغيير المنتج → تحديث الدفعات
-            productSelect.addEventListener('change', loadBatches);
-
             // عند تغيير المصدر → إظهار/إخفاء الدفعات
-            sourceSelect.addEventListener('change', loadBatches);
+            sourceSelect.on('change', loadBatches);
 
             // تحميل مبدئي إذا كان هناك old values
             loadBatches();

@@ -61,7 +61,7 @@
                     <tbody>
                         @foreach ($movements as $transaction)
                             <tr>
-                                <td><span class="badge bg-info">{{ ucfirst($transaction->transaction_type) }}</span></td>
+                                <td><span class="badge bg-info">{{ \App\Models\InventoryMovement::TYPES[$transaction->transaction_type] }}</span></td>
                                 <td>{{ $transaction->available_change > 0 ? '+' : '' }}{{ $transaction->available_change }}</td>
                                 <td>{{ $transaction->reason }}</td>
                                 <td>{{ $transaction->cost_price }}</td>

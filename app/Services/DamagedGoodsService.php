@@ -71,7 +71,20 @@ class DamagedGoodsService
             'reason' => $data['reason'],
         ]);
 
-       
+        // Create adjustment (loss) related to this damaged goods
+        $lossAmount = $data['quantity'];
+
+        // If source is inventory, calculate loss based on cost price
+        if ($data['source'] === 'inventory' && isset($batch)) {
+            $lossAmount = $data['quantity'] * $batch->cost_price;
+        }
+
+        $damagedGoods->adjustments()->create([
+            'quantity' => $lossAmount,
+            'adjustment_type' => 'loss',
+            'reason' => 'بضاعة تالفة: ' . $data['reason'],
+            'date' => now(),
+        ]);
 
         return $damagedGoods;
     }

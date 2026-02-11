@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('adjustments', function (Blueprint $table) {
             $table->id();
 
-            $table->integer('quantity')->required();
+            $table->decimal('quantity', 14, 2)->required();
 
             $table->enum('adjustment_type', ['gain', 'loss'])->default('loss'); // نوع التعديل: ربح أو خسارة
 

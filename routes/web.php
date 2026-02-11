@@ -110,6 +110,7 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/damaged-goods', [DamagedGoodsController::class, 'index'])->name('damaged-goods.index');
     Route::get('/damaged-goods/create', [DamagedGoodsController::class, 'create'])->name('damaged-goods.create');
     Route::post('/damaged-goods', [DamagedGoodsController::class, 'store'])->name('damaged-goods.store');
+    Route::get('/damaged-goods/autocomplete/products', [DamagedGoodsController::class, 'searchProducts'])->name('damaged-goods.autocomplete.products');
     Route::get('/damaged-goods/product-inventories/{product}', [DamagedGoodsController::class, 'getProductInventories'])->name('damaged-goods.product-inventories');
     Route::get('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'show'])->name('damaged-goods.show');
     Route::delete('/damaged-goods/{damagedGoods}', [DamagedGoodsController::class, 'destroy'])->name('damaged-goods.destroy');

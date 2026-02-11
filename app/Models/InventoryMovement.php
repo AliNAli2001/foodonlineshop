@@ -26,17 +26,17 @@ class InventoryMovement extends Model
     ];
 
     protected $casts = [
-        'cost_price' => 'decimal:3',
+        'cost_price' => 'decimal:2',
         'expiry_date' => 'datetime',
         'created_at' => 'datetime',
     ];
 
     const TYPES = [
-        'sale' => 'Sale',
-        'restock' => 'Restock',
-        'reservation' => 'Reservation',
-        'adjustment' => 'Adjustment',
-        'damaged' => 'Damaged',
+        'sale' => 'بيع',
+        'restock' => 'إضافة كمية',
+        'reservation' => 'حجز',
+        'adjustment' => 'تعديل',
+        'damaged' => 'بضاعة مخربة',
     ];
 
     /**
