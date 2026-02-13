@@ -27,7 +27,7 @@
                     <div><strong>المعرف:</strong> {{ $adjustment->id }}</div>
                 </div>
                 <div class="col-md-3">
-                    <div><strong>الكمية:</strong> {{ $adjustment->quantity ?? '—' }}</div>
+                    <div><strong>المبلغ المالي:</strong> {{ $adjustment->quantity ?? '—' }}</div>
                 </div>
                 <div class="col-md-3">
                     <div><strong>النوع:</strong> <span class="badge {{ $adjustment->adjustment_type === 'gain' ? 'bg-success' : 'bg-danger' }}">{{ $types[$adjustment->adjustment_type] ?? $adjustment->adjustment_type }}</span></div>

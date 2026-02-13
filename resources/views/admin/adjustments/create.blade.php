@@ -13,7 +13,7 @@
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label for="quantity" class="form-label">الكمية</label>
+                        <label for="quantity" class="form-label">المبلغ المالي</label>
                         <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity') }}" required>
                         @error('quantity')
                             <div class="invalid-feedback">{{ $message }}</div>

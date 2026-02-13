@@ -23,14 +23,7 @@
                 <div class="col-md-3">
                     <div><strong>الكمية:</strong> {{ $damagedGoods->quantity }}</div>
                 </div>
-                <div class="col-md-3">
-                    <div>
-                        <strong>المصدر:</strong>
-                        <span class="badge bg-info">
-                            {{ \App\Models\DamagedGoods::SOURCES[$damagedGoods->source] ?? $damagedGoods->source }}
-                        </span>
-                    </div>
-                </div>
+                
 
                 <div class="col-12">
                     <div><strong>السبب:</strong> {{ $damagedGoods->reason }}</div>

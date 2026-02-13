@@ -29,55 +29,55 @@ class DamagedGoodsService
         // Verify product exists
         Product::findOrFail($data['product_id']);
 
-        if ($data['source'] === 'inventory') {
-            $batch = InventoryBatch::findOrFail($data['inventory_batch_id']);
 
-            if ($batch->available_quantity < $data['quantity']) {
-                throw new \Exception(
-                    "Insufficient available quantity in the selected batch. " .
+        $batch = InventoryBatch::findOrFail($data['inventory_batch_id']);
+
+        if ($batch->available_quantity < $data['quantity']) {
+            throw new \Exception(
+                "Insufficient available quantity in the selected batch. " .
                     "Available: {$batch->available_quantity}, Requested: {$data['quantity']}"
-                );
-            }
-
-            // Deduct from available quantity
-            $batch->decrement('available_quantity', $data['quantity']);
-
-            // Create inventory movement record
-            $movement = $this->inventoryMovementService->logMovement([
-                'product_id' => $data['product_id'],
-                'inventory_batch_id' => $batch->id,
-                'transaction_type' => 'damaged',
-                'batch_number' => $batch->batch_number,
-                'expiry_date' => $batch->expiry_date,
-                'available_change' => -$data['quantity'],
-                
-                'cost_price' => $batch->cost_price,
-                'reason' => $data['reason'],
-                'reference' => 'Damaged goods reported',
-            ]);
-
-            $movementId = $movement->id;
-
-            // Update ProductStock: deduct from available
-            $this->productStockService->deductStock($data['product_id'], $data['quantity'], false);
+            );
         }
+
+        // Deduct from available quantity
+        $batch->decrement('available_quantity', $data['quantity']);
+
+        // Create inventory movement record
+        $movement = $this->inventoryMovementService->logMovement([
+            'product_id' => $data['product_id'],
+            'inventory_batch_id' => $batch->id,
+            'transaction_type' => 'damaged',
+            'batch_number' => $batch->batch_number,
+            'expiry_date' => $batch->expiry_date,
+            'available_change' => -$data['quantity'],
+
+            'cost_price' => $batch->cost_price,
+            'reason' => $data['reason'],
+            'reference' => 'Damaged goods reported',
+        ]);
+
+        $movementId = $movement->id;
+
+        // Update ProductStock: deduct from available
+        $this->productStockService->deductStock($data['product_id'], $data['quantity'], false);
+
 
         // Create damaged goods record
         $damagedGoods = DamagedGoods::create([
             'product_id' => $data['product_id'],
             'quantity' => $data['quantity'],
-            'source' => $data['source'],
-            'inventory_batch_id' => $data['source'] === 'inventory' ? $data['inventory_batch_id'] : null,
+           
+            'inventory_batch_id' => $data['inventory_batch_id'],
             'reason' => $data['reason'],
         ]);
 
         // Create adjustment (loss) related to this damaged goods
         $lossAmount = $data['quantity'];
 
-        // If source is inventory, calculate loss based on cost price
-        if ($data['source'] === 'inventory' && isset($batch)) {
-            $lossAmount = $data['quantity'] * $batch->cost_price;
-        }
+        // Calculate loss based on cost price
+
+        $lossAmount = $data['quantity'] * $batch->cost_price;
+
 
         $damagedGoods->adjustments()->create([
             'quantity' => $lossAmount,
@@ -116,6 +116,8 @@ class DamagedGoodsService
     public function deleteDamagedGoods(int $damagedGoodsId): bool
     {
         $damagedGoods = DamagedGoods::findOrFail($damagedGoodsId);
+        $adjustment = $damagedGoods->adjustments()->first();
+        $adjustment->delete();
         return $damagedGoods->delete();
     }
 
@@ -128,7 +130,7 @@ class DamagedGoodsService
             ->where('available_quantity', '>', 0)
             ->where(function ($q) {
                 $q->whereNull('expiry_date')
-                  ->orWhere('expiry_date', '>=', now()->toDateString());
+                    ->orWhere('expiry_date', '>=', now()->toDateString());
             })
             ->where('status', 'active')
             ->select(['id', 'batch_number', 'expiry_date', 'available_quantity', 'cost_price'])

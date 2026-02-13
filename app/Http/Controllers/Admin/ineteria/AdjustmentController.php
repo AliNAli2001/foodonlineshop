@@ -13,7 +13,7 @@ class AdjustmentController extends Controller
      */
     public function index()
     {
-        $adjustments = Adjustment::latest()->paginate(15);
+        $adjustments = Adjustment::paginate(15);
         return view('admin.adjustments.index', compact('adjustments'));
     }
 

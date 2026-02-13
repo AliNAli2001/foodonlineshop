@@ -71,7 +71,7 @@ class DamagedGoodsController extends Controller
 
                 return [
                     'id' => $product->id,
-                    'text' => "{$product->name_ar} (متاح: {$availableStock})",
+                    'text' => "{$product->name_en} (متاح: {$availableStock})",
                     'available_stock' => $availableStock,
                 ];
             });
@@ -89,8 +89,8 @@ class DamagedGoodsController extends Controller
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
-       
-            'inventory_batch_id' => 'required|exists:inventory_batches,id',
+            'source' => 'required|in:inventory,invoice',
+            'inventory_batch_id' => 'required_if:source,inventory|nullable|exists:inventory_batches,id',
            
             'reason' => 'required|string|max:500',
         ]);

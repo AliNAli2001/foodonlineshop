@@ -14,7 +14,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
-                            <th>الكمية</th>
+                            <th>المبلغ المالي</th>
                             <th>نوع التعديل</th>
                             <th>السبب</th>
                             <th>التاريخ</th>
@@ -40,8 +40,8 @@
                                 <td class="text-truncate" style="max-width: 300px;" title="{{ $adjustment->reason }}">{{ $adjustment->reason }}</td>
                                 <td>{{ optional($adjustment->date)->format('Y-m-d H:i') }}</td>
                                 <td class="text-end">
-                                    <a href="{{ route('admin.adjustments.show', $adjustment->id) }}" class="btn btn-sm btn-outline-info">عرض</a>
-                                    <a href="{{ route('admin.adjustments.edit', $adjustment->id) }}" class="btn btn-sm btn-outline-warning">تعديل</a>
+                                    <a href="{{ route('admin.adjustments.show', $adjustment->id) }}" class="btn btn-sm btn-info">عرض</a>
+                                    <a href="{{ route('admin.adjustments.edit', $adjustment->id) }}" class="btn btn-sm btn-warning">تعديل</a>
                                     <form action="{{ route('admin.adjustments.destroy', $adjustment->id) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
                                         @csrf
                                         @method('DELETE')

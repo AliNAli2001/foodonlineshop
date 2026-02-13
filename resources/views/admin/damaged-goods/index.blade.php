@@ -19,7 +19,6 @@
                     <tr>
                         <th>المنتج</th>
                         <th>الكمية</th>
-                        <th>المصدر</th>
                         <th>السبب</th>
                         <th>التاريخ</th>
                         <th>الإجراءات</th>
@@ -30,7 +29,7 @@
                         <tr>
                             <td>{{ $damaged->product->name_ar }}</td>
                             <td>{{ $damaged->quantity }}</td>
-                            <td><span class="badge bg-info">{{ $damaged::SOURCES[$damaged->source] }}</span></td>
+                            
                             <td>{{ $damaged->reason }}</td>
                             <td>{{ $damaged->created_at->format('Y-m-d H:i') }}</td>
                             <td>
@@ -38,7 +37,7 @@
                                 <form action="{{ route('admin.damaged-goods.destroy', $damaged->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')">حذف</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف ، سيتم حذف التسوية المالية (الخسارة) المتعلقة بها؟')">حذف</button>
                                 </form>
                             </td>
                         </tr>

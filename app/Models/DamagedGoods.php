@@ -13,7 +13,7 @@ class DamagedGoods extends Model
     protected $fillable = [
         'product_id',
         'quantity',
-        'source',
+        
         'inventory_batch_id',
         'reason',
     ];
@@ -23,10 +23,7 @@ class DamagedGoods extends Model
         'updated_at' => 'datetime',
     ];
 
-    const SOURCES = [
-        'inventory' => 'المخزن',
-        'invoice' => 'الفاتورة',
-    ];
+   
 
     /**
      * Get the product for this damaged goods record.

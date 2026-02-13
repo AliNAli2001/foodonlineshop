@@ -25,20 +25,9 @@
             <div class="card-body">
                 <form action="{{ route('admin.damaged-goods.store') }}" method="POST">
                     @csrf
-<div class="mb-3">
-                        <label class="form-label">المصدر</label>
-                        <select name="source" id="source" class="form-control @error('source') is-invalid @enderror"
-                            required>
-                            <option value="">-- اختر المصدر --</option>
-                            <option value="inventory" {{ old('source') == 'inventory' ? 'selected' : '' }}>المخزون (سيتم
-                                إنشاء حركة مخزون)</option>
-                            <option value="invoice" {{ old('source') == 'invoice' ? 'selected' : '' }}>الفاتورة</option>
-                        </select>
-                        @error('source')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="mb-3">
                         <small class="form-text text-muted">
-                            اختيار "المخزون" سينشئ تلقائيًا سجل حركة مخزون ويخصم من المخزون الحالي.
+                            سيتم طرح الكمية من المخزون و ستظهر العملية في سجل المخزون المحدد.
                         </small>
                     </div>
                     <div class="mb-3">
@@ -102,7 +91,7 @@
             const selectedProductName = $('#selected_product_name');
             const productResults = $('#product_results');
             const clearProductBtn = $('#clear_product_btn');
-            const sourceSelect = $('#source');
+          
             const inventoryField = $('#inventory-field');
             const inventorySelect = inventoryField.find('select[name="inventory_batch_id"]');
 
@@ -186,13 +175,13 @@
 
             function loadBatches() {
                 const productId = productIdInput.val();
-                const source = sourceSelect.val();
+                
 
                 // نظف الدفعات القديمة دائماً
                 resetBatches();
 
-                // لا تجلب الدفعات إلا لو المصدر مخزون ويوجد منتج
-                if (source !== 'inventory' || !productId) {
+                // لا تجلب الدفعات إلا لو يوجد منتج
+                if (!productId) {
                     return;
                 }
 
@@ -206,11 +195,11 @@
                                 let optionText = '';
 
                                 if (batch.batch_number) {
-                                    optionText += 'Batch: ' + batch.batch_number + ' - ';
+                                    optionText += 'الفاتورة: ' + batch.batch_number + ' - ';
                                 }
 
-                                optionText += 'Expiry: ' + (batch.expiry_date ?? 'N/A') +
-                                    ' - Stock: ' + batch.stock_quantity;
+                                optionText += 'تاريخ الانتهاء: ' + (batch.expiry_date.slice(0, 10) ?? 'N/A') +
+                                    ' - الكمية المتاحة في هذه الدفعة: ' + batch.available_quantity;
 
                                 inventorySelect.append(
                                     $('<option></option>').val(batch.id).text(optionText)
@@ -231,8 +220,7 @@
                 });
             }
 
-            // عند تغيير المصدر → إظهار/إخفاء الدفعات
-            sourceSelect.on('change', loadBatches);
+            
 
             // تحميل مبدئي إذا كان هناك old values
             loadBatches();

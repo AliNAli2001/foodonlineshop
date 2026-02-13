@@ -40,7 +40,7 @@
                     </div>
                     <div class="col-md-4">
                         <label for="date" class="form-label">التاريخ </label>
-                        <input type="date" class="form-control @error('date') is-invalid @enderror" id="date" name="date" value="{{ old('date', $adjustment->date) ?? now()->toDateString() }}" required>
+                        <input type="date" class="form-control @error('date') is-invalid @enderror" id="date" name="date" value="{{ old('date',  optional($adjustment->date)->format('Y-m-d')) ?? now()->toDateString() }}" required>
                         @error('date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
