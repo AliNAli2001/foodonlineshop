@@ -37,6 +37,7 @@ class InventoryMovement extends Model
         'reservation' => 'حجز',
         'adjustment' => 'تعديل',
         'damaged' => 'بضاعة مخربة',
+        'damaged_reversal' => 'إلغاء بضاعة مخربة',
     ];
 
     /**

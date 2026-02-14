@@ -57,6 +57,8 @@
                         <input type="number" name="cost_price" step="0.001"
                             class="form-control @error('cost_price') is-invalid @enderror"
                             value="{{ old('cost_price', $batch->cost_price) }}" required>
+                            {{-- adding note for user --}}
+                            <small class="text-muted">إذا تم تغيير سعر التكلفة فسيتم تحديث تكلفة الخسائر الناتجة عن البضاعة المخربة في هذه الدفعة</small>
                         @error('cost_price')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

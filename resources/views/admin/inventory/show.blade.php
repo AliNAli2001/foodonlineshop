@@ -25,8 +25,7 @@
                     <p><strong>تاريخ الانتهاء:</strong> {{ $batch->expiry_date->format('Y-m-d') }}</p>
                     <p><strong>سعر التكلفة:</strong> {{ $batch->cost_price }}</p>
                     <p><strong>المتاح:</strong> {{ $batch->available_quantity }}</p>
-                    <p><strong>الكمية المحجوزة:</strong> {{ $batch->reserved_quantity }}</p>
-                   
+                  
                 
                     <p><strong>الحالة:</strong> 
                         @if ($batch->isExpired())

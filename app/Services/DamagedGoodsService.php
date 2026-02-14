@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\DamagedGoods;
 use App\Models\InventoryBatch;
 use App\Models\Product;
-
+use Illuminate\Support\Facades\DB;
 
 class DamagedGoodsService
 {
@@ -59,14 +59,14 @@ class DamagedGoodsService
         $movementId = $movement->id;
 
         // Update ProductStock: deduct from available
-        $this->productStockService->deductStock($data['product_id'], $data['quantity'], false);
+        $this->productStockService->deductStock($data['product_id'], $data['quantity']);
 
 
         // Create damaged goods record
         $damagedGoods = DamagedGoods::create([
             'product_id' => $data['product_id'],
             'quantity' => $data['quantity'],
-           
+
             'inventory_batch_id' => $data['inventory_batch_id'],
             'reason' => $data['reason'],
         ]);
@@ -79,7 +79,7 @@ class DamagedGoodsService
         $lossAmount = $data['quantity'] * $batch->cost_price;
 
 
-        $damagedGoods->adjustments()->create([
+        $damagedGoods->adjustment()->create([
             'quantity' => $lossAmount,
             'adjustment_type' => 'loss',
             'reason' => 'بضاعة تالفة: ' . $data['reason'],
@@ -115,11 +115,42 @@ class DamagedGoodsService
      */
     public function deleteDamagedGoods(int $damagedGoodsId): bool
     {
-        $damagedGoods = DamagedGoods::findOrFail($damagedGoodsId);
-        $adjustment = $damagedGoods->adjustments()->first();
-        $adjustment->delete();
-        return $damagedGoods->delete();
+        return DB::transaction(function () use ($damagedGoodsId) {
+
+            $damagedGoods = DamagedGoods::with('inventoryBatch')
+                ->findOrFail($damagedGoodsId);
+
+            $quantity = $damagedGoods->quantity;
+            $batch = $damagedGoods->inventoryBatch;
+
+            // 1️⃣ Return quantity to batch
+            $batch->increment('available_quantity', $quantity);
+
+            // 2️⃣ Return product stock
+            $this->productStockService
+                ->addStock($damagedGoods->product_id, $quantity);
+
+            // 3️⃣ Log reversal movement (IMPORTANT)
+            $this->inventoryMovementService->logMovement([
+                'product_id' => $damagedGoods->product_id,
+                'inventory_batch_id' => $batch->id,
+                'transaction_type' => 'damaged_reversal',
+                'batch_number' => $batch->batch_number,
+                'expiry_date' => $batch->expiry_date,
+                'available_change' => +$quantity,
+                'cost_price' => $batch->cost_price,
+                'reason' => 'Reversal of damaged goods deletion',
+                'reference' => 'Damaged goods deleted',
+            ]);
+
+            // 4️⃣ Delete adjustment
+            $damagedGoods->adjustment?->delete();
+
+            // 5️⃣ Delete damaged goods record
+            return $damagedGoods->delete();
+        });
     }
+
 
     /**
      * Get available batches for a product.

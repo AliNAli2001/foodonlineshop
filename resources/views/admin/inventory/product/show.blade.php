@@ -40,7 +40,8 @@
 
                         <p>
                             @if ($product->isLowStock())
-                                <span class="badge bg-warning text-dark">أقل من الحد الأدنى <i class="fa fa-exclamation-triangle"></i></span>
+                                <span class="badge bg-warning text-dark">أقل من الحد الأدنى <i
+                                        class="fa fa-exclamation-triangle"></i></span>
                             @else
                                 <span class="badge bg-success">جيد</span>
                             @endif
@@ -136,7 +137,7 @@
                             <tr>
                                 <th>النوع</th>
                                 <th>تغيير الكمية</th>
-                                
+
                                 <th>السبب</th>
                                 <th>التاريخ</th>
                                 <th>رقم الدفعة</th>
@@ -147,11 +148,13 @@
                         <tbody>
                             @foreach ($movements as $transaction)
                                 <tr>
-                                    <td><span class="badge bg-info">{{ ucfirst($transaction->transaction_type) }}</span>
+                                    <td><span
+                                            class="badge bg-info">{{ \App\Models\InventoryMovement::TYPES[$transaction->transaction_type] }}</span>
+                                    </td>
                                     </td>
                                     <td>{{ $transaction->available_change > 0 ? '+' : '' }}{{ $transaction->available_change }}
                                     </td>
-                                    
+
                                     <td>{{ $transaction->reason }}</td>
                                     <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
                                     <td><a class="btn btn-sm btn-info"

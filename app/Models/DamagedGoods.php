@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class DamagedGoods extends Model
 {
@@ -13,7 +13,7 @@ class DamagedGoods extends Model
     protected $fillable = [
         'product_id',
         'quantity',
-        
+
         'inventory_batch_id',
         'reason',
     ];
@@ -23,7 +23,7 @@ class DamagedGoods extends Model
         'updated_at' => 'datetime',
     ];
 
-   
+
 
     /**
      * Get the product for this damaged goods record.
@@ -44,8 +44,8 @@ class DamagedGoods extends Model
     /**
      * Get all adjustments for this damaged goods record.
      */
-    public function adjustments(): MorphMany
+    public function adjustment(): MorphOne
     {
-        return $this->morphMany(Adjustment::class, 'adjustable');
+        return $this->morphOne(Adjustment::class, 'adjustable');
     }
 }
