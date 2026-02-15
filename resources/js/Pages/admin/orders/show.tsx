@@ -3,7 +3,7 @@ import { Link, router, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
-const statusClass = {
+const statusClass: Record<string, string> = {
     pending: 'bg-amber-400/20 text-amber-200 ring-amber-300/30',
     confirmed: 'bg-sky-400/20 text-sky-200 ring-sky-300/30',
     shipped: 'bg-blue-400/20 text-blue-200 ring-blue-300/30',
@@ -14,43 +14,40 @@ const statusClass = {
     rejected: 'bg-rose-400/20 text-rose-200 ring-rose-300/30',
 };
 
-const deliveryMethodLabel = {
-    delivery: 'Delivery | ?????',
-    shipping: 'Shipping | ???',
-    hand_delivered: 'Hand Delivered | ????? ????',
-};
-
-const sourceLabel = {
-    inside_city: 'Inside City | ???? ???????',
-    outside_city: 'Outside City | ???? ???????',
-};
-
-function statusLabel(status) {
-    if (!status) return '-';
-    return status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 export default function OrdersShow() {
-  const { t } = useI18n();
-    const { order, deliveryPersons = [], availableTransitions = [] } = usePage().props;
+    const { t } = useI18n();
+    const { order, deliveryPersons = [], availableTransitions = [] } = usePage<any>().props;
     const [rejectOpen, setRejectOpen] = useState(false);
 
     const rejectForm = useForm({ reason: '' });
     const assignForm = useForm({ status: 'delivered', delivery_id: '' });
 
     const orderTotal = Number(order.total_amount ?? 0).toFixed(2);
-
     const canDeliverWithAssign = order.delivery_method === 'delivery' && !order.delivery_id;
-
     const items = order.items ?? [];
 
-    const submitTransition = (status) => {
+    const sourceLabel = (source: string) => {
+        if (source === 'inside_city') return t('admin.pages.orders.index.sourceInside');
+        if (source === 'outside_city') return t('admin.pages.orders.index.sourceOutside');
+        return source || '-';
+    };
+
+    const deliveryLabel = (method: string) => {
+        const key = `admin.pages.orders.deliveryMethods.${method === 'hand_delivered' ? 'handDelivered' : method}`;
+        return t(key, method || '-');
+    };
+
+    const statusLabel = (status: string) => {
+        return t(`admin.pages.orders.status.${status}`, status || '-');
+    };
+
+    const submitTransition = (status: string) => {
         router.post(`/admin/orders/${order.id}/update-status`, { status });
     };
 
     const submitConfirm = () => router.post(`/admin/orders/${order.id}/confirm`);
 
-    const submitReject = (e) => {
+    const submitReject = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         rejectForm.post(`/admin/orders/${order.id}/reject`, {
             onSuccess: () => {
@@ -60,17 +57,17 @@ export default function OrdersShow() {
         });
     };
 
-    const submitAssignDelivered = (e) => {
+    const submitAssignDelivered = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         assignForm.post(`/admin/orders/${order.id}/update-status`);
     };
 
     const transitionButtons = useMemo(() => {
-        return availableTransitions.map((status) => {
+        return availableTransitions.map((status: string) => {
             if (status === 'confirmed' && order.status === 'pending') {
                 return (
                     <button key={status} type="button" onClick={submitConfirm} className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300">
-                        Confirm | ?????
+                        {t('admin.pages.orders.show.confirm')}
                     </button>
                 );
             }
@@ -78,7 +75,7 @@ export default function OrdersShow() {
             if ((status === 'canceled' || status === 'rejected') && order.status === 'pending') {
                 return (
                     <button key={status} type="button" onClick={() => setRejectOpen(true)} className="rounded-xl border border-rose-300/30 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-200 hover:bg-rose-500/20">
-                        Reject | ???
+                        {t('admin.pages.orders.show.reject')}
                     </button>
                 );
             }
@@ -103,44 +100,44 @@ export default function OrdersShow() {
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Order #{order.id} | ????? #{order.id}</h1>
-                        <p className="text-sm text-slate-300">Details, items, and lifecycle actions.</p>
+                        <h1 className="text-2xl font-bold text-white">{t('admin.pages.orders.show.title')} #{order.id}</h1>
+                        <p className="text-sm text-slate-300">{t('admin.pages.orders.show.subtitle')}</p>
                     </div>
                     <Link href="/admin/orders" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-white/10">
-                        Back to Orders | ???? ???????
+                        {t('admin.pages.orders.show.backToOrders')}
                     </Link>
                 </section>
 
                 <div className="grid gap-6 xl:grid-cols-3">
                     <div className="space-y-6 xl:col-span-2">
                         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Order Information | ??????? ?????</h2>
-                            <div className="grid gap-3 md:grid-cols-2 text-sm text-slate-200">
-                                <p><span className="text-slate-400">Customer | ??????:</span> {order.client_id ? `${order.client?.first_name ?? ''} ${order.client?.last_name ?? ''}` : (order.client_name || '-')}</p>
-                                <p><span className="text-slate-400">Phone | ??????:</span> {order.client?.phone || order.client_phone_number || '-'}</p>
-                                <p><span className="text-slate-400">Date | ???????:</span> {order.order_date || order.created_at || '-'}</p>
-                                <p><span className="text-slate-400">Source | ??????:</span> {sourceLabel[order.order_source] ?? order.order_source}</p>
-                                <p><span className="text-slate-400">Delivery | ???????:</span> {deliveryMethodLabel[order.delivery_method] ?? order.delivery_method}</p>
-                                <p><span className="text-slate-400">Status | ??????:</span> <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${statusClass[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'}`}>{statusLabel(order.status)}</span></p>
-                                <p className="md:col-span-2"><span className="text-slate-400">Address | ???????:</span> {order.address_details || '-'}</p>
-                                {order.shipping_notes && <p className="md:col-span-2"><span className="text-slate-400">Shipping Notes | ??????? ?????:</span> {order.shipping_notes}</p>}
-                                {order.admin_order_client_notes && <p className="md:col-span-2"><span className="text-slate-400">Admin Notes | ??????? ???????:</span> {order.admin_order_client_notes}</p>}
+                            <h2 className="mb-4 text-lg font-semibold text-white">{t('admin.pages.orders.show.orderInformation')}</h2>
+                            <div className="grid gap-3 text-sm text-slate-200 md:grid-cols-2">
+                                <p><span className="text-slate-400">{t('admin.pages.orders.show.customer')}: </span>{order.client_id ? `${order.client?.first_name ?? ''} ${order.client?.last_name ?? ''}` : (order.client_name || '-')}</p>
+                                <p><span className="text-slate-400">{t('admin.pages.orders.show.phone')}: </span>{order.client?.phone || order.client_phone_number || '-'}</p>
+                                <p><span className="text-slate-400">{t('admin.pages.orders.show.date')}: </span>{order.order_date || order.created_at || '-'}</p>
+                                <p><span className="text-slate-400">{t('admin.pages.orders.show.source')}: </span>{sourceLabel(order.order_source)}</p>
+                                <p><span className="text-slate-400">{t('admin.pages.orders.show.deliveryMethod')}: </span>{deliveryLabel(order.delivery_method)}</p>
+                                <p><span className="text-slate-400">{t('common.status')}: </span><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${statusClass[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'}`}>{statusLabel(order.status)}</span></p>
+                                <p className="md:col-span-2"><span className="text-slate-400">{t('admin.pages.orders.show.address')}: </span>{order.address_details || '-'}</p>
+                                {order.shipping_notes && <p className="md:col-span-2"><span className="text-slate-400">{t('admin.pages.orders.show.shippingNotes')}: </span>{order.shipping_notes}</p>}
+                                {order.admin_order_client_notes && <p className="md:col-span-2"><span className="text-slate-400">{t('admin.pages.orders.show.adminNotes')}: </span>{order.admin_order_client_notes}</p>}
                             </div>
                         </section>
 
                         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Order Items | ????? ?????</h2>
+                            <h2 className="mb-4 text-lg font-semibold text-white">{t('admin.pages.orders.show.orderItems')}</h2>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full">
                                     <thead>
                                         <tr>
-                                            {['Product', 'Unit Price', 'Qty', 'Subtotal', 'Batches'].map((h) => (
+                                            {[t('admin.pages.orders.create.product'), t('admin.pages.orders.show.unitPrice'), t('admin.pages.orders.create.quantity'), t('admin.pages.orders.show.subtotal'), t('admin.pages.orders.show.batches')].map((h) => (
                                                 <th key={h} className="pb-3 pr-4 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{h}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {items.map((item) => {
+                                        {items.map((item: any) => {
                                             const batches = item.batches ?? [];
                                             return (
                                                 <tr key={item.id} className="border-t border-white/10">
@@ -151,11 +148,11 @@ export default function OrdersShow() {
                                                     <td className="py-3 pr-4 text-sm text-slate-300">
                                                         {batches.length === 0
                                                             ? '-'
-                                                            : batches.map((b, i) => {
+                                                            : batches.map((b: any, i: number) => {
                                                                   const inv = b.inventory_batch || b.inventoryBatch;
                                                                   return (
                                                                       <div key={i} className="mb-1 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs">
-                                                                          Batch: {inv?.batch_number ?? '-'} | Qty: {b.quantity}
+                                                                          {t('admin.pages.orders.show.batch')}: {inv?.batch_number ?? '-'} | {t('admin.pages.orders.create.quantity')}: {b.quantity}
                                                                       </div>
                                                                   );
                                                               })}
@@ -169,16 +166,16 @@ export default function OrdersShow() {
                         </section>
 
                         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Status Actions | ??????? ??????</h2>
+                            <h2 className="mb-4 text-lg font-semibold text-white">{t('admin.pages.orders.show.statusActions')}</h2>
                             {availableTransitions.length === 0 ? (
-                                <p className="text-sm text-slate-400">No more actions for this status.</p>
+                                <p className="text-sm text-slate-400">{t('admin.pages.orders.show.noMoreActions')}</p>
                             ) : (
                                 <div className="flex flex-wrap gap-2">{transitionButtons}</div>
                             )}
 
                             {canDeliverWithAssign && availableTransitions.includes('delivered') && (
                                 <form onSubmit={submitAssignDelivered} className="mt-4 rounded-xl border border-white/10 bg-slate-900/40 p-3">
-                                    <p className="mb-2 text-sm text-slate-200">Assign delivery person before delivered | ???? ???? ????? ??? ???????</p>
+                                    <p className="mb-2 text-sm text-slate-200">{t('admin.pages.orders.show.assignBeforeDelivered')}</p>
                                     <div className="flex flex-wrap gap-2">
                                         <select
                                             value={assignForm.data.delivery_id}
@@ -186,15 +183,15 @@ export default function OrdersShow() {
                                             className="min-w-64 rounded-lg border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white"
                                             required
                                         >
-                                            <option value="">Select Delivery</option>
-                                            {deliveryPersons.map((d) => (
+                                            <option value="">{t('admin.pages.orders.show.selectDelivery')}</option>
+                                            {deliveryPersons.map((d: any) => (
                                                 <option key={d.id} value={d.id}>
                                                     {d.first_name} {d.last_name} - {d.phone}
                                                 </option>
                                             ))}
                                         </select>
                                         <button type="submit" className="rounded-lg bg-cyan-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
-                                            Assign + Delivered
+                                            {t('admin.pages.orders.show.assignAndDelivered')}
                                         </button>
                                     </div>
                                 </form>
@@ -204,38 +201,38 @@ export default function OrdersShow() {
 
                     <aside className="space-y-4 xl:col-span-1">
                         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                            <h3 className="text-lg font-semibold text-white">Summary | ??????</h3>
+                            <h3 className="text-lg font-semibold text-white">{t('admin.pages.orders.show.summary')}</h3>
                             <p className="mt-2 flex items-center justify-between text-sm text-slate-300">
-                                <span>Total Amount</span>
+                                <span>{t('admin.pages.orders.show.totalAmount')}</span>
                                 <strong className="text-white">${orderTotal}</strong>
                             </p>
                             {order.delivery_id && (
                                 <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] p-3 text-xs text-slate-300">
-                                    Delivery: {order.delivery?.first_name} {order.delivery?.last_name}
+                                    {t('admin.pages.orders.show.deliveryPerson')}: {order.delivery?.first_name} {order.delivery?.last_name}
                                     <br />
-                                    Phone: {order.delivery?.phone}
+                                    {t('admin.pages.orders.show.phone')}: {order.delivery?.phone}
                                 </div>
                             )}
                         </div>
 
                         {rejectOpen && (
                             <div className="rounded-2xl border border-rose-300/30 bg-rose-500/10 p-4">
-                                <h4 className="text-sm font-semibold text-rose-200">Reject Order | ??? ?????</h4>
+                                <h4 className="text-sm font-semibold text-rose-200">{t('admin.pages.orders.show.rejectModalTitle')}</h4>
                                 <form onSubmit={submitReject} className="mt-2 space-y-2">
                                     <textarea
                                         value={rejectForm.data.reason}
                                         onChange={(e) => rejectForm.setData('reason', e.target.value)}
                                         rows={3}
                                         required
-                                        placeholder="Reason | ?????"
+                                        placeholder={t('admin.pages.orders.show.reason')}
                                         className="w-full rounded-lg border border-rose-300/30 bg-slate-900/70 px-3 py-2 text-sm text-white"
                                     />
                                     <div className="flex gap-2">
                                         <button type="submit" className="rounded-lg bg-rose-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-rose-400">
-                                            Submit Reject
+                                            {t('admin.pages.orders.show.submitReject')}
                                         </button>
                                         <button type="button" onClick={() => setRejectOpen(false)} className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-slate-200">
-                                            Cancel
+                                            {t('common.cancel')}
                                         </button>
                                     </div>
                                 </form>
@@ -247,5 +244,3 @@ export default function OrdersShow() {
         </AdminLayout>
     );
 }
-
-
