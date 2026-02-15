@@ -44,38 +44,38 @@ export default function ProductsCreate() {
             <div className="mx-auto max-w-5xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Create Product</h1>
-                        <p className="text-sm text-slate-300">Add product data, images, and optional initial stock batch.</p>
+                        <h1 className="text-2xl font-bold text-white">{t('admin.pages.products.create.title')}</h1>
+                        <p className="text-sm text-slate-300">{t('admin.pages.products.create.subtitle')}</p>
                     </div>
                     <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
                 </section>
 
                 <form onSubmit={submit} className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div className="grid gap-4 md:grid-cols-2">
-                        <Field label="Arabic Name" error={errors.name_ar}><input value={data.name_ar} onChange={(e) => setData('name_ar', e.target.value)} className={inputClass} required /></Field>
-                        <Field label="English Name" error={errors.name_en}><input value={data.name_en} onChange={(e) => setData('name_en', e.target.value)} className={inputClass} required /></Field>
-                        <Field label="Arabic Description" error={errors.description_ar}><textarea value={data.description_ar} onChange={(e) => setData('description_ar', e.target.value)} className={inputClass} rows={3} /></Field>
-                        <Field label="English Description" error={errors.description_en}><textarea value={data.description_en} onChange={(e) => setData('description_en', e.target.value)} className={inputClass} rows={3} /></Field>
-                        <Field label="Price" error={errors.selling_price}><input type="number" step="0.001" value={data.selling_price} onChange={(e) => setData('selling_price', e.target.value)} className={inputClass} required /></Field>
-                        <Field label="Max Order Item" error={errors.max_order_item}><input type="number" min="1" value={data.max_order_item} onChange={(e) => setData('max_order_item', e.target.value)} className={inputClass} /></Field>
-                        <Field label="Minimum Alert Quantity" error={errors.minimum_alert_quantity}><input type="number" min="0" value={data.minimum_alert_quantity} onChange={(e) => setData('minimum_alert_quantity', e.target.value)} className={inputClass} /></Field>
+                        <Field label={t('admin.pages.products.create.arabicName')} error={errors.name_ar}><input value={data.name_ar} onChange={(e) => setData('name_ar', e.target.value)} className={inputClass} required /></Field>
+                        <Field label={t('admin.pages.products.create.englishName')} error={errors.name_en}><input value={data.name_en} onChange={(e) => setData('name_en', e.target.value)} className={inputClass} required /></Field>
+                        <Field label={t('admin.pages.products.create.arabicDescription')} error={errors.description_ar}><textarea value={data.description_ar} onChange={(e) => setData('description_ar', e.target.value)} className={inputClass} rows={3} /></Field>
+                        <Field label={t('admin.pages.products.create.englishDescription')} error={errors.description_en}><textarea value={data.description_en} onChange={(e) => setData('description_en', e.target.value)} className={inputClass} rows={3} /></Field>
+                        <Field label={t('admin.pages.products.create.price')} error={errors.selling_price}><input type="number" step="0.001" value={data.selling_price} onChange={(e) => setData('selling_price', e.target.value)} className={inputClass} required /></Field>
+                        <Field label={t('admin.pages.products.create.maxOrderItem')} error={errors.max_order_item}><input type="number" min="1" value={data.max_order_item} onChange={(e) => setData('max_order_item', e.target.value)} className={inputClass} /></Field>
+                        <Field label={t('admin.pages.products.create.minimumAlertQuantity')} error={errors.minimum_alert_quantity}><input type="number" min="0" value={data.minimum_alert_quantity} onChange={(e) => setData('minimum_alert_quantity', e.target.value)} className={inputClass} /></Field>
 
-                        <Field label="Company" error={errors.company_id}>
+                        <Field label={t('admin.pages.products.create.company')} error={errors.company_id}>
                             <select value={data.company_id} onChange={(e) => setData('company_id', e.target.value)} className={inputClass}>
-                                <option value="">Select company</option>
+                                <option value="">{t('admin.pages.products.create.selectCompany')}</option>
                                 {companies.map((c) => <option key={c.id} value={c.id}>{c.name_en || c.name_ar}</option>)}
                             </select>
                         </Field>
 
-                        <Field label="Category" error={errors.category_id}>
+                        <Field label={t('admin.pages.products.create.category')} error={errors.category_id}>
                             <select value={data.category_id} onChange={(e) => setData('category_id', e.target.value)} className={inputClass}>
-                                <option value="">Select category</option>
+                                <option value="">{t('admin.pages.products.create.selectCategory')}</option>
                                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name_en || c.name_ar}</option>)}
                             </select>
                         </Field>
                     </div>
 
-                    <Field label="Tags" error={errors.tags}>
+                    <Field label={t('admin.pages.products.create.tags')} error={errors.tags}>
                         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                             {tags.map((tag) => (
                                 <label key={tag.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200">
@@ -86,35 +86,35 @@ export default function ProductsCreate() {
                         </div>
                     </Field>
 
-                    <Field label="Product Images" error={errors.images}>
+                    <Field label={t('admin.pages.products.create.productImages')} error={errors.images}>
                         <input type="file" multiple accept="image/*" onChange={(e) => setData('images', Array.from(e.target.files || []))} className={inputClass} />
-                        {imagesPreviewCount > 0 && <p className="mt-1 text-xs text-slate-400">{imagesPreviewCount} files selected.</p>}
+                        {imagesPreviewCount > 0 && <p className="mt-1 text-xs text-slate-400">{imagesPreviewCount} {t('admin.pages.products.create.filesSelected')}</p>}
                     </Field>
 
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                         <label className="flex items-center gap-2 text-sm text-slate-100">
                             <input type="checkbox" checked={data.enable_initial_stock} onChange={(e) => setData('enable_initial_stock', e.target.checked)} />
-                            Enable Initial Stock Batch
+                            {t('admin.pages.products.create.enableInitialStockBatch')}
                         </label>
 
                         {data.enable_initial_stock && (
                             <div className="mt-3 grid gap-3 md:grid-cols-2">
-                                <Field label="Initial Quantity" error={errors.initial_stock_quantity}><input type="number" min="1" value={data.initial_stock_quantity} onChange={(e) => setData('initial_stock_quantity', e.target.value)} className={inputClass} required /></Field>
-                                <Field label="Batch Number" error={errors.initial_batch_number}><input value={data.initial_batch_number} onChange={(e) => setData('initial_batch_number', e.target.value)} className={inputClass} required /></Field>
-                                <Field label="Expiry Date" error={errors.initial_expiry_date}><input type="date" value={data.initial_expiry_date} onChange={(e) => setData('initial_expiry_date', e.target.value)} className={inputClass} /></Field>
-                                <Field label="Cost Price" error={errors.initial_cost_price}><input type="number" step="0.001" min="0" value={data.initial_cost_price} onChange={(e) => setData('initial_cost_price', e.target.value)} className={inputClass} required /></Field>
+                                <Field label={t('admin.pages.products.create.initialQuantity')} error={errors.initial_stock_quantity}><input type="number" min="1" value={data.initial_stock_quantity} onChange={(e) => setData('initial_stock_quantity', e.target.value)} className={inputClass} required /></Field>
+                                <Field label={t('admin.pages.products.create.batchNumber')} error={errors.initial_batch_number}><input value={data.initial_batch_number} onChange={(e) => setData('initial_batch_number', e.target.value)} className={inputClass} required /></Field>
+                                <Field label={t('admin.pages.products.create.expiryDate')} error={errors.initial_expiry_date}><input type="date" value={data.initial_expiry_date} onChange={(e) => setData('initial_expiry_date', e.target.value)} className={inputClass} /></Field>
+                                <Field label={t('admin.pages.products.create.costPrice')} error={errors.initial_cost_price}><input type="number" step="0.001" min="0" value={data.initial_cost_price} onChange={(e) => setData('initial_cost_price', e.target.value)} className={inputClass} required /></Field>
                             </div>
                         )}
                     </div>
 
                     <label className="flex items-center gap-2 text-sm text-slate-200">
                         <input type="checkbox" checked={data.featured} onChange={(e) => setData('featured', e.target.checked)} />
-                        Featured Product
+                        {t('admin.pages.products.create.featuredProduct')}
                     </label>
 
                     <div className="flex gap-3">
                         <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">
-                            {processing ? 'Saving...' : 'Create Product'}
+                            {processing ? t('admin.pages.products.create.saving') : t('admin.pages.products.create.submit')}
                         </button>
                         <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link>
                     </div>

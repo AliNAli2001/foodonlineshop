@@ -6,7 +6,7 @@ import { useI18n } from '../../../i18n';
 function stockState(product) {
     const stock = Number(product.stock_available_quantity ?? 0);
     const min = Number(product.minimum_alert_quantity ?? 0);
-    return min > 0 && stock < min ? 'Low stock' : 'Healthy';
+    return min > 0 && stock < min ? 'low' : 'healthy';
 }
 
 export default function ProductsShow() {
@@ -19,10 +19,10 @@ export default function ProductsShow() {
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
                         <h1 className="text-2xl font-bold text-white">{product.name_en || product.name_ar}</h1>
-                        <p className="text-sm text-slate-300">Product details and stock overview.</p>
+                        <p className="text-sm text-slate-300">{t('admin.pages.products.show.subtitle')}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <Link href={`/admin/inventory/${product.id}/batches`} className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">Inventory</Link>
+                        <Link href={`/admin/inventory/${product.id}/batches`} className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">{t('admin.pages.products.show.inventory')}</Link>
                         <Link href={`/admin/products/${product.id}/edit`} className="rounded-xl bg-cyan-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('common.edit')}</Link>
                         <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
                     </div>
@@ -31,33 +31,33 @@ export default function ProductsShow() {
                 <div className="grid gap-6 lg:grid-cols-3">
                     <section className="space-y-6 lg:col-span-2">
                         <div className="grid gap-4 md:grid-cols-2">
-                            <InfoCard title="Arabic Information">
-                                <Info label="Name" value={product.name_ar || '-'} />
-                                <Info label="Description" value={product.description_ar || '-'} />
-                                <Info label="Company" value={product.company?.name_ar || product.company?.name_en || '-'} />
-                                <Info label="Category" value={product.category?.name_ar || product.category?.name_en || '-'} />
+                            <InfoCard title={t('admin.pages.products.show.arabicInformation')}>
+                                <Info label={t('admin.pages.products.show.name')} value={product.name_ar || '-'} />
+                                <Info label={t('admin.pages.products.show.description')} value={product.description_ar || '-'} />
+                                <Info label={t('admin.pages.products.show.company')} value={product.company?.name_ar || product.company?.name_en || '-'} />
+                                <Info label={t('admin.pages.products.show.category')} value={product.category?.name_ar || product.category?.name_en || '-'} />
                             </InfoCard>
 
-                            <InfoCard title="English Information">
-                                <Info label="Name" value={product.name_en || '-'} />
-                                <Info label="Description" value={product.description_en || '-'} />
-                                <Info label="Company" value={product.company?.name_en || product.company?.name_ar || '-'} />
-                                <Info label="Category" value={product.category?.name_en || product.category?.name_ar || '-'} />
+                            <InfoCard title={t('admin.pages.products.show.englishInformation')}>
+                                <Info label={t('admin.pages.products.show.name')} value={product.name_en || '-'} />
+                                <Info label={t('admin.pages.products.show.description')} value={product.description_en || '-'} />
+                                <Info label={t('admin.pages.products.show.company')} value={product.company?.name_en || product.company?.name_ar || '-'} />
+                                <Info label={t('admin.pages.products.show.category')} value={product.category?.name_en || product.category?.name_ar || '-'} />
                             </InfoCard>
                         </div>
 
-                        <InfoCard title="Pricing & Stock">
+                        <InfoCard title={t('admin.pages.products.show.pricingStock')}>
                             <div className="grid gap-2 sm:grid-cols-2 text-sm">
-                                <Info label="Price" value={`$${Number(product.selling_price ?? 0).toFixed(2)}`} />
-                                <Info label="Available Stock" value={String(product.stock_available_quantity ?? 0)} />
-                                <Info label="Min Alert Qty" value={String(product.minimum_alert_quantity ?? '-')} />
-                                <Info label="Stock Status" value={stockState(product)} />
-                                <Info label="Max Order Item" value={String(product.max_order_item ?? '-')} />
-                                <Info label="Featured" value={product.featured ? 'Yes' : 'No'} />
+                                <Info label={t('admin.pages.products.show.price')} value={`$${Number(product.selling_price ?? 0).toFixed(2)}`} />
+                                <Info label={t('admin.pages.products.show.availableStock')} value={String(product.stock_available_quantity ?? 0)} />
+                                <Info label={t('admin.pages.products.show.minAlertQty')} value={String(product.minimum_alert_quantity ?? '-')} />
+                                <Info label={t('admin.pages.products.show.stockStatus')} value={stockState(product) === 'low' ? t('admin.pages.products.show.lowStock') : t('admin.pages.products.show.healthy')} />
+                                <Info label={t('admin.pages.products.show.maxOrderItem')} value={String(product.max_order_item ?? '-')} />
+                                <Info label={t('admin.pages.products.show.featured')} value={product.featured ? t('admin.pages.products.show.yes') : t('admin.pages.products.show.no')} />
                             </div>
                         </InfoCard>
 
-                        <InfoCard title="Tags">
+                        <InfoCard title={t('admin.pages.products.show.tags')}>
                             {(product.tags || []).length > 0 ? (
                                 <div className="flex flex-wrap gap-2">
                                     {product.tags.map((tag) => (
@@ -67,11 +67,11 @@ export default function ProductsShow() {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-400">No tags assigned.</p>
+                                <p className="text-sm text-slate-400">{t('admin.pages.products.show.noTagsAssigned')}</p>
                             )}
                         </InfoCard>
 
-                        <InfoCard title="Product Images">
+                        <InfoCard title={t('admin.pages.products.show.productImages')}>
                             {(product.images || []).length > 0 ? (
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                     {product.images.map((img) => {
@@ -79,34 +79,34 @@ export default function ProductsShow() {
                                         return (
                                             <div key={img.id} className="rounded-lg border border-white/10 bg-slate-900/40 p-2">
                                                 <img src={url} alt="product" className="h-40 w-full rounded-lg object-cover" />
-                                                {img.is_primary ? <span className="mt-2 inline-flex rounded-full bg-cyan-400/20 px-2 py-0.5 text-xs text-cyan-200">Primary</span> : null}
+                                                {img.is_primary ? <span className="mt-2 inline-flex rounded-full bg-cyan-400/20 px-2 py-0.5 text-xs text-cyan-200">{t('admin.pages.products.show.primary')}</span> : null}
                                             </div>
                                         );
                                     })}
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-400">No images available.</p>
+                                <p className="text-sm text-slate-400">{t('admin.pages.products.show.noImagesAvailable')}</p>
                             )}
                         </InfoCard>
                     </section>
 
                     <aside className="space-y-4">
-                        <InfoCard title="Navigate">
+                        <InfoCard title={t('admin.pages.products.show.navigate')}>
                             <div className="space-y-2">
                                 {previousProduct ? (
                                     <Link href={`/admin/products/${previousProduct.id}`} className="block rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">
-                                        Previous Product
+                                        {t('admin.pages.products.show.previousProduct')}
                                     </Link>
                                 ) : (
-                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">No previous product</div>
+                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">{t('admin.pages.products.show.noPreviousProduct')}</div>
                                 )}
 
                                 {nextProduct ? (
                                     <Link href={`/admin/products/${nextProduct.id}`} className="block rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">
-                                        Next Product
+                                        {t('admin.pages.products.show.nextProduct')}
                                     </Link>
                                 ) : (
-                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">No next product</div>
+                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">{t('admin.pages.products.show.noNextProduct')}</div>
                                 )}
                             </div>
                         </InfoCard>
