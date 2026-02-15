@@ -5,10 +5,14 @@
 body {
     background-color: #ffffff;
     font-family: Arial, sans-serif;
+    max-height: 100vh;
+    overflow: hidden;
 }
 
 main {
     background-color: #F2F4F7;
+    max-height: 98vh;
+    overflow-y: auto;
 }
 
 .sidebar {
@@ -57,7 +61,7 @@ main {
 }
 
 .right-space {
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.1s ease-in-out;
 
     transform: translateX(-70px);
 }

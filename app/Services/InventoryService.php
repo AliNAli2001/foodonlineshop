@@ -58,6 +58,7 @@ class InventoryService
      */
     public function updateBatch(int $batchId, array $data): InventoryBatch
     {
+       
         $batch = InventoryBatch::findOrFail($batchId);
 
         $oldQuantity = $batch->available_quantity;
@@ -84,7 +85,7 @@ class InventoryService
             'reference' => 'Manual stock adjustment',
         ]);
 
-        // Only log movement if quantity changed
+        // Update stock if quantity changed
         if ($availableChange !== 0) {
            
 
