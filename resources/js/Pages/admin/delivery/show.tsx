@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type Delivery = {
   id: number;
@@ -41,11 +42,12 @@ function customerName(order: Order) {
 }
 
 export default function DeliveryShow() {
+  const { t } = useI18n();
   const { delivery, orders } = usePage<{ delivery: Delivery; orders: any }>().props;
   const rows: Order[] = Array.isArray(orders?.data) ? orders.data : [];
 
   return (
-    <AdminLayout title="Delivery Details">
+    <AdminLayout title={t('admin.pages.delivery.show.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -53,8 +55,8 @@ export default function DeliveryShow() {
             <p className="text-sm text-slate-300">Delivery profile and assigned orders.</p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">Edit</Link>
-            <Link href="/admin/delivery" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">Back</Link>
+            <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">{t('common.edit')}</Link>
+            <Link href="/admin/delivery" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
           </div>
         </section>
 
@@ -101,7 +103,7 @@ export default function DeliveryShow() {
                       <td className="px-4 py-3 text-sm text-slate-200">{order.status || '-'}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{formatDate(order.order_date || order.created_at)}</td>
                       <td className="px-4 py-3">
-                        <Link href={`/admin/orders/${order.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">View</Link>
+                        <Link href={`/admin/orders/${order.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
                       </td>
                     </tr>
                   ))
@@ -143,3 +145,5 @@ function Info({ label, value }: { label: string; value: string }) {
     </p>
   );
 }
+
+

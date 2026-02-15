@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 export default function ProductsCreate() {
+  const { t } = useI18n();
     const { categories = [], tags = [], companies = [], maxOrderItems = null, generalMinimumAlertQuantity = null } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
@@ -38,14 +40,14 @@ export default function ProductsCreate() {
     const imagesPreviewCount = useMemo(() => (data.images?.length ? data.images.length : 0), [data.images]);
 
     return (
-        <AdminLayout title="Create Product">
+        <AdminLayout title={t('admin.pages.products.create.title')}>
             <div className="mx-auto max-w-5xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
                         <h1 className="text-2xl font-bold text-white">Create Product</h1>
                         <p className="text-sm text-slate-300">Add product data, images, and optional initial stock batch.</p>
                     </div>
-                    <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">Back</Link>
+                    <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
                 </section>
 
                 <form onSubmit={submit} className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
@@ -114,7 +116,7 @@ export default function ProductsCreate() {
                         <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">
                             {processing ? 'Saving...' : 'Create Product'}
                         </button>
-                        <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">Cancel</Link>
+                        <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link>
                     </div>
                 </form>
             </div>
@@ -133,3 +135,5 @@ function Field({ label, error, children }) {
         </div>
     );
 }
+
+

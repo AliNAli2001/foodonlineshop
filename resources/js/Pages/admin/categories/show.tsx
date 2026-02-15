@@ -1,18 +1,20 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 export default function CategoriesShow() {
+  const { t } = useI18n();
   const { category, products } = usePage<any>().props;
   const rows = Array.isArray(products?.data) ? products.data : [];
   const image = category?.category_image ? `/storage/${category.category_image}` : null;
 
   return (
-    <AdminLayout title="Category Details">
+    <AdminLayout title={t('admin.pages.categories.show.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div><h1 className="text-2xl font-bold text-white">{category.name_en}</h1><p className="text-sm text-slate-300">Category details and linked products.</p></div>
-          <div className="flex gap-2"><Link href={`/admin/categories/${category.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">Edit</Link><Link href="/admin/categories" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">Back</Link></div>
+          <div className="flex gap-2"><Link href={`/admin/categories/${category.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">{t('common.edit')}</Link><Link href="/admin/categories" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link></div>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
@@ -37,7 +39,7 @@ export default function CategoriesShow() {
                     <td className="px-4 py-3 text-sm text-slate-200">${Number(p.selling_price ?? p.price ?? 0).toFixed(2)}</td>
                     <td className="px-4 py-3 text-sm text-slate-200">{p.stock_available_quantity ?? p.inventory?.stock_quantity ?? 0}</td>
                     <td className="px-4 py-3 text-sm text-slate-200">{p.featured ? 'Yes' : 'No'}</td>
-                    <td className="px-4 py-3"><div className="flex gap-2"><Link href={`/admin/products/${p.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">View</Link><Link href={`/admin/products/${p.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">Edit</Link></div></td>
+                    <td className="px-4 py-3"><div className="flex gap-2"><Link href={`/admin/products/${p.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link><Link href={`/admin/products/${p.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link></div></td>
                   </tr>
                 ))}
               </tbody>
@@ -49,3 +51,5 @@ export default function CategoriesShow() {
     </AdminLayout>
   );
 }
+
+

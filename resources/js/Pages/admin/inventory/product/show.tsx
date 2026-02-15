@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../../Layouts/AdminLayout';
+import { useI18n } from '../../../../i18n';
 
 export default function InventoryProductShow() {
+  const { t } = useI18n();
   const { product, batches, movements } = usePage<any>().props;
   const batchRows = Array.isArray(batches) ? batches : Array.isArray(batches?.data) ? batches.data : [];
   const movementRows = Array.isArray(movements?.data) ? movements.data : Array.isArray(movements) ? movements : [];
 
   return (
-    <AdminLayout title="Product Inventory">
+    <AdminLayout title={t('admin.pages.inventory.product.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -17,7 +19,7 @@ export default function InventoryProductShow() {
           </div>
           <div className="flex gap-2">
             <Link href={`/admin/inventory/${product.id}/create`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">+ Add Batch</Link>
-            <Link href="/admin/inventory" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">Back</Link>
+            <Link href="/admin/inventory" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
           </div>
         </section>
 
@@ -37,7 +39,7 @@ export default function InventoryProductShow() {
                       <td className="px-4 py-3 text-sm text-slate-200">{b.cost_price}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{b.available_quantity}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{b.is_expired ? 'Expired' : 'Available'}</td>
-                      <td className="px-4 py-3"><div className="flex gap-2"><Link href={`/admin/inventory/${b.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">View</Link><Link href={`/admin/inventory/${b.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">Edit</Link></div></td>
+                      <td className="px-4 py-3"><div className="flex gap-2"><Link href={`/admin/inventory/${b.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link><Link href={`/admin/inventory/${b.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link></div></td>
                     </tr>
                   ))
                 )}
@@ -82,3 +84,5 @@ export default function InventoryProductShow() {
     </AdminLayout>
   );
 }
+
+

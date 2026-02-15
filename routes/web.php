@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\AdjustmentController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 
@@ -36,6 +37,20 @@ Route::get('/', function () {
     $featuredCategories = Category::where('featured', true)->get();
     return Inertia::render('home', compact('featuredProducts', 'featuredCategories'));
 })->name('home');
+
+Route::post('/locale', function (Request $request) {
+    $data = $request->validate([
+        'locale' => 'required|in:en,ar',
+    ]);
+
+    session(['locale' => $data['locale']]);
+    app()->setLocale($data['locale']);
+
+    return response()->json([
+        'ok' => true,
+        'locale' => $data['locale'],
+    ]);
+})->name('locale.switch');
 
 // Home page (kept for web)
 // Client Routes (Public - no auth required for browsing) - kept for web

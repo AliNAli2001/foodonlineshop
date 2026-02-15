@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type Adjustment = {
   id: number;
@@ -22,11 +23,12 @@ function formatDate(value?: string | null) {
 }
 
 export default function AdjustmentsShow() {
+  const { t } = useI18n();
   const { adjustment } = usePage<{ adjustment: Adjustment }>().props;
   const isDamagedGoodsLinked = (adjustment.adjustable_type || '').includes('DamagedGoods');
 
   return (
-    <AdminLayout title="Adjustment Details">
+    <AdminLayout title={t('admin.pages.adjustments.show.title')}>
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -81,3 +83,5 @@ function Info({ label, value }: { label: string; value: string }) {
     </p>
   );
 }
+
+

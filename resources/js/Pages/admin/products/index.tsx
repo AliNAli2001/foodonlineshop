@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 function queryFromUrl(url: string) {
     const raw = url?.includes('?') ? url.split('?')[1] : '';
@@ -17,6 +18,7 @@ function statusPill(product: any) {
 }
 
 export default function ProductsIndex() {
+  const { t } = useI18n();
     const page = usePage<any>();
     const products = page.props.products;
     const params = queryFromUrl(page.url || '');
@@ -40,7 +42,7 @@ export default function ProductsIndex() {
     };
 
     return (
-        <AdminLayout title="Products">
+        <AdminLayout title={t('admin.pages.products.index.title')}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
@@ -98,7 +100,7 @@ export default function ProductsIndex() {
                                                 <td className="px-4 py-3 text-sm text-slate-100">{product.name_en || product.name_ar}</td>
                                                 <td className="px-4 py-3 text-sm text-slate-200">${Number(product.selling_price).toFixed(2)}</td>
                                                 <td className="px-4 py-3 text-sm"><span className={statusPill(product)}>{stock}</span></td>
-                                                <td className="px-4 py-3"><div className="flex flex-wrap gap-2"><Link href={`/admin/products/${product.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">View</Link><Link href={`/admin/products/${product.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">Edit</Link><button onClick={() => removeProduct(product.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">Delete</button></div></td>
+                                                <td className="px-4 py-3"><div className="flex flex-wrap gap-2"><Link href={`/admin/products/${product.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link><Link href={`/admin/products/${product.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link><button onClick={() => removeProduct(product.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button></div></td>
                                             </tr>
                                         );
                                     })
@@ -112,3 +114,5 @@ export default function ProductsIndex() {
         </AdminLayout>
     );
 }
+
+

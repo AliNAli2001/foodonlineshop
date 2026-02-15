@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type DamagedGoods = {
   id: number;
@@ -23,13 +24,14 @@ function formatDate(value?: string | null) {
 }
 
 export default function DamagedGoodsShow() {
+  const { t } = useI18n();
   const { damagedGoods } = usePage<{ damagedGoods: DamagedGoods }>().props;
   const batch = damagedGoods?.inventory_batch || damagedGoods?.inventoryBatch;
   const adjustment = damagedGoods?.adjustment;
   const totalLoss = batch?.cost_price ? Number(batch.cost_price) * Number(damagedGoods.quantity || 0) : null;
 
   return (
-    <AdminLayout title="Damaged Goods Details">
+    <AdminLayout title={t('admin.pages.damagedGoods.show.title')}>
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -77,3 +79,5 @@ function Info({ label, value }: { label: string; value: string }) {
     </p>
   );
 }
+
+

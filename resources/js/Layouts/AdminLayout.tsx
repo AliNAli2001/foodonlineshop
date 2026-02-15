@@ -1,23 +1,25 @@
 import React, { useMemo, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useI18n } from '../i18n';
 
 const navItems = [
-    { label: 'Dashboard', href: '/admin/dashboard', icon: 'DB' },
-    { label: 'Statistics', href: '/admin/statistics', icon: 'ST' },
-    { label: 'Orders', href: '/admin/orders', icon: 'OR' },
-    { label: 'Products', href: '/admin/products', icon: 'PR' },
-    { label: 'Inventory', href: '/admin/inventory', icon: 'IN' },
-    { label: 'Categories', href: '/admin/categories', icon: 'CA' },
-    { label: 'Companies', href: '/admin/companies', icon: 'CO' },
-    { label: 'Tags', href: '/admin/tags', icon: 'TG' },
-    { label: 'Damaged Goods', href: '/admin/damaged-goods', icon: 'DG' },
-    { label: 'Adjustments', href: '/admin/adjustments', icon: 'AD' },
-    { label: 'Delivery', href: '/admin/delivery', icon: 'DV' },
+    { key: 'dashboard', href: '/admin/dashboard', icon: 'DB' },
+    { key: 'statistics', href: '/admin/statistics', icon: 'ST' },
+    { key: 'orders', href: '/admin/orders', icon: 'OR' },
+    { key: 'products', href: '/admin/products', icon: 'PR' },
+    { key: 'inventory', href: '/admin/inventory', icon: 'IN' },
+    { key: 'categories', href: '/admin/categories', icon: 'CA' },
+    { key: 'companies', href: '/admin/companies', icon: 'CO' },
+    { key: 'tags', href: '/admin/tags', icon: 'TG' },
+    { key: 'damagedGoods', href: '/admin/damaged-goods', icon: 'DG' },
+    { key: 'adjustments', href: '/admin/adjustments', icon: 'AD' },
+    { key: 'delivery', href: '/admin/delivery', icon: 'DV' },
 ];
 
 export default function AdminLayout({ title = 'Admin', children }) {
     const { url, props } = usePage();
     const { flash = {} } = props;
+    const { t } = useI18n();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const currentPath = useMemo(() => url.split('?')[0], [url]);
@@ -43,13 +45,13 @@ export default function AdminLayout({ title = 'Admin', children }) {
                             onClick={() => setSidebarOpen((prev) => !prev)}
                             className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10 lg:hidden"
                         >
-                            Menu
+                            {t('common.menu')}
                         </button>
                         <div className="flex items-center gap-2">
                             <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-xs font-black text-slate-950">
                                 AD
                             </div>
-                            <p className="text-sm font-semibold tracking-wide text-slate-200">Admin Control</p>
+                            <p className="text-sm font-semibold tracking-wide text-slate-200">{t('common.adminControl')}</p>
                         </div>
                     </div>
 
@@ -58,14 +60,14 @@ export default function AdminLayout({ title = 'Admin', children }) {
                             href="/admin/settings"
                             className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
                         >
-                            Settings
+                            {t('common.settings')}
                         </Link>
                         <button
                             type="button"
                             onClick={() => router.post('/admin/logout')}
                             className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-500/20"
                         >
-                            Logout
+                            {t('common.logout')}
                         </button>
                     </div>
                 </div>
@@ -85,8 +87,8 @@ export default function AdminLayout({ title = 'Admin', children }) {
                     }`}
                 >
                     <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Workspace</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-200">Food Online Shop</p>
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{t('common.workspace')}</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-200">{t('common.appName')}</p>
                     </div>
 
                     <nav className="grid gap-2">
@@ -113,7 +115,7 @@ export default function AdminLayout({ title = 'Admin', children }) {
                                     >
                                         {item.icon}
                                     </span>
-                                    <span>{item.label}</span>
+                                    <span>{t(`admin.nav.${item.key}`)}</span>
                                 </Link>
                             );
                         })}

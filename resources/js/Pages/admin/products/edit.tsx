@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 export default function ProductsEdit() {
+  const { t } = useI18n();
     const { product, categories = [], tags = [], companies = [] } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
@@ -44,14 +46,14 @@ export default function ProductsEdit() {
     };
 
     return (
-        <AdminLayout title="Edit Product">
+        <AdminLayout title={t('admin.pages.products.edit.title')}>
             <div className="mx-auto max-w-5xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
                         <h1 className="text-2xl font-bold text-white">Edit Product #{product.id}</h1>
                         <p className="text-sm text-slate-300">Update details, tags, and image management settings.</p>
                     </div>
-                    <Link href={`/admin/products/${product.id}`} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">View</Link>
+                    <Link href={`/admin/products/${product.id}`} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.view')}</Link>
                 </section>
 
                 <form onSubmit={submit} className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
@@ -129,7 +131,7 @@ export default function ProductsEdit() {
                         <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">
                             {processing ? 'Updating...' : 'Update Product'}
                         </button>
-                        <Link href={`/admin/products/${product.id}`} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">Cancel</Link>
+                        <Link href={`/admin/products/${product.id}`} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link>
                     </div>
                 </form>
             </div>
@@ -148,3 +150,5 @@ function Field({ label, error, children }) {
         </div>
     );
 }
+
+

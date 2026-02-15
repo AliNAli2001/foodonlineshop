@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type DamagedRow = {
   id: number;
@@ -18,6 +19,7 @@ function formatDate(value?: string | null) {
 }
 
 export default function DamagedGoodsIndex() {
+  const { t } = useI18n();
   const page = usePage<any>();
   const damagedGoods = page.props.damagedGoods;
   const rows: DamagedRow[] = Array.isArray(damagedGoods?.data)
@@ -32,7 +34,7 @@ export default function DamagedGoodsIndex() {
   };
 
   return (
-    <AdminLayout title="Damaged Goods">
+    <AdminLayout title={t('admin.pages.damagedGoods.index.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -73,8 +75,8 @@ export default function DamagedGoodsIndex() {
                       <td className="px-4 py-3 text-sm text-slate-200">{formatDate(r.created_at)}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
-                          <Link href={`/admin/damaged-goods/${r.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">View</Link>
-                          <button onClick={() => removeRow(r.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">Delete</button>
+                          <Link href={`/admin/damaged-goods/${r.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
+                          <button onClick={() => removeRow(r.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button>
                         </div>
                       </td>
                     </tr>
@@ -108,3 +110,5 @@ export default function DamagedGoodsIndex() {
     </AdminLayout>
   );
 }
+
+

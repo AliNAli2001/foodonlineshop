@@ -3,6 +3,8 @@ import './bootstrap';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
+import { I18nProvider } from './i18n';
+import GlobalLanguageSwitcher from './components/GlobalLanguageSwitcher';
 
 const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
 
@@ -18,7 +20,14 @@ createInertiaApp({
         return pages['./Pages/Shared/MissingPage.tsx'].default;
     },
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        const initialLocale = props?.initialPage?.props?.locale ?? 'en';
+
+        createRoot(el).render(
+            <I18nProvider initialLocale={initialLocale}>
+                <App {...props} />
+                <GlobalLanguageSwitcher />
+            </I18nProvider>,
+        );
     },
 });
 

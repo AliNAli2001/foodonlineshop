@@ -1,7 +1,9 @@
 import React from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { useI18n } from '../../../i18n';
 
 export default function AdminLogin() {
+    const { t } = useI18n();
     const { flash = {} } = usePage().props;
     const { data, setData, post, processing, errors } = useForm({
         email: '',
@@ -15,12 +17,12 @@ export default function AdminLogin() {
 
     return (
         <>
-            <Head title="Admin Login" />
+            <Head title={t('admin.pages.auth.login.title')} />
 
             <main className="grid min-h-screen place-items-center bg-gradient-to-b from-blue-50 to-slate-100 px-4">
                 <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
-                    <h1 className="text-2xl font-bold text-slate-900">Admin Login</h1>
-                    <p className="mt-1 text-sm text-slate-500">Sign in to access the dashboard.</p>
+                    <h1 className="text-2xl font-bold text-slate-900">{t('admin.pages.auth.login.title')}</h1>
+                    <p className="mt-1 text-sm text-slate-500">{t('admin.pages.auth.login.subtitle')}</p>
 
                     {flash.success && (
                         <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
@@ -38,7 +40,7 @@ export default function AdminLogin() {
                     <form onSubmit={submit} className="mt-5 space-y-4">
                         <div>
                             <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                Email
+                                {t('common.email')}
                             </label>
                             <input
                                 id="email"
@@ -53,7 +55,7 @@ export default function AdminLogin() {
 
                         <div>
                             <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                Password
+                                {t('common.password')}
                             </label>
                             <input
                                 id="password"
@@ -71,13 +73,13 @@ export default function AdminLogin() {
                             disabled={processing}
                             className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                            {processing ? 'Signing in...' : 'Login'}
+                            {processing ? t('common.signingIn') : t('common.signIn')}
                         </button>
                     </form>
 
                     <p className="mt-5 text-center text-sm text-slate-600">
                         <Link href="/" className="font-medium text-blue-600 hover:underline">
-                            Back to Home
+                            {t('common.back')}
                         </Link>
                     </p>
                 </section>

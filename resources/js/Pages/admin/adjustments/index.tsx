@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type Adjustment = {
   id: number;
@@ -21,6 +22,7 @@ function formatDate(value?: string | null) {
 }
 
 export default function AdjustmentsIndex() {
+  const { t } = useI18n();
   const page = usePage<any>();
   const adjustments = page.props.adjustments;
   const rows: Adjustment[] = Array.isArray(adjustments?.data)
@@ -35,7 +37,7 @@ export default function AdjustmentsIndex() {
   };
 
   return (
-    <AdminLayout title="Adjustments">
+    <AdminLayout title={t('admin.pages.adjustments.index.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -80,15 +82,15 @@ export default function AdjustmentsIndex() {
                         <td className="px-4 py-3 text-sm text-slate-200">{formatDate(a.date || a.created_at)}</td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Link href={`/admin/adjustments/${a.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">View</Link>
+                            <Link href={`/admin/adjustments/${a.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
                             {isDamagedGoodsLinked ? (
                               a.adjustable_id ? (
                                 <Link href={`/admin/damaged-goods/${a.adjustable_id}`} className="rounded-lg border border-indigo-300/30 bg-indigo-500/10 px-2.5 py-1 text-xs text-indigo-200 hover:bg-indigo-500/20">Damaged Goods</Link>
                               ) : null
                             ) : (
                               <>
-                                <Link href={`/admin/adjustments/${a.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">Edit</Link>
-                                <button onClick={() => removeRow(a.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">Delete</button>
+                                <Link href={`/admin/adjustments/${a.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link>
+                                <button onClick={() => removeRow(a.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button>
                               </>
                             )}
                           </div>
@@ -125,3 +127,5 @@ export default function AdjustmentsIndex() {
     </AdminLayout>
   );
 }
+
+

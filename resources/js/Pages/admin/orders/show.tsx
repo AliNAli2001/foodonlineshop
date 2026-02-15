@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 const statusClass = {
     pending: 'bg-amber-400/20 text-amber-200 ring-amber-300/30',
@@ -30,6 +31,7 @@ function statusLabel(status) {
 }
 
 export default function OrdersShow() {
+  const { t } = useI18n();
     const { order, deliveryPersons = [], availableTransitions = [] } = usePage().props;
     const [rejectOpen, setRejectOpen] = useState(false);
 
@@ -97,7 +99,7 @@ export default function OrdersShow() {
     }, [availableTransitions, order.status, canDeliverWithAssign]);
 
     return (
-        <AdminLayout title={`Order #${order.id}`}>
+        <AdminLayout title={`${t('admin.pages.orders.show.title')} #${order.id}`}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
@@ -245,3 +247,5 @@ export default function OrdersShow() {
         </AdminLayout>
     );
 }
+
+

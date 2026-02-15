@@ -13,4 +13,8 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+html[dir='rtl'] body {
+    text-align: right;
+}
+
 

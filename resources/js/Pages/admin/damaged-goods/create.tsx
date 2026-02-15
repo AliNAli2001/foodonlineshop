@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type Batch = {
   id: number;
@@ -18,6 +19,7 @@ type Product = {
 };
 
 export default function DamagedGoodsCreate() {
+  const { t } = useI18n();
   const { products = [] } = usePage<{ products: Product[] }>().props;
   const { data, setData, post, processing, errors } = useForm({
     product_id: '',
@@ -39,7 +41,7 @@ export default function DamagedGoodsCreate() {
   };
 
   return (
-    <AdminLayout title="Create Damaged Goods">
+    <AdminLayout title={t('admin.pages.damagedGoods.create.title')}>
       <div className="mx-auto max-w-4xl space-y-6">
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <h1 className="text-2xl font-bold text-white">Register Damaged Goods</h1>
@@ -127,3 +129,5 @@ function Field({ label, error, children }: { label: string; error?: string; chil
     </div>
   );
 }
+
+

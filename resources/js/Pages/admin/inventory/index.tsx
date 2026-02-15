@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type Product = { id: number; name_en?: string; name_ar?: string; stock_available_quantity?: number };
 
@@ -16,6 +17,7 @@ function getRows(products: any): Product[] {
 }
 
 export default function InventoryIndex() {
+  const { t } = useI18n();
   const page = usePage<PageProps>();
   const products = page.props.products;
   const url = page.url;
@@ -23,7 +25,7 @@ export default function InventoryIndex() {
   const isLowStockRoute = (url || '').includes('/low-stock');
 
   return (
-    <AdminLayout title="Inventory">
+    <AdminLayout title={t('admin.pages.inventory.index.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -71,4 +73,6 @@ export default function InventoryIndex() {
     </AdminLayout>
   );
 }
+
+
 

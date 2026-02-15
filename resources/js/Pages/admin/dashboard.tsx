@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../Layouts/AdminLayout';
+import { useI18n } from '../../i18n';
 
 const statusBadge = {
     pending: 'bg-amber-400/20 text-amber-200 ring-amber-300/30',
@@ -12,9 +13,18 @@ const statusBadge = {
     returned: 'bg-slate-300/20 text-slate-200 ring-slate-300/30',
 };
 
-function statusLabel(status) {
+function statusLabel(status, t) {
     if (!status) return '-';
-    return status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const map = {
+        pending: 'admin.pages.dashboard.status.pending',
+        confirmed: 'admin.pages.dashboard.status.confirmed',
+        shipped: 'admin.pages.dashboard.status.shipped',
+        delivered: 'admin.pages.dashboard.status.delivered',
+        done: 'admin.pages.dashboard.status.done',
+        canceled: 'admin.pages.dashboard.status.canceled',
+        returned: 'admin.pages.dashboard.status.returned',
+    };
+    return t(map[status] || '', status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()));
 }
 
 function StatCard({ title, value, hint, tone }) {
@@ -55,6 +65,7 @@ function TableCell({ children, end = false }) {
 }
 
 export default function Dashboard() {
+    const { t } = useI18n();
     const {
         pendingOrders = 0,
         confirmedOrders = 0,
@@ -66,7 +77,7 @@ export default function Dashboard() {
     } = usePage().props;
 
     return (
-        <AdminLayout title="Admin Dashboard">
+        <AdminLayout title={t('admin.pages.dashboard.title')}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/50 to-cyan-950/40 p-6 md:p-8">
                     <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-cyan-400/20 blur-3xl" />
@@ -74,47 +85,47 @@ export default function Dashboard() {
 
                     <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Overview</p>
-                            <h1 className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">Operations Dashboard</h1>
-                            <p className="mt-2 text-sm text-slate-300">Live health view of orders, clients, and inventory risk.</p>
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">{t('admin.pages.dashboard.hero.overview')}</p>
+                            <h1 className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">{t('admin.pages.dashboard.hero.heading')}</h1>
+                            <p className="mt-2 text-sm text-slate-300">{t('admin.pages.dashboard.hero.description')}</p>
                         </div>
                         <div className="flex gap-2">
                             <Link
                                 href="/admin/orders"
                                 className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
                             >
-                                Manage Orders
+                                {t('admin.pages.dashboard.hero.manageOrders')}
                             </Link>
                             <Link
                                 href="/admin/inventory"
                                 className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
                             >
-                                Open Inventory
+                                {t('admin.pages.dashboard.hero.openInventory')}
                             </Link>
                         </div>
                     </div>
                 </section>
 
                 <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <StatCard title="Pending Orders" value={pendingOrders} hint="Awaiting confirmation" tone="bg-amber-300" />
-                    <StatCard title="Confirmed Orders" value={confirmedOrders} hint="Ready for fulfillment" tone="bg-sky-300" />
-                    <StatCard title="Low Stock Alerts" value={lowStockProductsCount} hint="Needs replenishment" tone="bg-rose-300" />
-                    <StatCard title="Total Clients" value={totalClients} hint="Registered customer base" tone="bg-emerald-300" />
+                    <StatCard title={t('admin.pages.dashboard.stats.pendingOrders.title')} value={pendingOrders} hint={t('admin.pages.dashboard.stats.pendingOrders.hint')} tone="bg-amber-300" />
+                    <StatCard title={t('admin.pages.dashboard.stats.confirmedOrders.title')} value={confirmedOrders} hint={t('admin.pages.dashboard.stats.confirmedOrders.hint')} tone="bg-sky-300" />
+                    <StatCard title={t('admin.pages.dashboard.stats.lowStockAlerts.title')} value={lowStockProductsCount} hint={t('admin.pages.dashboard.stats.lowStockAlerts.hint')} tone="bg-rose-300" />
+                    <StatCard title={t('admin.pages.dashboard.stats.totalClients.title')} value={totalClients} hint={t('admin.pages.dashboard.stats.totalClients.hint')} tone="bg-emerald-300" />
                 </section>
 
                 <section className="grid gap-4 xl:grid-cols-2">
-                    <Card title="Low Stock Products">
+                    <Card title={t('admin.pages.dashboard.lowStock.title')}>
                         {lowStockProducts.length === 0 ? (
-                            <p className="rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-4 text-sm text-slate-400">No low-stock products.</p>
+                            <p className="rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-4 text-sm text-slate-400">{t('admin.pages.dashboard.lowStock.empty')}</p>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="min-w-full">
                                     <thead>
                                         <tr>
-                                            <TableHead>Product</TableHead>
-                                            <TableHead>Available</TableHead>
-                                            <TableHead>Alert</TableHead>
-                                            <TableHead end>Action</TableHead>
+                                            <TableHead>{t('admin.pages.dashboard.table.product')}</TableHead>
+                                            <TableHead>{t('admin.pages.dashboard.table.available')}</TableHead>
+                                            <TableHead>{t('admin.pages.dashboard.table.alert')}</TableHead>
+                                            <TableHead end>{t('common.actions')}</TableHead>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -128,7 +139,7 @@ export default function Dashboard() {
                                                         href={`/admin/inventory/${product.id}/batches`}
                                                         className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
                                                     >
-                                                        View
+                                                        {t('common.view')}
                                                     </Link>
                                                 </TableCell>
                                             </tr>
@@ -139,19 +150,19 @@ export default function Dashboard() {
                         )}
                     </Card>
 
-                    <Card title="Expiring Soon">
+                    <Card title={t('admin.pages.dashboard.expiringSoon.title')}>
                         {expiredSoonInventories.length === 0 ? (
-                            <p className="rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-4 text-sm text-slate-400">No batches expiring soon.</p>
+                            <p className="rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-4 text-sm text-slate-400">{t('admin.pages.dashboard.expiringSoon.empty')}</p>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="min-w-full">
                                     <thead>
                                         <tr>
-                                            <TableHead>Product</TableHead>
-                                            <TableHead>Batch</TableHead>
-                                            <TableHead>Qty</TableHead>
-                                            <TableHead>Expiry</TableHead>
-                                            <TableHead end>Action</TableHead>
+                                            <TableHead>{t('admin.pages.dashboard.table.product')}</TableHead>
+                                            <TableHead>{t('admin.pages.dashboard.table.batch')}</TableHead>
+                                            <TableHead>{t('admin.pages.dashboard.table.qty')}</TableHead>
+                                            <TableHead>{t('admin.pages.dashboard.table.expiry')}</TableHead>
+                                            <TableHead end>{t('common.actions')}</TableHead>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -166,7 +177,7 @@ export default function Dashboard() {
                                                         href={`/admin/inventory/${batch.product_id}/batches`}
                                                         className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
                                                     >
-                                                        View
+                                                        {t('common.view')}
                                                     </Link>
                                                 </TableCell>
                                             </tr>
@@ -178,27 +189,27 @@ export default function Dashboard() {
                     </Card>
                 </section>
 
-                <Card title="Recent Orders" action={<Link href="/admin/orders" className="text-sm font-medium text-cyan-200 hover:text-cyan-100">All Orders</Link>}>
+                <Card title={t('admin.pages.dashboard.recentOrders.title')} action={<Link href="/admin/orders" className="text-sm font-medium text-cyan-200 hover:text-cyan-100">{t('admin.pages.dashboard.recentOrders.allOrders')}</Link>}>
                     {recentOrders.length === 0 ? (
-                        <p className="rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-4 text-sm text-slate-400">No recent orders.</p>
+                        <p className="rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-4 text-sm text-slate-400">{t('admin.pages.dashboard.recentOrders.empty')}</p>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="min-w-full">
                                 <thead>
                                     <tr>
-                                        <TableHead>Order</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Customer</TableHead>
-                                        <TableHead>Total</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead end>Action</TableHead>
+                                        <TableHead>{t('admin.pages.dashboard.table.order')}</TableHead>
+                                        <TableHead>{t('admin.pages.dashboard.table.type')}</TableHead>
+                                        <TableHead>{t('admin.pages.dashboard.table.customer')}</TableHead>
+                                        <TableHead>{t('admin.pages.dashboard.table.total')}</TableHead>
+                                        <TableHead>{t('common.status')}</TableHead>
+                                        <TableHead end>{t('common.actions')}</TableHead>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {recentOrders.map((order) => (
                                         <tr key={order.id} className="border-t border-white/10">
                                             <TableCell>#{order.id}</TableCell>
-                                            <TableCell>{order.client_id ? 'Client' : 'Manual'}</TableCell>
+                                            <TableCell>{order.client_id ? t('admin.pages.dashboard.recentOrders.typeClient') : t('admin.pages.dashboard.recentOrders.typeManual')}</TableCell>
                                             <TableCell>
                                                 {order.client_id
                                                     ? `${order.client?.first_name ?? ''} ${order.client?.last_name ?? ''}`.trim()
@@ -211,7 +222,7 @@ export default function Dashboard() {
                                                         statusBadge[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'
                                                     }`}
                                                 >
-                                                    {statusLabel(order.status)}
+                                                    {statusLabel(order.status, t)}
                                                 </span>
                                             </TableCell>
                                             <TableCell end>
@@ -219,7 +230,7 @@ export default function Dashboard() {
                                                     href={`/admin/orders/${order.id}`}
                                                     className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
                                                 >
-                                                    View
+                                                    {t('common.view')}
                                                 </Link>
                                             </TableCell>
                                         </tr>

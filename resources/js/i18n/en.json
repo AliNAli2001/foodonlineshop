@@ -1,0 +1,219 @@
+{
+  "common": {
+    "appName": "Food Online Shop",
+    "language": "Language",
+    "english": "English",
+    "arabic": "Arabic",
+    "workspace": "Workspace",
+    "adminControl": "Admin Control",
+    "menu": "Menu",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "actions": "Actions",
+    "status": "Status",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "statistics": "Statistics",
+      "orders": "Orders",
+      "products": "Products",
+      "inventory": "Inventory",
+      "categories": "Categories",
+      "companies": "Companies",
+      "tags": "Tags",
+      "damagedGoods": "Damaged Goods",
+      "adjustments": "Adjustments",
+      "delivery": "Delivery"
+    },
+    "pages": {
+      "dashboard": {
+        "title": "Dashboard",
+        "hero": {
+          "overview": "Overview",
+          "heading": "Operations Dashboard",
+          "description": "Live health view of orders, clients, and inventory risk.",
+          "manageOrders": "Manage Orders",
+          "openInventory": "Open Inventory"
+        },
+        "stats": {
+          "pendingOrders": {
+            "title": "Pending Orders",
+            "hint": "Awaiting confirmation"
+          },
+          "confirmedOrders": {
+            "title": "Confirmed Orders",
+            "hint": "Ready for fulfillment"
+          },
+          "lowStockAlerts": {
+            "title": "Low Stock Alerts",
+            "hint": "Needs replenishment"
+          },
+          "totalClients": {
+            "title": "Total Clients",
+            "hint": "Registered customer base"
+          }
+        },
+        "lowStock": {
+          "title": "Low Stock Products",
+          "empty": "No low-stock products."
+        },
+        "expiringSoon": {
+          "title": "Expiring Soon",
+          "empty": "No batches expiring soon."
+        },
+        "recentOrders": {
+          "title": "Recent Orders",
+          "allOrders": "All Orders",
+          "empty": "No recent orders.",
+          "typeClient": "Client",
+          "typeManual": "Manual"
+        },
+        "table": {
+          "product": "Product",
+          "available": "Available",
+          "alert": "Alert",
+          "batch": "Batch",
+          "qty": "Qty",
+          "expiry": "Expiry",
+          "order": "Order",
+          "type": "Type",
+          "customer": "Customer",
+          "total": "Total"
+        },
+        "status": {
+          "pending": "Pending",
+          "confirmed": "Confirmed",
+          "shipped": "Shipped",
+          "delivered": "Delivered",
+          "done": "Done",
+          "canceled": "Canceled",
+          "returned": "Returned"
+        }
+      },
+      "auth": {
+        "login": {
+          "title": "Admin Login",
+          "subtitle": "Sign in to access the dashboard."
+        }
+      },
+      "products": {
+        "index": { "title": "Products" },
+        "create": { "title": "Create Product" },
+        "edit": { "title": "Edit Product" },
+        "show": { "title": "Product Details" },
+        "details": { "title": "Product Details" },
+        "categories": { "title": "Product Categories" },
+        "tags": { "title": "Product Tags" }
+      },
+      "orders": {
+        "index": { "title": "Orders" },
+        "create": { "title": "Create Order" },
+        "show": { "title": "Order Details" }
+      },
+      "inventory": {
+        "index": { "title": "Inventory" },
+        "create": { "title": "Create Inventory Batch" },
+        "edit": { "title": "Edit Inventory" },
+        "show": { "title": "Inventory Details" },
+        "product": { "title": "Product Batches" }
+      },
+      "categories": {
+        "index": { "title": "Categories" },
+        "create": { "title": "Create Category" },
+        "edit": { "title": "Edit Category" },
+        "show": { "title": "Category Details" }
+      },
+      "companies": {
+        "index": { "title": "Companies" },
+        "create": { "title": "Create Company" },
+        "edit": { "title": "Edit Company" },
+        "show": { "title": "Company Details" }
+      },
+      "tags": {
+        "index": { "title": "Tags" },
+        "create": { "title": "Create Tag" },
+        "edit": { "title": "Edit Tag" },
+        "show": { "title": "Tag Details" }
+      },
+      "damagedGoods": {
+        "index": { "title": "Damaged Goods" },
+        "create": { "title": "Register Damaged Goods" },
+        "show": { "title": "Damaged Goods Details" }
+      },
+      "adjustments": {
+        "index": { "title": "Financial Adjustments" },
+        "create": { "title": "Create Adjustment" },
+        "edit": { "title": "Edit Adjustment" },
+        "show": { "title": "Adjustment Details" }
+      },
+      "delivery": {
+        "index": { "title": "Delivery Team" },
+        "create": { "title": "Create Delivery Person" },
+        "edit": { "title": "Edit Delivery Person" },
+        "show": { "title": "Delivery Details" }
+      },
+      "settings": {
+        "index": { "title": "Settings" }
+      },
+      "statistics": {
+        "index": { "title": "Statistics" },
+        "sales": { "title": "Sales Statistics" },
+        "earnings": { "title": "Earnings Statistics" }
+      }
+    }
+  },
+  "website": {
+    "pages": {
+      "home": { "title": "Home" },
+      "welcome": { "title": "Welcome" },
+      "products": {
+        "index": { "title": "Products" },
+        "show": { "title": "Product Details" }
+      },
+      "categories": {
+        "index": { "title": "Categories" },
+        "show": { "title": "Category Details" }
+      },
+      "cart": {
+        "index": { "title": "Cart" }
+      },
+      "orders": {
+        "checkout": { "title": "Checkout" }
+      },
+      "client": {
+        "profile": { "title": "Profile" },
+        "orders": { "title": "My Orders" },
+        "orderDetails": { "title": "Order Details" }
+      },
+      "auth": {
+        "login": { "title": "Login" },
+        "register": { "title": "Register" },
+        "verifyEmail": { "title": "Verify Email" },
+        "verifyPhone": { "title": "Verify Phone" }
+      }
+    }
+  },
+  "shared": {
+    "missingPage": {
+      "title": "Missing Inertia Page",
+      "description": "No React page component exists for this route yet."
+    },
+    "genericPage": {
+      "description": "This page was migrated to Inertia React. Build UI details for this screen here."
+    }
+  }
+}

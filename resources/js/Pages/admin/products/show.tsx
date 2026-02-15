@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 function stockState(product) {
     const stock = Number(product.stock_available_quantity ?? 0);
@@ -9,10 +10,11 @@ function stockState(product) {
 }
 
 export default function ProductsShow() {
+  const { t } = useI18n();
     const { product, previousProduct, nextProduct } = usePage().props;
 
     return (
-        <AdminLayout title={`Product #${product.id}`}>
+        <AdminLayout title={`${t('admin.pages.products.show.title')} #${product.id}`}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
@@ -21,8 +23,8 @@ export default function ProductsShow() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <Link href={`/admin/inventory/${product.id}/batches`} className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">Inventory</Link>
-                        <Link href={`/admin/products/${product.id}/edit`} className="rounded-xl bg-cyan-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">Edit</Link>
-                        <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">Back</Link>
+                        <Link href={`/admin/products/${product.id}/edit`} className="rounded-xl bg-cyan-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('common.edit')}</Link>
+                        <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
                     </div>
                 </section>
 
@@ -132,3 +134,5 @@ function InfoCard({ title, children }) {
         </section>
     );
 }
+
+

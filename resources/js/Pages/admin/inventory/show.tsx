@@ -1,15 +1,17 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type Movement = any;
 
 export default function InventoryShow() {
+  const { t } = useI18n();
   const { product, batch, movements } = usePage<any>().props;
   const rows: Movement[] = Array.isArray(movements?.data) ? movements.data : Array.isArray(movements) ? movements : [];
 
   return (
-    <AdminLayout title="Batch Details">
+    <AdminLayout title={t('admin.pages.inventory.show.title')}>
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -17,7 +19,7 @@ export default function InventoryShow() {
             <p className="text-sm text-slate-300">Product: {product?.name_en || product?.name_ar}</p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/admin/inventory/${batch.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">Edit</Link>
+            <Link href={`/admin/inventory/${batch.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">{t('common.edit')}</Link>
             <Link href={`/admin/inventory/${product.id}/batches`} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">Back to Product Inventory</Link>
           </div>
         </section>
@@ -64,3 +66,5 @@ export default function InventoryShow() {
 }
 
 function Info({ label, value }: { label: string; value: string }) { return <p className="mb-2 text-sm text-slate-200"><span className="text-slate-400">{label}: </span>{value}</p>; }
+
+

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 const statusClass = {
     pending: 'bg-amber-400/20 text-amber-200 ring-amber-300/30',
@@ -31,11 +32,12 @@ function customerName(order) {
 }
 
 export default function OrdersIndex() {
+  const { t } = useI18n();
     const { orders } = usePage().props;
     const list = orders?.data ?? [];
 
     return (
-        <AdminLayout title="Orders">
+        <AdminLayout title={t('admin.pages.orders.index.title')}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
@@ -122,3 +124,5 @@ export default function OrdersIndex() {
         </AdminLayout>
     );
 }
+
+

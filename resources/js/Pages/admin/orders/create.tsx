@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 const deliveryMethodOptions = {
     inside_city: [
@@ -15,6 +16,7 @@ function productStock(product) {
 }
 
 export default function OrdersCreate() {
+  const { t } = useI18n();
     const { products = [], clients = [] } = usePage().props;
     const [clientQuery, setClientQuery] = useState('');
 
@@ -96,7 +98,7 @@ export default function OrdersCreate() {
     };
 
     return (
-        <AdminLayout title="Create Order">
+        <AdminLayout title={t('admin.pages.orders.create.title')}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
@@ -380,3 +382,5 @@ export default function OrdersCreate() {
         </AdminLayout>
     );
 }
+
+

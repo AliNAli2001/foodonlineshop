@@ -1,0 +1,219 @@
+﻿{
+  "common": {
+    "appName": "متجر الطعام الإلكتروني",
+    "language": "اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "workspace": "مساحة العمل",
+    "adminControl": "لوحة التحكم",
+    "menu": "القائمة",
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "create": "إنشاء",
+    "update": "تحديث",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "search": "بحث",
+    "actions": "الإجراءات",
+    "status": "الحالة",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جارٍ تسجيل الدخول...",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "لوحة المعلومات",
+      "statistics": "الإحصائيات",
+      "orders": "الطلبات",
+      "products": "المنتجات",
+      "inventory": "المخزون",
+      "categories": "التصنيفات",
+      "companies": "الشركات",
+      "tags": "الوسوم",
+      "damagedGoods": "البضائع التالفة",
+      "adjustments": "التسويات",
+      "delivery": "التوصيل"
+    },
+    "pages": {
+      "dashboard": {
+        "title": "لوحة المعلومات",
+        "hero": {
+          "overview": "نظرة عامة",
+          "heading": "لوحة تشغيل العمليات",
+          "description": "عرض مباشر لحالة الطلبات والعملاء ومخاطر المخزون.",
+          "manageOrders": "إدارة الطلبات",
+          "openInventory": "فتح المخزون"
+        },
+        "stats": {
+          "pendingOrders": {
+            "title": "الطلبات المعلقة",
+            "hint": "بانتظار التأكيد"
+          },
+          "confirmedOrders": {
+            "title": "الطلبات المؤكدة",
+            "hint": "جاهزة للتجهيز"
+          },
+          "lowStockAlerts": {
+            "title": "تنبيهات انخفاض المخزون",
+            "hint": "تحتاج إلى إعادة تزويد"
+          },
+          "totalClients": {
+            "title": "إجمالي العملاء",
+            "hint": "قاعدة العملاء المسجلين"
+          }
+        },
+        "lowStock": {
+          "title": "منتجات منخفضة المخزون",
+          "empty": "لا توجد منتجات منخفضة المخزون."
+        },
+        "expiringSoon": {
+          "title": "قريبة الانتهاء",
+          "empty": "لا توجد دفعات قريبة الانتهاء."
+        },
+        "recentOrders": {
+          "title": "أحدث الطلبات",
+          "allOrders": "كل الطلبات",
+          "empty": "لا توجد طلبات حديثة.",
+          "typeClient": "عميل",
+          "typeManual": "يدوي"
+        },
+        "table": {
+          "product": "المنتج",
+          "available": "المتاح",
+          "alert": "حد التنبيه",
+          "batch": "الدفعة",
+          "qty": "الكمية",
+          "expiry": "الانتهاء",
+          "order": "الطلب",
+          "type": "النوع",
+          "customer": "العميل",
+          "total": "الإجمالي"
+        },
+        "status": {
+          "pending": "معلق",
+          "confirmed": "مؤكد",
+          "shipped": "تم الشحن",
+          "delivered": "تم التسليم",
+          "done": "مكتمل",
+          "canceled": "ملغي",
+          "returned": "مرتجع"
+        }
+      },
+      "auth": {
+        "login": {
+          "title": "تسجيل دخول المدير",
+          "subtitle": "سجّل الدخول للوصول إلى لوحة التحكم."
+        }
+      },
+      "products": {
+        "index": { "title": "المنتجات" },
+        "create": { "title": "إنشاء منتج" },
+        "edit": { "title": "تعديل المنتج" },
+        "show": { "title": "تفاصيل المنتج" },
+        "details": { "title": "تفاصيل المنتج" },
+        "categories": { "title": "تصنيفات المنتج" },
+        "tags": { "title": "وسوم المنتج" }
+      },
+      "orders": {
+        "index": { "title": "الطلبات" },
+        "create": { "title": "إنشاء طلب" },
+        "show": { "title": "تفاصيل الطلب" }
+      },
+      "inventory": {
+        "index": { "title": "المخزون" },
+        "create": { "title": "إنشاء دفعة مخزون" },
+        "edit": { "title": "تعديل المخزون" },
+        "show": { "title": "تفاصيل المخزون" },
+        "product": { "title": "دفعات المنتج" }
+      },
+      "categories": {
+        "index": { "title": "التصنيفات" },
+        "create": { "title": "إنشاء تصنيف" },
+        "edit": { "title": "تعديل التصنيف" },
+        "show": { "title": "تفاصيل التصنيف" }
+      },
+      "companies": {
+        "index": { "title": "الشركات" },
+        "create": { "title": "إنشاء شركة" },
+        "edit": { "title": "تعديل الشركة" },
+        "show": { "title": "تفاصيل الشركة" }
+      },
+      "tags": {
+        "index": { "title": "الوسوم" },
+        "create": { "title": "إنشاء وسم" },
+        "edit": { "title": "تعديل الوسم" },
+        "show": { "title": "تفاصيل الوسم" }
+      },
+      "damagedGoods": {
+        "index": { "title": "البضائع التالفة" },
+        "create": { "title": "تسجيل بضاعة تالفة" },
+        "show": { "title": "تفاصيل البضائع التالفة" }
+      },
+      "adjustments": {
+        "index": { "title": "التسويات المالية" },
+        "create": { "title": "إنشاء تسوية" },
+        "edit": { "title": "تعديل التسوية" },
+        "show": { "title": "تفاصيل التسوية" }
+      },
+      "delivery": {
+        "index": { "title": "فريق التوصيل" },
+        "create": { "title": "إضافة موظف توصيل" },
+        "edit": { "title": "تعديل موظف التوصيل" },
+        "show": { "title": "تفاصيل موظف التوصيل" }
+      },
+      "settings": {
+        "index": { "title": "الإعدادات" }
+      },
+      "statistics": {
+        "index": { "title": "الإحصائيات" },
+        "sales": { "title": "إحصائيات المبيعات" },
+        "earnings": { "title": "إحصائيات الأرباح" }
+      }
+    }
+  },
+  "website": {
+    "pages": {
+      "home": { "title": "الرئيسية" },
+      "welcome": { "title": "مرحبًا" },
+      "products": {
+        "index": { "title": "المنتجات" },
+        "show": { "title": "تفاصيل المنتج" }
+      },
+      "categories": {
+        "index": { "title": "التصنيفات" },
+        "show": { "title": "تفاصيل التصنيف" }
+      },
+      "cart": {
+        "index": { "title": "سلة التسوق" }
+      },
+      "orders": {
+        "checkout": { "title": "إتمام الطلب" }
+      },
+      "client": {
+        "profile": { "title": "الملف الشخصي" },
+        "orders": { "title": "طلباتي" },
+        "orderDetails": { "title": "تفاصيل الطلب" }
+      },
+      "auth": {
+        "login": { "title": "تسجيل الدخول" },
+        "register": { "title": "إنشاء حساب" },
+        "verifyEmail": { "title": "تأكيد البريد الإلكتروني" },
+        "verifyPhone": { "title": "تأكيد رقم الهاتف" }
+      }
+    }
+  },
+  "shared": {
+    "missingPage": {
+      "title": "صفحة Inertia غير موجودة",
+      "description": "لا يوجد مكوّن React لهذه الصفحة حتى الآن."
+    },
+    "genericPage": {
+      "description": "تم نقل هذه الصفحة إلى Inertia React. يمكنك بناء واجهة الصفحة هنا."
+    }
+  }
+}

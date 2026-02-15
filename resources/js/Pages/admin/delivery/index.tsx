@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type DeliveryRow = {
   id: number;
@@ -20,6 +21,7 @@ function statusClass(status: string) {
 }
 
 export default function DeliveryIndex() {
+  const { t } = useI18n();
   const page = usePage<any>();
   const deliveryPersons = page.props.deliveryPersons;
   const rows: DeliveryRow[] = Array.isArray(deliveryPersons?.data)
@@ -42,7 +44,7 @@ export default function DeliveryIndex() {
   };
 
   return (
-    <AdminLayout title="Delivery Team">
+    <AdminLayout title={t('admin.pages.delivery.index.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
@@ -83,9 +85,9 @@ export default function DeliveryIndex() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Link href={`/admin/delivery/${delivery.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">View</Link>
-                    <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">Edit</Link>
-                    <button onClick={() => removeDelivery(delivery.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">Delete</button>
+                    <Link href={`/admin/delivery/${delivery.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
+                    <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link>
+                    <button onClick={() => removeDelivery(delivery.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button>
                   </div>
                 </article>
               ))
@@ -116,3 +118,5 @@ export default function DeliveryIndex() {
     </AdminLayout>
   );
 }
+
+

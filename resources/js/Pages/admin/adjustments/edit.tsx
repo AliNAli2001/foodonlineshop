@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 type Adjustment = {
   id: number;
@@ -17,6 +18,7 @@ function toDateInput(value?: string | null) {
 }
 
 export default function AdjustmentsEdit() {
+  const { t } = useI18n();
   const { adjustment } = usePage<{ adjustment: Adjustment }>().props;
 
   const { data, setData, post, processing, errors } = useForm({
@@ -33,7 +35,7 @@ export default function AdjustmentsEdit() {
   };
 
   return (
-    <AdminLayout title="Edit Adjustment">
+    <AdminLayout title={t('admin.pages.adjustments.edit.title')}>
       <div className="mx-auto max-w-3xl space-y-6">
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <h1 className="text-2xl font-bold text-white">Edit Adjustment</h1>
@@ -108,3 +110,5 @@ function Field({ label, error, children }: { label: string; error?: string; chil
     </div>
   );
 }
+
+
