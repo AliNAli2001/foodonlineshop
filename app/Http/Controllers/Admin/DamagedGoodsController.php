@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\DamagedGoodsService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DamagedGoodsController extends Controller
 {
@@ -21,7 +22,7 @@ class DamagedGoodsController extends Controller
     public function index()
     {
         $damagedGoods = $this->damagedGoodsService->getAllDamagedGoods();
-        return view('admin.damaged-goods.index', compact('damagedGoods'));
+        return Inertia::render('admin.damaged-goods.index', compact('damagedGoods'));
     }
 
     /**
@@ -38,7 +39,7 @@ class DamagedGoodsController extends Controller
               ->where('status', 'active');
         }])->get();
 
-        return view('admin.damaged-goods.create', compact('products'));
+        return Inertia::render('admin.damaged-goods.create', compact('products'));
     }
 
     /**
@@ -112,7 +113,7 @@ class DamagedGoodsController extends Controller
     {
         try {
             $damagedGoods = $this->damagedGoodsService->getDamagedGoods($damagedGoodsId);
-            return view('admin.damaged-goods.show', compact('damagedGoods'));
+            return Inertia::render('admin.damaged-goods.show', compact('damagedGoods'));
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -133,3 +134,5 @@ class DamagedGoodsController extends Controller
         }
     }
 }
+
+

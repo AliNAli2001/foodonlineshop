@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Services\InventoryService;
 use App\Services\InventoryMovementService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class InventoryController extends Controller
 {
@@ -27,7 +28,7 @@ class InventoryController extends Controller
     public function create($productId)
     {
         $product = Product::findOrFail($productId);
-        return view('admin.inventory.create', compact('product'));
+        return Inertia::render('admin.inventory.create', compact('product'));
     }
 
     /**
@@ -61,7 +62,7 @@ class InventoryController extends Controller
     public function index()
     {
         $products = $this->inventoryService->getProductsWithBatchesOrderedByLowestStock();
-        return view('admin.inventory.index', compact('products'));
+        return Inertia::render('admin.inventory.index', compact('products'));
     }
 
     /**
@@ -70,7 +71,7 @@ class InventoryController extends Controller
     public function indexLowStockProducts()
     {
         $products = $this->inventoryService->indexLowStockProducts();
-        return view('admin.inventory.index', compact('products'));
+        return Inertia::render('admin.inventory.index', compact('products'));
     }
 
     
@@ -83,7 +84,7 @@ class InventoryController extends Controller
         $product = $this->inventoryService->getProductBatches($productId);
         $movements = $this->inventoryMovementService->getProductMovements($productId);
 
-        return view('admin.inventory.product.show', [
+        return Inertia::render('admin.inventory.product.show', [
             'product' => $product,
             'batches' => $product->inventoryBatches,
             'movements' => $movements,
@@ -99,7 +100,7 @@ class InventoryController extends Controller
         $product = $batch->product;
         $movements = $this->inventoryMovementService->getBatchMovements($batchId);
 
-        return view('admin.inventory.show', compact('product', 'batch', 'movements'));
+        return Inertia::render('admin.inventory.show', compact('product', 'batch', 'movements'));
     }
 
     /**
@@ -110,7 +111,7 @@ class InventoryController extends Controller
         $batch = $this->inventoryService->getBatch($batchId);
         $product = $batch->product;
 
-        return view('admin.inventory.edit', compact('product', 'batch'));
+        return Inertia::render('admin.inventory.edit', compact('product', 'batch'));
     }
 
     /**
@@ -136,3 +137,5 @@ class InventoryController extends Controller
         }
     }
 }
+
+

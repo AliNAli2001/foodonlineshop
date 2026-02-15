@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\ReturnService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ReturnsController extends Controller
 {
@@ -21,7 +22,7 @@ class ReturnsController extends Controller
     public function index()
     {
         $returns = $this->returnService->getAllReturns();
-        return view('admin.returns.index', compact('returns'));
+        return Inertia::render('admin.returns.index', compact('returns'));
     }
 
     /**
@@ -31,7 +32,7 @@ class ReturnsController extends Controller
     {
         $order = Order::with('items.product')->findOrFail($orderId);
 
-        return view('admin.returns.create', compact('order'));
+        return Inertia::render('admin.returns.create', compact('order'));
     }
 
     /**
@@ -63,7 +64,7 @@ class ReturnsController extends Controller
     {
         try {
             $return = $this->returnService->getReturn($returnId);
-            return view('admin.returns.show', compact('return'));
+            return Inertia::render('admin.returns.show', compact('return'));
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -84,4 +85,7 @@ class ReturnsController extends Controller
         }
     }
 }
+
+
+
 

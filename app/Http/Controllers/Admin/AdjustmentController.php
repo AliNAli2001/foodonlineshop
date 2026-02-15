@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Adjustment;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AdjustmentController extends Controller
 {
@@ -14,7 +15,7 @@ class AdjustmentController extends Controller
     public function index()
     {
         $adjustments = Adjustment::latest()->paginate(15);
-        return view('admin.adjustments.index', compact('adjustments'));
+        return Inertia::render('admin.adjustments.index', compact('adjustments'));
     }
 
     /**
@@ -22,7 +23,7 @@ class AdjustmentController extends Controller
      */
     public function create()
     {
-        return view('admin.adjustments.create');
+        return Inertia::render('admin.adjustments.create');
     }
 
     /**
@@ -49,7 +50,7 @@ class AdjustmentController extends Controller
     public function show($id)
     {
         $adjustment = Adjustment::findOrFail($id);
-        return view('admin.adjustments.show', compact('adjustment'));
+        return Inertia::render('admin.adjustments.show', compact('adjustment'));
     }
 
     /**
@@ -58,7 +59,7 @@ class AdjustmentController extends Controller
     public function edit($id)
     {
         $adjustment = Adjustment::findOrFail($id);
-        return view('admin.adjustments.edit', compact('adjustment'));
+        return Inertia::render('admin.adjustments.edit', compact('adjustment'));
     }
 
     /**
@@ -92,3 +93,6 @@ class AdjustmentController extends Controller
             ->with('success', 'تم حذف التعديل بنجاح.');
     }
 }
+
+
+

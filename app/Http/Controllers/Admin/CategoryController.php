@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
@@ -14,7 +15,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::paginate(15);
-        return view('admin.categories.index', compact('categories'));
+        return Inertia::render('admin.categories.index', compact('categories'));
     }
 
     /**
@@ -22,7 +23,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('admin.categories.create');
+        return Inertia::render('admin.categories.create');
     }
 
     /**
@@ -59,7 +60,7 @@ class CategoryController extends Controller
     public function edit($categoryId)
     {
         $category = Category::findOrFail($categoryId);
-        return view('admin.categories.edit', compact('category'));
+        return Inertia::render('admin.categories.edit', compact('category'));
     }
 
     /**
@@ -70,7 +71,7 @@ class CategoryController extends Controller
         $category = Category::with('products')->findOrFail($categoryId);
         $products = $category->products()->paginate(15);
 
-        return view('admin.categories.show', compact('category', 'products'));
+        return Inertia::render('admin.categories.show', compact('category', 'products'));
     }
 
     /**
@@ -115,4 +116,7 @@ class CategoryController extends Controller
             ->with('success', 'تم حذف الصنف بنجاح.');
     }
 }
+
+
+
 

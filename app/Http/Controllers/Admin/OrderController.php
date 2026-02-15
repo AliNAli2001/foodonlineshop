@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Client;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -24,7 +25,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::with(['client', 'delivery'])->latest()->paginate(15);
-        return view('admin.orders.index', compact('orders'));
+        return Inertia::render('admin.orders.index', compact('orders'));
     }
 
     /**
@@ -36,7 +37,7 @@ class OrderController extends Controller
         $clients = Client::all();
         $deliveryPersons = Delivery::all();
 
-        return view('admin.orders.create', compact('products', 'clients', 'deliveryPersons'));
+        return Inertia::render('admin.orders.create', compact('products', 'clients', 'deliveryPersons'));
     }
 
     /**
@@ -81,7 +82,7 @@ class OrderController extends Controller
         // Get available status transitions for this order
         $availableTransitions = $this->orderService->getAvailableStatusTransitions($order);
 
-        return view('admin.orders.show', compact('order', 'deliveryPersons', 'availableTransitions'));
+        return Inertia::render('admin.orders.show', compact('order', 'deliveryPersons', 'availableTransitions'));
     }
 
     /**
@@ -241,3 +242,5 @@ class OrderController extends Controller
 }
 
 }
+
+

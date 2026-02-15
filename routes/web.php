@@ -27,13 +27,14 @@ use App\Http\Controllers\Admin\AdjustmentController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Models\Product;
 use App\Models\Category;
+use Inertia\Inertia;
 
 
 // Home page
 Route::get('/', function () {
     $featuredProducts = Product::where('featured', true)->get();
     $featuredCategories = Category::where('featured', true)->get();
-    return view('home', compact('featuredProducts', 'featuredCategories'));
+    return Inertia::render('home', compact('featuredProducts', 'featuredCategories'));
 })->name('home');
 
 // Home page (kept for web)
@@ -124,3 +125,5 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/statistics/earnings', [StatisticsController::class, 'earnings'])->name('statistics.earnings');
 
 });
+
+

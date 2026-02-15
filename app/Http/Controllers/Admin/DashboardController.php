@@ -9,6 +9,7 @@ use App\Models\Client;
 use App\Models\Inventory;
 use App\Models\InventoryBatch;
 use App\Services\InventoryQueryService;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
@@ -30,7 +31,7 @@ class DashboardController extends Controller
 
         $recentOrders = Order::latest()->take(5)->with('client')->get();
 
-        return view('admin.dashboard', compact(
+        return Inertia::render('admin.dashboard', compact(
             'lowStockProductsCount',
             'pendingOrders',
             'confirmedOrders',
@@ -41,3 +42,6 @@ class DashboardController extends Controller
         ));
     }
 }
+
+
+

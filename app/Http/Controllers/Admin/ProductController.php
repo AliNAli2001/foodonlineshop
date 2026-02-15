@@ -13,6 +13,7 @@ use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class ProductController extends Controller
 {
@@ -79,7 +80,7 @@ class ProductController extends Controller
 
         $products = $query->paginate(15)->withQueryString();
 
-        return view('admin.products.index', compact('products'));
+        return Inertia::render('admin.products.index', compact('products'));
     }
     // public function index(Request $request)
     // {
@@ -110,7 +111,7 @@ class ProductController extends Controller
 
 
 
-    //     return view('admin.products.index', compact('products'));
+    //     return Inertia::render('admin.products.index', compact('products'));
     // }
 
     /**
@@ -124,7 +125,7 @@ class ProductController extends Controller
         $maxOrderItems = Setting::get('max_order_items');
         $generalMinimumAlertQuantity = Setting::get('general_minimum_alert_quantity');
 
-        return view('admin.products.create', compact(
+        return Inertia::render('admin.products.create', compact(
             'categories',
             'tags',
             'companies',
@@ -189,7 +190,7 @@ class ProductController extends Controller
         $companies = Company::all();
         $tags = Tag::all();
 
-        return view('admin.products.edit', compact('product', 'tags', 'companies', 'categories'));
+        return Inertia::render('admin.products.edit', compact('product', 'tags', 'companies', 'categories'));
     }
 
     /**
@@ -310,7 +311,7 @@ class ProductController extends Controller
         $nextProduct = Product::where('id', '>', $product->id)
             ->orderBy('id', 'asc')
             ->first();
-        return view('admin.products.show', compact('product', 'previousProduct', 'nextProduct'));
+        return Inertia::render('admin.products.show', compact('product', 'previousProduct', 'nextProduct'));
     }
 
     /**
@@ -382,3 +383,6 @@ class ProductController extends Controller
         return response()->json($product);
     }
 }
+
+
+

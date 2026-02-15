@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\InventoryMovement;
+use Inertia\Inertia;
 
 class ProductDetailsController extends Controller
 {
@@ -35,7 +36,7 @@ class ProductDetailsController extends Controller
             ->selectRaw('SUM(quantity * unit_price) as total')
             ->value('total') ?? 0;
 
-        return view('admin.products.details', compact(
+        return Inertia::render('admin.products.details', compact(
             'product',
             'recentSellings',
             'recentInventory',
@@ -44,4 +45,7 @@ class ProductDetailsController extends Controller
         ));
     }
 }
+
+
+
 

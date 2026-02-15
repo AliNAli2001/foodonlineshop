@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CompanyController extends Controller
 {
@@ -14,7 +15,7 @@ class CompanyController extends Controller
     public function index()
     {
         $companies = Company::paginate(15);
-        return view('admin.companies.index', compact('companies'));
+        return Inertia::render('admin.companies.index', compact('companies'));
     }
 
     /**
@@ -22,7 +23,7 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        return view('admin.companies.create');
+        return Inertia::render('admin.companies.create');
     }
 
     /**
@@ -57,7 +58,7 @@ class CompanyController extends Controller
     public function edit($companyId)
     {
         $company = Company::findOrFail($companyId);
-        return view('admin.companies.edit', compact('company'));
+        return Inertia::render('admin.companies.edit', compact('company'));
     }
 
     /**
@@ -67,7 +68,7 @@ class CompanyController extends Controller
     {
         $company = Company::with('products')->findOrFail($companyId);
                 $products = $company->products()->paginate(15);
-        return view('admin.companies.show', compact('company', 'products'));
+        return Inertia::render('admin.companies.show', compact('company', 'products'));
     }
 
     /**
@@ -110,3 +111,6 @@ class CompanyController extends Controller
             ->with('success', 'تم حذف الشركة بنجاح.');
     }
 }
+
+
+

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\StatisticsService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Inertia\Inertia;
 
 class StatisticsController extends Controller
 {
@@ -36,7 +37,7 @@ class StatisticsController extends Controller
             Carbon::parse($endDate)
         );
 
-        return view('admin.statistics.index', compact('statistics', 'topProducts', 'dailySales', 'startDate', 'endDate'));
+        return Inertia::render('admin.statistics.index', compact('statistics', 'topProducts', 'dailySales', 'startDate', 'endDate'));
     }
 
     /**
@@ -61,7 +62,7 @@ class StatisticsController extends Controller
             Carbon::parse($endDate)
         );
 
-        return view('admin.statistics.sales', compact('salesStats', 'topProducts', 'dailySales', 'startDate', 'endDate'));
+        return Inertia::render('admin.statistics.sales', compact('salesStats', 'topProducts', 'dailySales', 'startDate', 'endDate'));
     }
 
     /**
@@ -85,7 +86,10 @@ class StatisticsController extends Controller
             Carbon::parse($endDate)
         );
 
-        return view('admin.statistics.earnings', compact('earningsStats', 'adjustmentsStats', 'salesStats', 'startDate', 'endDate'));
+        return Inertia::render('admin.statistics.earnings', compact('earningsStats', 'adjustmentsStats', 'salesStats', 'startDate', 'endDate'));
     }
 }
+
+
+
 

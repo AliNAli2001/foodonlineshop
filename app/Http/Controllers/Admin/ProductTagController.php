@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Tag;
+use Inertia\Inertia;
 class ProductTagController extends Controller
 {
       /**
@@ -17,7 +18,7 @@ class ProductTagController extends Controller
         $allTags = Tag::all();
         $selectedTagIds = $product->tags->pluck('id')->toArray();
 
-        return view('admin.products.tags.index', compact('product', 'allTags', 'selectedTagIds'));
+        return Inertia::render('admin.products.tags.index', compact('product', 'allTags', 'selectedTagIds'));
     }
 
     /**
@@ -38,3 +39,6 @@ class ProductTagController extends Controller
             ->with('success', 'تم تحديث وسوم المنتج بنجاح');
     }
 }
+
+
+

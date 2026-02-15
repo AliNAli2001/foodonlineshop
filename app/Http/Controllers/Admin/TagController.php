@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TagController extends Controller
 {
@@ -14,7 +15,7 @@ class TagController extends Controller
     public function index()
     {
         $tags = Tag::paginate(15);
-        return view('admin.tags.index', compact('tags'));
+        return Inertia::render('admin.tags.index', compact('tags'));
     }
 
     /**
@@ -22,7 +23,7 @@ class TagController extends Controller
      */
     public function create()
     {
-        return view('admin.tags.create');
+        return Inertia::render('admin.tags.create');
     }
 
     /**
@@ -52,7 +53,7 @@ class TagController extends Controller
     public function edit($tagId)
     {
         $tag = Tag::findOrFail($tagId);
-        return view('admin.tags.edit', compact('tag'));
+        return Inertia::render('admin.tags.edit', compact('tag'));
     }
 
     /**
@@ -63,7 +64,7 @@ class TagController extends Controller
         $tag = Tag::with('products')->findOrFail($tagId);
         $products = $tag->products()->paginate(15);
 
-        return view('admin.tags.show', compact('tag', 'products'));
+        return Inertia::render('admin.tags.show', compact('tag', 'products'));
     }
 
     /**
@@ -99,3 +100,6 @@ class TagController extends Controller
             ->with('success', 'تم حذف الوسم بنجاح.');
     }
 }
+
+
+

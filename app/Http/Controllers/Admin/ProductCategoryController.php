@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProductCategoryController extends Controller
 {
@@ -18,7 +19,7 @@ class ProductCategoryController extends Controller
         $allCategories = Category::all();
         $selectedCategoryIds = $product->categories->pluck('id')->toArray();
 
-        return view('admin.products.categories.index', compact('product', 'allCategories', 'selectedCategoryIds'));
+        return Inertia::render('admin.products.categories.index', compact('product', 'allCategories', 'selectedCategoryIds'));
     }
 
     /**
@@ -39,4 +40,7 @@ class ProductCategoryController extends Controller
             ->with('success', 'تم تحديث تصنيفات المنتج بنجاح');
     }
 }
+
+
+
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DeliveryController extends Controller
 {
@@ -14,7 +15,7 @@ class DeliveryController extends Controller
     public function index()
     {
         $deliveryPersons = Delivery::withCount('orders')->paginate(15);
-        return view('admin.delivery.index', compact('deliveryPersons'));
+        return Inertia::render('admin.delivery.index', compact('deliveryPersons'));
     }
 
     /**
@@ -22,7 +23,7 @@ class DeliveryController extends Controller
      */
     public function create()
     {
-        return view('admin.delivery.create');
+        return Inertia::render('admin.delivery.create');
     }
 
     /**
@@ -55,7 +56,7 @@ class DeliveryController extends Controller
         $delivery = Delivery::findOrFail($deliveryId);
         $orders = $delivery->orders()->paginate(15);
 
-        return view('admin.delivery.show', compact('delivery', 'orders'));
+        return Inertia::render('admin.delivery.show', compact('delivery', 'orders'));
     }
 
     
@@ -65,7 +66,7 @@ class DeliveryController extends Controller
     public function edit($deliveryId)
     {
         $delivery = Delivery::findOrFail($deliveryId);
-        return view('admin.delivery.edit', compact('delivery'));
+        return Inertia::render('admin.delivery.edit', compact('delivery'));
     }
 
     /**
@@ -103,4 +104,7 @@ class DeliveryController extends Controller
             ->with('success', 'تم حذف بيانات عامل التوصيل بنجاح.');
     }
 }
+
+
+
 

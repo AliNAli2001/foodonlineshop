@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class SettingsController extends Controller
 {
@@ -14,7 +15,7 @@ class SettingsController extends Controller
     public function index()
     {
         $settings = Setting::getInstance();
-        return view('admin.settings.index', compact('settings'));
+        return Inertia::render('admin.settings.index', compact('settings'));
     }
 
     /**
@@ -35,4 +36,7 @@ class SettingsController extends Controller
             ->with('success', 'تم تحديث الإعدادات بنجاح.');
     }
 }
+
+
+
 
