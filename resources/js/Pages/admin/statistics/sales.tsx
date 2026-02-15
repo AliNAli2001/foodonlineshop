@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 const money = (v) => Number(v ?? 0).toFixed(2);
 
-function DateFilter({ action, startDate, endDate }) {
+function DateFilter({ action, startDate, endDate, t }) {
     const submit = (e) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
@@ -14,38 +15,39 @@ function DateFilter({ action, startDate, endDate }) {
         <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 md:grid-cols-3">
             <input type="date" name="start_date" defaultValue={startDate} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
             <input type="date" name="end_date" defaultValue={endDate} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-            <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">Filter</button>
+            <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.statistics.common.filter')}</button>
         </form>
     );
 }
 
 export default function StatisticsSales() {
+    const { t } = useI18n();
     const { salesStats = {}, topProducts = [], dailySales = [], startDate, endDate } = usePage().props;
 
     return (
-        <AdminLayout title="Sales Statistics">
+        <AdminLayout title={t('admin.pages.statistics.sales.title')}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Sales Statistics</h1>
-                        <p className="text-sm text-slate-300">Sales, revenue, and profit distribution.</p>
+                        <h1 className="text-2xl font-bold text-white">{t('admin.pages.statistics.sales.title')}</h1>
+                        <p className="text-sm text-slate-300">{t('admin.pages.statistics.sales.subtitle')}</p>
                     </div>
-                    <Link href="/admin/statistics" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">Back</Link>
+                    <Link href="/admin/statistics" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
                 </section>
 
-                <DateFilter action="/admin/statistics/sales" startDate={startDate} endDate={endDate} />
+                <DateFilter action="/admin/statistics/sales" startDate={startDate} endDate={endDate} t={t} />
 
                 <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    <Stat title="Completed Orders" value={salesStats.total_orders ?? 0} />
-                    <Stat title="Total Revenue" value={`$${money(salesStats.total_revenue)}`} />
-                    <Stat title="Average Order Value" value={`$${money(salesStats.average_order_value)}`} />
-                    <Stat title="Total Cost" value={`$${money(salesStats.total_cost)}`} />
-                    <Stat title="Total Profit" value={`$${money(salesStats.total_profit)}`} />
-                    <Stat title="Profit Margin" value={`${money(salesStats.profit_margin)}%`} />
+                    <Stat title={t('admin.pages.statistics.sales.cards.completedOrders')} value={salesStats.total_orders ?? 0} />
+                    <Stat title={t('admin.pages.statistics.sales.cards.totalRevenue')} value={`$${money(salesStats.total_revenue)}`} />
+                    <Stat title={t('admin.pages.statistics.sales.cards.averageOrderValue')} value={`$${money(salesStats.average_order_value)}`} />
+                    <Stat title={t('admin.pages.statistics.sales.cards.totalCost')} value={`$${money(salesStats.total_cost)}`} />
+                    <Stat title={t('admin.pages.statistics.sales.cards.totalProfit')} value={`$${money(salesStats.total_profit)}`} />
+                    <Stat title={t('admin.pages.statistics.sales.cards.profitMargin')} value={`${money(salesStats.profit_margin)}%`} />
                 </section>
 
-                <Table title="Top Selling Products" headers={['#', 'Product', 'Quantity', 'Revenue']} rows={topProducts.map((p, i) => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])} emptyText="No data for selected period." />
-                <Table title="Daily Sales" headers={['Date', 'Orders', 'Revenue', 'Cost', 'Profit']} rows={dailySales.map((d) => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])} emptyText="No data for selected period." />
+                <Table title={t('admin.pages.statistics.sales.topSellingProducts.title')} headers={['#', t('admin.pages.statistics.common.product'), t('admin.pages.statistics.common.quantity'), t('admin.pages.statistics.common.revenue')]} rows={topProducts.map((p, i) => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
+                <Table title={t('admin.pages.statistics.sales.dailySales.title')} headers={[t('admin.pages.statistics.common.date'), t('admin.pages.statistics.common.orders'), t('admin.pages.statistics.common.revenue'), t('admin.pages.statistics.common.cost'), t('admin.pages.statistics.common.profit')]} rows={dailySales.map((d) => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
             </div>
         </AdminLayout>
     );

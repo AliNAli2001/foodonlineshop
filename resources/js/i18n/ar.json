@@ -170,9 +170,85 @@
         "index": { "title": "الإعدادات" }
       },
       "statistics": {
-        "index": { "title": "الإحصائيات" },
-        "sales": { "title": "إحصائيات المبيعات" },
-        "earnings": { "title": "إحصائيات الأرباح" }
+        "common": {
+          "filter": "تصفية",
+          "sales": "المبيعات",
+          "earnings": "الأرباح",
+          "product": "المنتج",
+          "quantity": "الكمية",
+          "revenue": "الإيراد",
+          "date": "التاريخ",
+          "orders": "الطلبات",
+          "cost": "التكلفة",
+          "profit": "الربح",
+          "total": "الإجمالي",
+          "noData": "لا توجد بيانات في الفترة المحددة."
+        },
+        "index": {
+          "title": "نظرة عامة على الإحصائيات",
+          "subtitle": "الإيرادات والتكلفة والربح واتجاهات الأداء.",
+          "cards": {
+            "totalRevenue": "إجمالي الإيرادات",
+            "totalCost": "إجمالي التكلفة",
+            "grossProfit": "الربح الإجمالي",
+            "netProfit": "صافي الربح"
+          },
+          "salesStats": {
+            "title": "إحصائيات المبيعات",
+            "completedOrders": "الطلبات المكتملة",
+            "averageOrderValue": "متوسط قيمة الطلب",
+            "profitMargin": "هامش الربح"
+          },
+          "adjustmentStats": {
+            "title": "إحصائيات التسويات",
+            "totalGains": "إجمالي الأرباح",
+            "totalLosses": "إجمالي الخسائر",
+            "netAdjustment": "صافي التسوية"
+          },
+          "topSellingProducts": {
+            "title": "المنتجات الأعلى مبيعًا"
+          },
+          "dailySales": {
+            "title": "المبيعات اليومية"
+          }
+        },
+        "sales": {
+          "title": "إحصائيات المبيعات",
+          "subtitle": "تحليل المبيعات والإيرادات وتوزيع الأرباح.",
+          "cards": {
+            "completedOrders": "الطلبات المكتملة",
+            "totalRevenue": "إجمالي الإيرادات",
+            "averageOrderValue": "متوسط قيمة الطلب",
+            "totalCost": "إجمالي التكلفة",
+            "totalProfit": "إجمالي الربح",
+            "profitMargin": "هامش الربح"
+          },
+          "topSellingProducts": {
+            "title": "المنتجات الأعلى مبيعًا"
+          },
+          "dailySales": {
+            "title": "المبيعات اليومية"
+          }
+        },
+        "earnings": {
+          "title": "الأرباح والخسائر",
+          "subtitle": "عرض موحّد للأرباح والتسويات.",
+          "cards": {
+            "profitFromSales": "الربح من المبيعات",
+            "gainsFromAdjustments": "أرباح التسويات",
+            "lossesFromAdjustments": "خسائر التسويات",
+            "netEarnings": "صافي الأرباح"
+          },
+          "salesBreakdown": {
+            "title": "تفصيل المبيعات"
+          },
+          "adjustmentsBreakdown": {
+            "title": "تفصيل التسويات",
+            "gainRecords": "سجلات الأرباح",
+            "lossRecords": "سجلات الخسائر"
+          },
+          "finalNetEarnings": "صافي الأرباح النهائي"
+        }
       }
     }
   },

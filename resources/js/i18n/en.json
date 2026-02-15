@@ -170,9 +170,85 @@
         "index": { "title": "Settings" }
       },
       "statistics": {
-        "index": { "title": "Statistics" },
-        "sales": { "title": "Sales Statistics" },
-        "earnings": { "title": "Earnings Statistics" }
+        "common": {
+          "filter": "Filter",
+          "sales": "Sales",
+          "earnings": "Earnings",
+          "product": "Product",
+          "quantity": "Quantity",
+          "revenue": "Revenue",
+          "date": "Date",
+          "orders": "Orders",
+          "cost": "Cost",
+          "profit": "Profit",
+          "total": "Total",
+          "noData": "No data in selected period."
+        },
+        "index": {
+          "title": "Statistics Overview",
+          "subtitle": "Revenue, cost, profit, and performance trends.",
+          "cards": {
+            "totalRevenue": "Total Revenue",
+            "totalCost": "Total Cost",
+            "grossProfit": "Gross Profit",
+            "netProfit": "Net Profit"
+          },
+          "salesStats": {
+            "title": "Sales Stats",
+            "completedOrders": "Completed Orders",
+            "averageOrderValue": "Average Order Value",
+            "profitMargin": "Profit Margin"
+          },
+          "adjustmentStats": {
+            "title": "Adjustment Stats",
+            "totalGains": "Total Gains",
+            "totalLosses": "Total Losses",
+            "netAdjustment": "Net Adjustment"
+          },
+          "topSellingProducts": {
+            "title": "Top Selling Products"
+          },
+          "dailySales": {
+            "title": "Daily Sales"
+          }
+        },
+        "sales": {
+          "title": "Sales Statistics",
+          "subtitle": "Sales, revenue, and profit distribution.",
+          "cards": {
+            "completedOrders": "Completed Orders",
+            "totalRevenue": "Total Revenue",
+            "averageOrderValue": "Average Order Value",
+            "totalCost": "Total Cost",
+            "totalProfit": "Total Profit",
+            "profitMargin": "Profit Margin"
+          },
+          "topSellingProducts": {
+            "title": "Top Selling Products"
+          },
+          "dailySales": {
+            "title": "Daily Sales"
+          }
+        },
+        "earnings": {
+          "title": "Earnings & Losses",
+          "subtitle": "Consolidated view of profit and adjustments.",
+          "cards": {
+            "profitFromSales": "Profit from Sales",
+            "gainsFromAdjustments": "Gains from Adjustments",
+            "lossesFromAdjustments": "Losses from Adjustments",
+            "netEarnings": "Net Earnings"
+          },
+          "salesBreakdown": {
+            "title": "Sales Breakdown"
+          },
+          "adjustmentsBreakdown": {
+            "title": "Adjustments Breakdown",
+            "gainRecords": "Gain Records",
+            "lossRecords": "Loss Records"
+          },
+          "finalNetEarnings": "Final Net Earnings"
+        }
       }
     }
   },

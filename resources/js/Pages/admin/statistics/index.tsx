@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 function money(value) {
     return Number(value ?? 0).toFixed(2);
 }
 
-function DateFilter({ action, startDate, endDate }) {
+function DateFilter({ action, startDate, endDate, t }) {
     const submit = (e) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
@@ -17,7 +18,7 @@ function DateFilter({ action, startDate, endDate }) {
         <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 md:grid-cols-3">
             <input type="date" name="start_date" defaultValue={startDate} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
             <input type="date" name="end_date" defaultValue={endDate} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-            <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">Filter</button>
+            <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.statistics.common.filter')}</button>
         </form>
     );
 }
@@ -32,6 +33,7 @@ function StatCard({ label, value }) {
 }
 
 export default function StatisticsIndex() {
+    const { t } = useI18n();
     const { statistics = {}, topProducts = [], dailySales = [], startDate, endDate } = usePage().props;
     const summary = statistics.summary || {};
     const sales = statistics.sales || {};
@@ -45,55 +47,55 @@ export default function StatisticsIndex() {
     };
 
     return (
-        <AdminLayout title="Statistics Overview">
+        <AdminLayout title={t('admin.pages.statistics.index.title')}>
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Statistics Overview</h1>
-                        <p className="text-sm text-slate-300">Revenue, cost, profit, and performance trends.</p>
+                        <h1 className="text-2xl font-bold text-white">{t('admin.pages.statistics.index.title')}</h1>
+                        <p className="text-sm text-slate-300">{t('admin.pages.statistics.index.subtitle')}</p>
                     </div>
                     <div className="flex gap-2">
-                        <Link href="/admin/statistics/sales" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">Sales</Link>
-                        <Link href="/admin/statistics/earnings" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">Earnings</Link>
+                        <Link href="/admin/statistics/sales" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">{t('admin.pages.statistics.common.sales')}</Link>
+                        <Link href="/admin/statistics/earnings" className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">{t('admin.pages.statistics.common.earnings')}</Link>
                     </div>
                 </section>
 
-                <DateFilter action="/admin/statistics" startDate={startDate} endDate={endDate} />
+                <DateFilter action="/admin/statistics" startDate={startDate} endDate={endDate} t={t} />
 
                 <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <StatCard label="Total Revenue" value={`$${money(summary.total_revenue)}`} />
-                    <StatCard label="Total Cost" value={`$${money(summary.total_cost)}`} />
-                    <StatCard label="Gross Profit" value={`$${money(summary.gross_profit)}`} />
-                    <StatCard label="Net Profit" value={`$${money(summary.net_profit)}`} />
+                    <StatCard label={t('admin.pages.statistics.index.cards.totalRevenue')} value={`$${money(summary.total_revenue)}`} />
+                    <StatCard label={t('admin.pages.statistics.index.cards.totalCost')} value={`$${money(summary.total_cost)}`} />
+                    <StatCard label={t('admin.pages.statistics.index.cards.grossProfit')} value={`$${money(summary.gross_profit)}`} />
+                    <StatCard label={t('admin.pages.statistics.index.cards.netProfit')} value={`$${money(summary.net_profit)}`} />
                 </section>
 
                 <section className="grid gap-4 lg:grid-cols-2">
-                    <InfoTable title="Sales Stats" rows={[
-                        ['Completed Orders', sales.total_orders],
-                        ['Average Order Value', `$${money(sales.average_order_value)}`],
-                        ['Profit Margin', `${money(sales.profit_margin)}%`],
+                    <InfoTable title={t('admin.pages.statistics.index.salesStats.title')} rows={[
+                        [t('admin.pages.statistics.index.salesStats.completedOrders'), sales.total_orders],
+                        [t('admin.pages.statistics.index.salesStats.averageOrderValue'), `$${money(sales.average_order_value)}`],
+                        [t('admin.pages.statistics.index.salesStats.profitMargin'), `${money(sales.profit_margin)}%`],
                     ]} />
 
-                    <InfoTable title="Adjustment Stats" rows={[
-                        ['Total Gains', `$${money(adjustments.total_gains)}`],
-                        ['Total Losses', `$${money(adjustments.total_losses)}`],
-                        ['Net Adjustment', `$${money(adjustments.net_adjustment)}`],
+                    <InfoTable title={t('admin.pages.statistics.index.adjustmentStats.title')} rows={[
+                        [t('admin.pages.statistics.index.adjustmentStats.totalGains'), `$${money(adjustments.total_gains)}`],
+                        [t('admin.pages.statistics.index.adjustmentStats.totalLosses'), `$${money(adjustments.total_losses)}`],
+                        [t('admin.pages.statistics.index.adjustmentStats.netAdjustment'), `$${money(adjustments.net_adjustment)}`],
                     ]} />
                 </section>
 
                 <DataTable
-                    title="Top Selling Products"
-                    headers={['#', 'Product', 'Quantity', 'Revenue']}
+                    title={t('admin.pages.statistics.index.topSellingProducts.title')}
+                    headers={['#', t('admin.pages.statistics.common.product'), t('admin.pages.statistics.common.quantity'), t('admin.pages.statistics.common.revenue')]}
                     rows={topProducts.map((p, i) => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])}
-                    emptyText="No data in selected period."
+                    emptyText={t('admin.pages.statistics.common.noData')}
                 />
 
                 <DataTable
-                    title="Daily Sales"
-                    headers={['Date', 'Orders', 'Revenue', 'Cost', 'Profit']}
+                    title={t('admin.pages.statistics.index.dailySales.title')}
+                    headers={[t('admin.pages.statistics.common.date'), t('admin.pages.statistics.common.orders'), t('admin.pages.statistics.common.revenue'), t('admin.pages.statistics.common.cost'), t('admin.pages.statistics.common.profit')]}
                     rows={dailySales.map((d) => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])}
-                    footer={['Total', totals.orders, `$${money(totals.revenue)}`, `$${money(totals.cost)}`, `$${money(totals.profit)}`]}
-                    emptyText="No data in selected period."
+                    footer={[t('admin.pages.statistics.common.total'), totals.orders, `$${money(totals.revenue)}`, `$${money(totals.cost)}`, `$${money(totals.profit)}`]}
+                    emptyText={t('admin.pages.statistics.common.noData')}
                 />
             </div>
         </AdminLayout>
