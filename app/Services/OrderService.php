@@ -26,7 +26,7 @@ class OrderService
     }
 
     /**
-     * Create a new admin order (immediately confirmed + stock deducted).
+     * Create a new admin order in pending state (requires confirmation).
      */
     public function createAdminOrder(array $validated, int $adminId): Order
     {
@@ -50,7 +50,7 @@ class OrderService
 
         return DB::transaction(function () use ($validated, $totalAmount, $adminId, &$totalCostPrice) {
 
-            // 2️⃣ Create order (confirmed immediately)
+            // 2️⃣ Create order as pending (requires confirmation)
             $order = Order::create([
                 'created_by_admin_id' => $adminId,
                 'client_id' => $validated['client_id'] ?? null,
@@ -58,7 +58,7 @@ class OrderService
                 'client_phone_number' => $validated['client_phone_number'] ?? null,
                 'total_amount' => $totalAmount,
                 'cost_price' => 0,
-                'status' => 'confirmed',
+                'status' => 'pending',
                 'order_source' => $validated['order_source'],
                 'delivery_method' => $validated['delivery_method'],
                 'address_details' => $validated['address_details'],
@@ -68,6 +68,21 @@ class OrderService
                 'admin_order_client_notes' => $validated['admin_order_client_notes'] ?? null,
             ]);
 
+            // 3️⃣ Create order items only (no stock deduction on creation)
+            foreach ($validated['products'] as $item) {
+                $product = Product::findOrFail($item['product_id']);
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $product->selling_price,
+                ]);
+            }
+
+            return $order;
+
+            // Legacy immediate-deduction flow below is now unreachable.
             // 3️⃣ Process each product
             foreach ($validated['products'] as $item) {
 

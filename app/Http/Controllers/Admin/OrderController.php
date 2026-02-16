@@ -41,7 +41,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Store a new admin-created order (immediately confirmed + stock deducted).
+     * Store a new admin-created order in pending status (requires confirmation).
      */
     public function store(Request $request)
     {

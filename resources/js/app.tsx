@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { I18nProvider } from './i18n';
 import GlobalLanguageSwitcher from './components/GlobalLanguageSwitcher';
+import 'react-toastify/dist/ReactToastify.css';
 
 const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
 

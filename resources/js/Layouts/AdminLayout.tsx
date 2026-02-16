@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useI18n } from '../i18n';
+import { ToastContainer, toast } from 'react-toastify';
 
 const navItems = [
     { key: 'dashboard', href: '/admin/dashboard' },
@@ -49,15 +50,33 @@ function NavIcon({ itemKey }: { itemKey: string }) {
 
 export default function AdminLayout({ title = 'Admin', children }) {
     const { url, props } = usePage();
-    const { flash = {} } = props;
+    const { flash = {}, errors = {} } = props as any;
     const { t } = useI18n();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const lastToastRef = useRef<{ success?: string; error?: string }>({});
 
     const currentPath = useMemo(() => url.split('?')[0], [url]);
     const isActive = useMemo(
         () => (href) => currentPath === href || currentPath.startsWith(`${href}/`),
         [currentPath],
     );
+
+    useEffect(() => {
+        if (flash?.success && lastToastRef.current.success !== flash.success) {
+            toast.success(flash.success);
+            lastToastRef.current.success = flash.success;
+        }
+    }, [flash?.success]);
+
+    useEffect(() => {
+        const fieldError =
+            Object.values(errors || {}).find((value) => typeof value === 'string' && value.length > 0) as string | undefined;
+        const errorMessage = flash?.error || errors?.error || fieldError;
+        if (errorMessage && lastToastRef.current.error !== errorMessage) {
+            toast.error(errorMessage);
+            lastToastRef.current.error = errorMessage;
+        }
+    }, [flash?.error, errors?.error, errors]);
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -154,19 +173,19 @@ export default function AdminLayout({ title = 'Admin', children }) {
                 </aside>
 
                 <main className="relative z-10 w-full p-4 md:p-6 lg:p-8">
-                    {flash.success && (
-                        <div className="mb-4 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-                            {flash.success}
-                        </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-                            {flash.error}
-                        </div>
-                    )}
                     {children}
                 </main>
             </div>
+            <ToastContainer
+                position="top-right"
+                autoClose={3500}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                pauseOnHover
+                draggable
+                theme="dark"
+            />
         </div>
     );
 }
