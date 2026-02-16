@@ -23,7 +23,9 @@
     "signIn": "تسجيل الدخول",
     "signingIn": "جارٍ تسجيل الدخول...",
     "settings": "الإعدادات",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "yes": "نعم",
+    "no": "لا"
   },
   "admin": {
     "nav": {
@@ -317,46 +319,344 @@
         }
       },
       "inventory": {
-        "index": { "title": "المخزون" },
-        "create": { "title": "إنشاء دفعة مخزون" },
-        "edit": { "title": "تعديل المخزون" },
-        "show": { "title": "تفاصيل المخزون" },
-        "product": { "title": "دفعات المنتج" }
+        "status": {
+          "available": "متاح",
+          "expired": "منتهي الصلاحية"
+        },
+        "form": {
+          "availableQuantity": "الكمية المتاحة",
+          "expiryDate": "تاريخ الانتهاء",
+          "batchNumber": "رقم الدفعة",
+          "costPrice": "سعر التكلفة",
+          "reasonOptional": "السبب (اختياري)",
+          "reason": "السبب",
+          "saving": "جارٍ الحفظ...",
+          "updating": "جارٍ التحديث..."
+        },
+        "index": {
+          "title": "المخزون",
+          "heading": "إدارة المخزون",
+          "subtitle": "تتبع المنتجات وافتح تفاصيل المخزون على مستوى الدفعات.",
+          "allProducts": "كل المنتجات",
+          "lowStockProducts": "المنتجات منخفضة المخزون",
+          "empty": "لا توجد منتجات.",
+          "product": "منتج",
+          "stock": "المخزون",
+          "viewDetails": "عرض التفاصيل"
+        },
+        "create": {
+          "title": "إنشاء دفعة مخزون",
+          "heading": "إضافة دفعة مخزون",
+          "product": "المنتج",
+          "submit": "إنشاء دفعة"
+        },
+        "edit": {
+          "title": "تعديل المخزون",
+          "heading": "تعديل دفعة المخزون",
+          "costPriceHint": "إذا تغيّر سعر التكلفة فقد يتم إعادة احتساب تكلفة البضائع التالفة المرتبطة.",
+          "submit": "تحديث الدفعة"
+        },
+        "show": {
+          "title": "تفاصيل المخزون",
+          "heading": "دفعة المخزون",
+          "backToProductInventory": "العودة إلى مخزون المنتج",
+          "currentBatch": "الدفعة الحالية",
+          "recentMovements": "آخر الحركات",
+          "emptyMovements": "لا توجد حركات بعد.",
+          "columns": {
+            "type": "النوع",
+            "qtyChange": "تغيّر الكمية",
+            "reason": "السبب",
+            "expiry": "الانتهاء",
+            "batch": "الدفعة",
+            "date": "التاريخ"
+          }
+        },
+        "product": {
+          "title": "دفعات المنتج",
+          "totalStock": "إجمالي المخزون",
+          "addBatch": "+ إضافة دفعة",
+          "batches": "الدفعات",
+          "emptyBatches": "لا توجد دفعات لهذا المنتج."
+        }
       },
       "categories": {
-        "index": { "title": "التصنيفات" },
-        "create": { "title": "إنشاء تصنيف" },
-        "edit": { "title": "تعديل التصنيف" },
-        "show": { "title": "تفاصيل التصنيف" }
+        "form": {
+          "arabicName": "الاسم بالعربية",
+          "englishName": "الاسم بالإنجليزية",
+          "categoryImage": "صورة التصنيف",
+          "featured": "مميز",
+          "saving": "جارٍ الحفظ...",
+          "updating": "جارٍ التحديث..."
+        },
+        "index": {
+          "title": "التصنيفات",
+          "heading": "التصنيفات",
+          "subtitle": "إدارة تصنيفات المنتجات.",
+          "addCategory": "+ إضافة تصنيف",
+          "deleteConfirm": "هل تريد حذف هذا التصنيف؟",
+          "empty": "لا توجد تصنيفات.",
+          "columns": {
+            "id": "المعرف",
+            "arabicName": "الاسم بالعربية",
+            "englishName": "الاسم بالإنجليزية",
+            "featured": "مميز"
+          }
+        },
+        "create": {
+          "title": "إنشاء تصنيف",
+          "heading": "إنشاء تصنيف",
+          "submit": "إنشاء التصنيف"
+        },
+        "edit": {
+          "title": "تعديل التصنيف",
+          "heading": "تعديل التصنيف",
+          "submit": "تحديث التصنيف"
+        },
+        "show": {
+          "title": "تفاصيل التصنيف",
+          "subtitle": "تفاصيل التصنيف والمنتجات المرتبطة.",
+          "categoryInformation": "معلومات التصنيف",
+          "products": "المنتجات",
+          "addProduct": "+ إضافة منتج",
+          "emptyProducts": "لا توجد منتجات في هذا التصنيف.",
+          "columns": {
+            "name": "الاسم",
+            "price": "السعر",
+            "stock": "المخزون",
+            "featured": "مميز"
+          }
+        }
       },
       "companies": {
-        "index": { "title": "الشركات" },
-        "create": { "title": "إنشاء شركة" },
-        "edit": { "title": "تعديل الشركة" },
-        "show": { "title": "تفاصيل الشركة" }
+        "form": {
+          "arabicName": "الاسم بالعربية",
+          "englishName": "الاسم بالإنجليزية",
+          "logo": "الشعار",
+          "saving": "جارٍ الحفظ...",
+          "updating": "جارٍ التحديث..."
+        },
+        "index": {
+          "title": "الشركات",
+          "heading": "الشركات",
+          "subtitle": "إدارة موردي المنتجات والعلامات التجارية.",
+          "addCompany": "+ إضافة شركة",
+          "deleteConfirm": "هل تريد حذف هذه الشركة؟",
+          "empty": "لا توجد شركات.",
+          "columns": {
+            "id": "المعرف",
+            "englishName": "الاسم بالإنجليزية",
+            "arabicName": "الاسم بالعربية"
+          }
+        },
+        "create": {
+          "title": "إنشاء شركة",
+          "heading": "إنشاء شركة",
+          "submit": "إنشاء الشركة"
+        },
+        "edit": {
+          "title": "تعديل الشركة",
+          "heading": "تعديل الشركة",
+          "submit": "تحديث الشركة"
+        },
+        "show": {
+          "title": "تفاصيل الشركة",
+          "subtitle": "ملف الشركة والمنتجات المرتبطة.",
+          "companyInformation": "معلومات الشركة",
+          "products": "المنتجات",
+          "addProduct": "+ إضافة منتج",
+          "emptyProducts": "لا توجد منتجات لهذه الشركة.",
+          "columns": {
+            "name": "الاسم",
+            "price": "السعر",
+            "stock": "المخزون",
+            "featured": "مميز"
+          }
+        }
       },
       "tags": {
-        "index": { "title": "الوسوم" },
-        "create": { "title": "إنشاء وسم" },
-        "edit": { "title": "تعديل الوسم" },
-        "show": { "title": "تفاصيل الوسم" }
+        "form": {
+          "arabicName": "الاسم بالعربية",
+          "englishName": "الاسم بالإنجليزية",
+          "saving": "جارٍ الحفظ...",
+          "updating": "جارٍ التحديث..."
+        },
+        "index": {
+          "title": "الوسوم",
+          "heading": "الوسوم",
+          "subtitle": "إدارة وسوم المنتجات.",
+          "addTag": "+ إضافة وسم",
+          "deleteConfirm": "هل تريد حذف هذا الوسم؟",
+          "empty": "لا توجد وسوم.",
+          "columns": {
+            "id": "المعرف",
+            "englishName": "الاسم بالإنجليزية",
+            "arabicName": "الاسم بالعربية"
+          }
+        },
+        "create": {
+          "title": "إنشاء وسم",
+          "heading": "إنشاء وسم",
+          "submit": "إنشاء الوسم"
+        },
+        "edit": {
+          "title": "تعديل الوسم",
+          "heading": "تعديل الوسم",
+          "submit": "تحديث الوسم"
+        },
+        "show": {
+          "title": "تفاصيل الوسم",
+          "subtitle": "تفاصيل الوسم والمنتجات المرتبطة.",
+          "tagInformation": "معلومات الوسم",
+          "products": "المنتجات",
+          "addProduct": "+ إضافة منتج",
+          "emptyProducts": "لا توجد منتجات لهذا الوسم.",
+          "columns": {
+            "name": "الاسم",
+            "price": "السعر",
+            "stock": "المخزون",
+            "featured": "مميز"
+          }
+        }
       },
       "damagedGoods": {
-        "index": { "title": "البضائع التالفة" },
-        "create": { "title": "تسجيل بضاعة تالفة" },
-        "show": { "title": "تفاصيل البضائع التالفة" }
+        "form": {
+          "product": "المنتج",
+          "selectProduct": "اختر المنتج",
+          "inventoryBatch": "دفعة المخزون",
+          "selectBatch": "اختر الدفعة",
+          "invoice": "الفاتورة",
+          "quantity": "الكمية",
+          "reason": "السبب",
+          "saving": "جارٍ الحفظ..."
+        },
+        "index": {
+          "title": "البضائع التالفة",
+          "heading": "البضائع التالفة",
+          "subtitle": "تتبع وتدقيق سجلات المخزون التالف.",
+          "addRecord": "+ إضافة سجل",
+          "deleteConfirm": "هل تريد حذف سجل البضائع التالفة؟ سيتم عكس المخزون والتسوية المرتبطة بالخسارة.",
+          "empty": "لا توجد سجلات بضائع تالفة.",
+          "columns": {
+            "product": "المنتج",
+            "quantity": "الكمية",
+            "reason": "السبب",
+            "date": "التاريخ"
+          }
+        },
+        "create": {
+          "title": "تسجيل بضاعة تالفة",
+          "heading": "تسجيل بضاعة تالفة",
+          "subtitle": "سيتم خصم المخزون من دفعة المخزون المحددة.",
+          "submit": "حفظ السجل"
+        },
+        "show": {
+          "title": "تفاصيل البضائع التالفة",
+          "heading": "البضائع التالفة",
+          "subtitle": "عرض تفاصيل العنصر والدفعة والخسارة المرتبطة.",
+          "createdAt": "تاريخ الإنشاء",
+          "updatedAt": "تاريخ التحديث",
+          "batch": "الدفعة",
+          "batchExpiry": "انتهاء الدفعة",
+          "totalLoss": "إجمالي الخسارة",
+          "na": "غير متوفر",
+          "openProductInventory": "فتح مخزون المنتج",
+          "openLinkedAdjustment": "فتح التسوية المرتبطة"
+        }
       },
       "adjustments": {
-        "index": { "title": "التسويات المالية" },
-        "create": { "title": "إنشاء تسوية" },
-        "edit": { "title": "تعديل التسوية" },
-        "show": { "title": "تفاصيل التسوية" }
+        "form": {
+          "amount": "المبلغ",
+          "adjustmentType": "نوع التسوية",
+          "select": "اختر",
+          "selectType": "اختر النوع",
+          "gain": "ربح",
+          "loss": "خسارة",
+          "date": "التاريخ",
+          "reason": "السبب",
+          "saving": "جارٍ الحفظ...",
+          "updating": "جارٍ التحديث..."
+        },
+        "index": {
+          "title": "التسويات المالية",
+          "heading": "التسويات المالية",
+          "subtitle": "تتبع سجلات الأرباح والخسائر.",
+          "addAdjustment": "+ إضافة تسوية",
+          "deleteConfirm": "هل تريد حذف هذه التسوية؟",
+          "empty": "لا توجد تسويات.",
+          "damagedGoods": "بضائع تالفة",
+          "columns": {
+            "id": "المعرف"
+          }
+        },
+        "create": {
+          "title": "إنشاء تسوية",
+          "heading": "إنشاء تسوية",
+          "submit": "حفظ التسوية"
+        },
+        "edit": {
+          "title": "تعديل التسوية",
+          "heading": "تعديل التسوية",
+          "submit": "تحديث التسوية"
+        },
+        "show": {
+          "title": "تفاصيل التسوية",
+          "heading": "التسوية",
+          "subtitle": "مراجعة تفاصيل التسوية المالية.",
+          "createdAt": "تاريخ الإنشاء",
+          "updatedAt": "تاريخ التحديث",
+          "openLinkedDamagedGoods": "فتح سجل البضائع التالفة المرتبط"
+        }
       },
       "delivery": {
-        "index": { "title": "فريق التوصيل" },
-        "create": { "title": "إضافة موظف توصيل" },
-        "edit": { "title": "تعديل موظف التوصيل" },
-        "show": { "title": "تفاصيل موظف التوصيل" }
+        "status": {
+          "available": "متاح",
+          "busy": "مشغول",
+          "inactive": "غير نشط"
+        },
+        "form": {
+          "firstName": "الاسم الأول",
+          "lastName": "اسم العائلة",
+          "phone": "الهاتف",
+          "phonePlus": "هاتف إضافي",
+          "additionalInfo": "معلومات إضافية",
+          "saving": "جارٍ الحفظ...",
+          "updating": "جارٍ التحديث..."
+        },
+        "index": {
+          "title": "فريق التوصيل",
+          "heading": "فريق التوصيل",
+          "subtitle": "إدارة موظفي التوصيل وتعيين الطلبات.",
+          "addDeliveryPerson": "+ إضافة موظف توصيل",
+          "deleteConfirm": "هل تريد حذف موظف التوصيل هذا؟",
+          "empty": "لا يوجد موظفو توصيل.",
+          "id": "المعرف",
+          "copy": "نسخ",
+          "orders": "الطلبات"
+        },
+        "create": {
+          "title": "إضافة موظف توصيل",
+          "heading": "إضافة موظف توصيل",
+          "submit": "إنشاء"
+        },
+        "edit": {
+          "title": "تعديل موظف التوصيل",
+          "heading": "تعديل موظف التوصيل",
+          "submit": "تحديث"
+        },
+        "show": {
+          "title": "تفاصيل موظف التوصيل",
+          "subtitle": "ملف موظف التوصيل والطلبات المسندة.",
+          "assignedOrders": "الطلبات المسندة",
+          "manualOrder": "طلب يدوي",
+          "emptyOrders": "لا توجد طلبات مسندة.",
+          "columns": {
+            "order": "الطلب",
+            "customer": "العميل",
+            "total": "الإجمالي",
+            "date": "التاريخ"
+          }
+        }
       },
       "settings": {
         "index": { "title": "الإعدادات" }

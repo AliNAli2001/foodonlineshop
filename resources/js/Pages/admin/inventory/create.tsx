@@ -25,21 +25,21 @@ export default function InventoryCreate() {
     <AdminLayout title={t('admin.pages.inventory.create.title')}>
       <div className="mx-auto max-w-3xl space-y-6">
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <h1 className="text-2xl font-bold text-white">Add Inventory Batch</h1>
-          <p className="text-sm text-slate-300">Product: {product.name_en || product.name_ar || `#${product.id}`}</p>
+          <h1 className="text-2xl font-bold text-white">{t('admin.pages.inventory.create.heading')}</h1>
+          <p className="text-sm text-slate-300">{t('admin.pages.inventory.create.product')}: {product.name_en || product.name_ar || `#${product.id}`}</p>
         </section>
 
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <Field label="Available Quantity" error={errors.available_quantity}><input type="number" min="1" value={data.available_quantity} onChange={(e) => setData('available_quantity', e.target.value)} className={inputClass} required /></Field>
+          <Field label={t('admin.pages.inventory.form.availableQuantity')} error={errors.available_quantity}><input type="number" min="1" value={data.available_quantity} onChange={(e) => setData('available_quantity', e.target.value)} className={inputClass} required /></Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Expiry Date" error={errors.expiry_date}><input type="date" value={data.expiry_date} onChange={(e) => setData('expiry_date', e.target.value)} className={inputClass} /></Field>
-            <Field label="Batch Number" error={errors.batch_number}><input value={data.batch_number} onChange={(e) => setData('batch_number', e.target.value)} className={inputClass} required /></Field>
+            <Field label={t('admin.pages.inventory.form.expiryDate')} error={errors.expiry_date}><input type="date" value={data.expiry_date} onChange={(e) => setData('expiry_date', e.target.value)} className={inputClass} /></Field>
+            <Field label={t('admin.pages.inventory.form.batchNumber')} error={errors.batch_number}><input value={data.batch_number} onChange={(e) => setData('batch_number', e.target.value)} className={inputClass} required /></Field>
           </div>
-          <Field label="Cost Price" error={errors.cost_price}><input type="number" step="0.001" min="0" value={data.cost_price} onChange={(e) => setData('cost_price', e.target.value)} className={inputClass} required /></Field>
-          <Field label="Reason (optional)" error={errors.reason}><textarea rows={3} value={data.reason} onChange={(e) => setData('reason', e.target.value)} className={inputClass} /></Field>
+          <Field label={t('admin.pages.inventory.form.costPrice')} error={errors.cost_price}><input type="number" step="0.001" min="0" value={data.cost_price} onChange={(e) => setData('cost_price', e.target.value)} className={inputClass} required /></Field>
+          <Field label={t('admin.pages.inventory.form.reasonOptional')} error={errors.reason}><textarea rows={3} value={data.reason} onChange={(e) => setData('reason', e.target.value)} className={inputClass} /></Field>
 
           <div className="flex gap-3">
-            <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? 'Saving...' : 'Create Batch'}</button>
+            <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? t('admin.pages.inventory.form.saving') : t('admin.pages.inventory.create.submit')}</button>
             <Link href={`/admin/inventory/${product.id}/batches`} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link>
           </div>
         </form>

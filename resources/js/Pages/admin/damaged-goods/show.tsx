@@ -35,33 +35,33 @@ export default function DamagedGoodsShow() {
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white">Damaged Goods #{damagedGoods.id}</h1>
-            <p className="text-sm text-slate-300">View item, batch, and linked loss details.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.damagedGoods.show.heading')} #{damagedGoods.id}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.damagedGoods.show.subtitle')}</p>
           </div>
           <Link href="/admin/damaged-goods" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">
-            Back
+            {t('common.back')}
           </Link>
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-slate-200">
           <div className="grid gap-3 md:grid-cols-2">
-            <Info label="Product" value={damagedGoods.product?.name_en || damagedGoods.product?.name_ar || '-'} />
-            <Info label="Quantity" value={String(damagedGoods.quantity)} />
-            <Info label="Reason" value={damagedGoods.reason || '-'} />
-            <Info label="Created At" value={formatDate(damagedGoods.created_at)} />
-            <Info label="Updated At" value={formatDate(damagedGoods.updated_at)} />
-            <Info label="Batch" value={batch ? `${batch.batch_number || '-'} (ID: ${batch.id})` : 'N/A'} />
-            <Info label="Batch Expiry" value={batch?.expiry_date || '-'} />
-            <Info label="Total Loss" value={totalLoss != null ? String(totalLoss) : '-'} />
+            <Info label={t('admin.pages.damagedGoods.form.product')} value={damagedGoods.product?.name_en || damagedGoods.product?.name_ar || '-'} />
+            <Info label={t('admin.pages.damagedGoods.form.quantity')} value={String(damagedGoods.quantity)} />
+            <Info label={t('admin.pages.damagedGoods.form.reason')} value={damagedGoods.reason || '-'} />
+            <Info label={t('admin.pages.damagedGoods.show.createdAt')} value={formatDate(damagedGoods.created_at)} />
+            <Info label={t('admin.pages.damagedGoods.show.updatedAt')} value={formatDate(damagedGoods.updated_at)} />
+            <Info label={t('admin.pages.damagedGoods.show.batch')} value={batch ? `${batch.batch_number || '-'} (ID: ${batch.id})` : t('admin.pages.damagedGoods.show.na')} />
+            <Info label={t('admin.pages.damagedGoods.show.batchExpiry')} value={batch?.expiry_date || '-'} />
+            <Info label={t('admin.pages.damagedGoods.show.totalLoss')} value={totalLoss != null ? String(totalLoss) : '-'} />
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Link href={`/admin/inventory/${damagedGoods.product_id}`} className="inline-flex rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20">
-              Open Product Inventory
+              {t('admin.pages.damagedGoods.show.openProductInventory')}
             </Link>
             {adjustment ? (
               <Link href={`/admin/adjustments/${adjustment.id}`} className="inline-flex rounded-lg border border-indigo-300/30 bg-indigo-500/10 px-3 py-1.5 text-xs text-indigo-200 hover:bg-indigo-500/20">
-                Open Linked Adjustment
+                {t('admin.pages.damagedGoods.show.openLinkedAdjustment')}
               </Link>
             ) : null}
           </div>

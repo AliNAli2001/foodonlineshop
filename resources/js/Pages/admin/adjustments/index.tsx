@@ -32,7 +32,7 @@ export default function AdjustmentsIndex() {
       : [];
 
   const removeRow = (id: number) => {
-    if (!window.confirm('Delete this adjustment?')) return;
+    if (!window.confirm(t('admin.pages.adjustments.index.deleteConfirm'))) return;
     router.delete(`/admin/adjustments/${id}`);
   };
 
@@ -41,11 +41,11 @@ export default function AdjustmentsIndex() {
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white">Financial Adjustments</h1>
-            <p className="text-sm text-slate-300">Track gain and loss entries.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.adjustments.index.heading')}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.adjustments.index.subtitle')}</p>
           </div>
           <Link href="/admin/adjustments/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
-            + Add Adjustment
+            {t('admin.pages.adjustments.index.addAdjustment')}
           </Link>
         </section>
 
@@ -54,7 +54,14 @@ export default function AdjustmentsIndex() {
             <table className="min-w-full">
               <thead className="bg-white/[0.03]">
                 <tr>
-                  {['ID', 'Amount', 'Type', 'Reason', 'Date', 'Actions'].map((h) => (
+                  {[
+                    t('admin.pages.adjustments.index.columns.id'),
+                    t('admin.pages.adjustments.form.amount'),
+                    t('admin.pages.adjustments.form.adjustmentType'),
+                    t('admin.pages.adjustments.form.reason'),
+                    t('admin.pages.adjustments.form.date'),
+                    t('common.actions'),
+                  ].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>
                   ))}
                 </tr>
@@ -62,7 +69,7 @@ export default function AdjustmentsIndex() {
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">No adjustments found.</td>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">{t('admin.pages.adjustments.index.empty')}</td>
                   </tr>
                 ) : (
                   rows.map((a) => {
@@ -73,9 +80,9 @@ export default function AdjustmentsIndex() {
                         <td className="px-4 py-3 text-sm text-slate-200">{a.quantity ?? '-'}</td>
                         <td className="px-4 py-3 text-sm">
                           {a.adjustment_type === 'gain' ? (
-                            <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-xs text-emerald-200 ring-1 ring-emerald-300/30">Gain</span>
+                            <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-xs text-emerald-200 ring-1 ring-emerald-300/30">{t('admin.pages.adjustments.form.gain')}</span>
                           ) : (
-                            <span className="rounded-full bg-rose-400/20 px-2 py-0.5 text-xs text-rose-200 ring-1 ring-rose-300/30">Loss</span>
+                            <span className="rounded-full bg-rose-400/20 px-2 py-0.5 text-xs text-rose-200 ring-1 ring-rose-300/30">{t('admin.pages.adjustments.form.loss')}</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-200">{a.reason}</td>
@@ -85,7 +92,7 @@ export default function AdjustmentsIndex() {
                             <Link href={`/admin/adjustments/${a.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
                             {isDamagedGoodsLinked ? (
                               a.adjustable_id ? (
-                                <Link href={`/admin/damaged-goods/${a.adjustable_id}`} className="rounded-lg border border-indigo-300/30 bg-indigo-500/10 px-2.5 py-1 text-xs text-indigo-200 hover:bg-indigo-500/20">Damaged Goods</Link>
+                                <Link href={`/admin/damaged-goods/${a.adjustable_id}`} className="rounded-lg border border-indigo-300/30 bg-indigo-500/10 px-2.5 py-1 text-xs text-indigo-200 hover:bg-indigo-500/20">{t('admin.pages.adjustments.index.damagedGoods')}</Link>
                               ) : null
                             ) : (
                               <>

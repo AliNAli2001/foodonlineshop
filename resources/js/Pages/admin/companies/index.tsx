@@ -10,7 +10,7 @@ export default function CompaniesIndex() {
   const rows = Array.isArray(companies?.data) ? companies.data : Array.isArray(companies) ? companies : [];
 
   const removeCompany = (id: number) => {
-    if (!window.confirm('Delete this company?')) return;
+    if (!window.confirm(t('admin.pages.companies.index.deleteConfirm'))) return;
     router.delete(`/admin/companies/${id}`);
   };
 
@@ -19,18 +19,23 @@ export default function CompaniesIndex() {
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white">Companies</h1>
-            <p className="text-sm text-slate-300">Manage product suppliers and brands.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.companies.index.heading')}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.companies.index.subtitle')}</p>
           </div>
-          <Link href="/admin/companies/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">+ Add Company</Link>
+          <Link href="/admin/companies/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.companies.index.addCompany')}</Link>
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
           <div className="overflow-x-auto">
             <table className="min-w-full">
-              <thead className="bg-white/[0.03]"><tr>{['ID', 'English Name', 'Arabic Name', 'Actions'].map((h) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}</tr></thead>
+              <thead className="bg-white/[0.03]"><tr>{[
+                t('admin.pages.companies.index.columns.id'),
+                t('admin.pages.companies.index.columns.englishName'),
+                t('admin.pages.companies.index.columns.arabicName'),
+                t('common.actions'),
+              ].map((h) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}</tr></thead>
               <tbody>
-                {rows.length === 0 ? <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-400">No companies found.</td></tr> : rows.map((c: any) => (
+                {rows.length === 0 ? <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-400">{t('admin.pages.companies.index.empty')}</td></tr> : rows.map((c: any) => (
                   <tr key={c.id} className="border-t border-white/10">
                     <td className="px-4 py-3 text-sm text-slate-200">{c.id}</td>
                     <td className="px-4 py-3 text-sm text-slate-200">{c.name_en}</td>

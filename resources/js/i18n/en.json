@@ -23,7 +23,9 @@
     "signIn": "Sign In",
     "signingIn": "Signing in...",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "yes": "Yes",
+    "no": "No"
   },
   "admin": {
     "nav": {
@@ -317,46 +319,344 @@
         }
       },
       "inventory": {
-        "index": { "title": "Inventory" },
-        "create": { "title": "Create Inventory Batch" },
-        "edit": { "title": "Edit Inventory" },
-        "show": { "title": "Inventory Details" },
-        "product": { "title": "Product Batches" }
+        "status": {
+          "available": "Available",
+          "expired": "Expired"
+        },
+        "form": {
+          "availableQuantity": "Available Quantity",
+          "expiryDate": "Expiry Date",
+          "batchNumber": "Batch Number",
+          "costPrice": "Cost Price",
+          "reasonOptional": "Reason (optional)",
+          "reason": "Reason",
+          "saving": "Saving...",
+          "updating": "Updating..."
+        },
+        "index": {
+          "title": "Inventory",
+          "heading": "Inventory Management",
+          "subtitle": "Track products and open batch-level inventory details.",
+          "allProducts": "All Products",
+          "lowStockProducts": "Low Stock Products",
+          "empty": "No products found.",
+          "product": "Product",
+          "stock": "Stock",
+          "viewDetails": "View Details"
+        },
+        "create": {
+          "title": "Create Inventory Batch",
+          "heading": "Add Inventory Batch",
+          "product": "Product",
+          "submit": "Create Batch"
+        },
+        "edit": {
+          "title": "Edit Inventory",
+          "heading": "Edit Inventory Batch",
+          "costPriceHint": "If cost price changes, linked damaged-goods costs may be recalculated.",
+          "submit": "Update Batch"
+        },
+        "show": {
+          "title": "Inventory Details",
+          "heading": "Inventory Batch",
+          "backToProductInventory": "Back to Product Inventory",
+          "currentBatch": "Current Batch",
+          "recentMovements": "Recent Movements",
+          "emptyMovements": "No movements yet.",
+          "columns": {
+            "type": "Type",
+            "qtyChange": "Qty Change",
+            "reason": "Reason",
+            "expiry": "Expiry",
+            "batch": "Batch",
+            "date": "Date"
+          }
+        },
+        "product": {
+          "title": "Product Batches",
+          "totalStock": "Total stock",
+          "addBatch": "+ Add Batch",
+          "batches": "Batches",
+          "emptyBatches": "No batches for this product."
+        }
       },
       "categories": {
-        "index": { "title": "Categories" },
-        "create": { "title": "Create Category" },
-        "edit": { "title": "Edit Category" },
-        "show": { "title": "Category Details" }
+        "form": {
+          "arabicName": "Arabic Name",
+          "englishName": "English Name",
+          "categoryImage": "Category Image",
+          "featured": "Featured",
+          "saving": "Saving...",
+          "updating": "Updating..."
+        },
+        "index": {
+          "title": "Categories",
+          "heading": "Categories",
+          "subtitle": "Manage product categories.",
+          "addCategory": "+ Add Category",
+          "deleteConfirm": "Delete this category?",
+          "empty": "No categories found.",
+          "columns": {
+            "id": "ID",
+            "arabicName": "Arabic Name",
+            "englishName": "English Name",
+            "featured": "Featured"
+          }
+        },
+        "create": {
+          "title": "Create Category",
+          "heading": "Create Category",
+          "submit": "Create Category"
+        },
+        "edit": {
+          "title": "Edit Category",
+          "heading": "Edit Category",
+          "submit": "Update Category"
+        },
+        "show": {
+          "title": "Category Details",
+          "subtitle": "Category details and linked products.",
+          "categoryInformation": "Category Information",
+          "products": "Products",
+          "addProduct": "+ Add Product",
+          "emptyProducts": "No products in this category.",
+          "columns": {
+            "name": "Name",
+            "price": "Price",
+            "stock": "Stock",
+            "featured": "Featured"
+          }
+        }
       },
       "companies": {
-        "index": { "title": "Companies" },
-        "create": { "title": "Create Company" },
-        "edit": { "title": "Edit Company" },
-        "show": { "title": "Company Details" }
+        "form": {
+          "arabicName": "Arabic Name",
+          "englishName": "English Name",
+          "logo": "Logo",
+          "saving": "Saving...",
+          "updating": "Updating..."
+        },
+        "index": {
+          "title": "Companies",
+          "heading": "Companies",
+          "subtitle": "Manage product suppliers and brands.",
+          "addCompany": "+ Add Company",
+          "deleteConfirm": "Delete this company?",
+          "empty": "No companies found.",
+          "columns": {
+            "id": "ID",
+            "englishName": "English Name",
+            "arabicName": "Arabic Name"
+          }
+        },
+        "create": {
+          "title": "Create Company",
+          "heading": "Create Company",
+          "submit": "Create Company"
+        },
+        "edit": {
+          "title": "Edit Company",
+          "heading": "Edit Company",
+          "submit": "Update Company"
+        },
+        "show": {
+          "title": "Company Details",
+          "subtitle": "Company profile and linked products.",
+          "companyInformation": "Company Information",
+          "products": "Products",
+          "addProduct": "+ Add Product",
+          "emptyProducts": "No products for this company.",
+          "columns": {
+            "name": "Name",
+            "price": "Price",
+            "stock": "Stock",
+            "featured": "Featured"
+          }
+        }
       },
       "tags": {
-        "index": { "title": "Tags" },
-        "create": { "title": "Create Tag" },
-        "edit": { "title": "Edit Tag" },
-        "show": { "title": "Tag Details" }
+        "form": {
+          "arabicName": "Arabic Name",
+          "englishName": "English Name",
+          "saving": "Saving...",
+          "updating": "Updating..."
+        },
+        "index": {
+          "title": "Tags",
+          "heading": "Tags",
+          "subtitle": "Manage product tags.",
+          "addTag": "+ Add Tag",
+          "deleteConfirm": "Delete this tag?",
+          "empty": "No tags found.",
+          "columns": {
+            "id": "ID",
+            "englishName": "English Name",
+            "arabicName": "Arabic Name"
+          }
+        },
+        "create": {
+          "title": "Create Tag",
+          "heading": "Create Tag",
+          "submit": "Create Tag"
+        },
+        "edit": {
+          "title": "Edit Tag",
+          "heading": "Edit Tag",
+          "submit": "Update Tag"
+        },
+        "show": {
+          "title": "Tag Details",
+          "subtitle": "Tag details and linked products.",
+          "tagInformation": "Tag Information",
+          "products": "Products",
+          "addProduct": "+ Add Product",
+          "emptyProducts": "No products for this tag.",
+          "columns": {
+            "name": "Name",
+            "price": "Price",
+            "stock": "Stock",
+            "featured": "Featured"
+          }
+        }
       },
       "damagedGoods": {
-        "index": { "title": "Damaged Goods" },
-        "create": { "title": "Register Damaged Goods" },
-        "show": { "title": "Damaged Goods Details" }
+        "form": {
+          "product": "Product",
+          "selectProduct": "Select product",
+          "inventoryBatch": "Inventory Batch",
+          "selectBatch": "Select batch",
+          "invoice": "Invoice",
+          "quantity": "Quantity",
+          "reason": "Reason",
+          "saving": "Saving..."
+        },
+        "index": {
+          "title": "Damaged Goods",
+          "heading": "Damaged Goods",
+          "subtitle": "Track and audit damaged stock records.",
+          "addRecord": "+ Add Record",
+          "deleteConfirm": "Delete this damaged goods record? This will reverse stock and linked loss adjustment.",
+          "empty": "No damaged goods records.",
+          "columns": {
+            "product": "Product",
+            "quantity": "Quantity",
+            "reason": "Reason",
+            "date": "Date"
+          }
+        },
+        "create": {
+          "title": "Register Damaged Goods",
+          "heading": "Register Damaged Goods",
+          "subtitle": "This record will deduct stock from the selected inventory batch.",
+          "submit": "Save Record"
+        },
+        "show": {
+          "title": "Damaged Goods Details",
+          "heading": "Damaged Goods",
+          "subtitle": "View item, batch, and linked loss details.",
+          "createdAt": "Created At",
+          "updatedAt": "Updated At",
+          "batch": "Batch",
+          "batchExpiry": "Batch Expiry",
+          "totalLoss": "Total Loss",
+          "na": "N/A",
+          "openProductInventory": "Open Product Inventory",
+          "openLinkedAdjustment": "Open Linked Adjustment"
+        }
       },
       "adjustments": {
-        "index": { "title": "Financial Adjustments" },
-        "create": { "title": "Create Adjustment" },
-        "edit": { "title": "Edit Adjustment" },
-        "show": { "title": "Adjustment Details" }
+        "form": {
+          "amount": "Amount",
+          "adjustmentType": "Adjustment Type",
+          "select": "Select",
+          "selectType": "Select type",
+          "gain": "Gain",
+          "loss": "Loss",
+          "date": "Date",
+          "reason": "Reason",
+          "saving": "Saving...",
+          "updating": "Updating..."
+        },
+        "index": {
+          "title": "Financial Adjustments",
+          "heading": "Financial Adjustments",
+          "subtitle": "Track gain and loss entries.",
+          "addAdjustment": "+ Add Adjustment",
+          "deleteConfirm": "Delete this adjustment?",
+          "empty": "No adjustments found.",
+          "damagedGoods": "Damaged Goods",
+          "columns": {
+            "id": "ID"
+          }
+        },
+        "create": {
+          "title": "Create Adjustment",
+          "heading": "Create Adjustment",
+          "submit": "Save Adjustment"
+        },
+        "edit": {
+          "title": "Edit Adjustment",
+          "heading": "Edit Adjustment",
+          "submit": "Update Adjustment"
+        },
+        "show": {
+          "title": "Adjustment Details",
+          "heading": "Adjustment",
+          "subtitle": "Review financial adjustment details.",
+          "createdAt": "Created At",
+          "updatedAt": "Updated At",
+          "openLinkedDamagedGoods": "Open Linked Damaged Goods"
+        }
       },
       "delivery": {
-        "index": { "title": "Delivery Team" },
-        "create": { "title": "Create Delivery Person" },
-        "edit": { "title": "Edit Delivery Person" },
-        "show": { "title": "Delivery Details" }
+        "status": {
+          "available": "Available",
+          "busy": "Busy",
+          "inactive": "Inactive"
+        },
+        "form": {
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "phone": "Phone",
+          "phonePlus": "Phone Plus",
+          "additionalInfo": "Additional Info",
+          "saving": "Saving...",
+          "updating": "Updating..."
+        },
+        "index": {
+          "title": "Delivery Team",
+          "heading": "Delivery Team",
+          "subtitle": "Manage delivery staff and order assignments.",
+          "addDeliveryPerson": "+ Add Delivery Person",
+          "deleteConfirm": "Delete this delivery person?",
+          "empty": "No delivery staff found.",
+          "id": "ID",
+          "copy": "Copy",
+          "orders": "Orders"
+        },
+        "create": {
+          "title": "Create Delivery Person",
+          "heading": "Create Delivery Person",
+          "submit": "Create"
+        },
+        "edit": {
+          "title": "Edit Delivery Person",
+          "heading": "Edit Delivery Person",
+          "submit": "Update"
+        },
+        "show": {
+          "title": "Delivery Details",
+          "subtitle": "Delivery profile and assigned orders.",
+          "assignedOrders": "Assigned Orders",
+          "manualOrder": "Manual Order",
+          "emptyOrders": "No assigned orders.",
+          "columns": {
+            "order": "Order",
+            "customer": "Customer",
+            "total": "Total",
+            "date": "Date"
+          }
+        }
       },
       "settings": {
         "index": { "title": "Settings" }

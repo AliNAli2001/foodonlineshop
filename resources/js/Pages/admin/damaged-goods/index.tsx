@@ -29,7 +29,7 @@ export default function DamagedGoodsIndex() {
       : [];
 
   const removeRow = (id: number) => {
-    if (!window.confirm('Delete this damaged goods record? This will reverse stock and linked loss adjustment.')) return;
+    if (!window.confirm(t('admin.pages.damagedGoods.index.deleteConfirm'))) return;
     router.delete(`/admin/damaged-goods/${id}`);
   };
 
@@ -38,15 +38,15 @@ export default function DamagedGoodsIndex() {
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white">Damaged Goods</h1>
-            <p className="text-sm text-slate-300">Track and audit damaged stock records.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.damagedGoods.index.heading')}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.damagedGoods.index.subtitle')}</p>
           </div>
           <div className="flex gap-2">
             <Link href="/admin/damaged-goods/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
-              + Add Record
+              {t('admin.pages.damagedGoods.index.addRecord')}
             </Link>
             <Link href="/admin/dashboard" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">
-              Back
+              {t('common.back')}
             </Link>
           </div>
         </section>
@@ -56,7 +56,13 @@ export default function DamagedGoodsIndex() {
             <table className="min-w-full">
               <thead className="bg-white/[0.03]">
                 <tr>
-                  {['Product', 'Quantity', 'Reason', 'Date', 'Actions'].map((h) => (
+                  {[
+                    t('admin.pages.damagedGoods.index.columns.product'),
+                    t('admin.pages.damagedGoods.index.columns.quantity'),
+                    t('admin.pages.damagedGoods.index.columns.reason'),
+                    t('admin.pages.damagedGoods.index.columns.date'),
+                    t('common.actions'),
+                  ].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>
                   ))}
                 </tr>
@@ -64,7 +70,7 @@ export default function DamagedGoodsIndex() {
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-400">No damaged goods records.</td>
+                    <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-400">{t('admin.pages.damagedGoods.index.empty')}</td>
                   </tr>
                 ) : (
                   rows.map((r) => (

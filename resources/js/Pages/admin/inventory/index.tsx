@@ -29,28 +29,28 @@ export default function InventoryIndex() {
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white">Inventory Management</h1>
-            <p className="text-sm text-slate-300">Track products and open batch-level inventory details.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.inventory.index.heading')}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.inventory.index.subtitle')}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {isLowStockRoute ? (
-              <Link href="/admin/inventory" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">All Products</Link>
+              <Link href="/admin/inventory" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.inventory.index.allProducts')}</Link>
             ) : (
-              <Link href="/admin/inventory/low-stock" className="rounded-xl border border-amber-300/30 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-200 hover:bg-amber-400/20">Low Stock Products</Link>
+              <Link href="/admin/inventory/low-stock" className="rounded-xl border border-amber-300/30 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-200 hover:bg-amber-400/20">{t('admin.pages.inventory.index.lowStockProducts')}</Link>
             )}
-            <Link href="/admin/dashboard" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">Dashboard</Link>
+            <Link href="/admin/dashboard" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('admin.nav.dashboard')}</Link>
           </div>
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {rows.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-sm text-slate-400">No products found.</div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-sm text-slate-400">{t('admin.pages.inventory.index.empty')}</div>
           ) : (
             rows.map((product) => (
               <article key={product.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                <h3 className="font-semibold text-white">{product.name_en || product.name_ar || `Product #${product.id}`}</h3>
-                <p className="mt-1 text-sm text-slate-300">Stock: {product.stock_available_quantity ?? 0}</p>
-                <Link href={`/admin/inventory/${product.id}/batches`} className="mt-3 inline-flex rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20">View Details</Link>
+                <h3 className="font-semibold text-white">{product.name_en || product.name_ar || `${t('admin.pages.inventory.index.product')} #${product.id}`}</h3>
+                <p className="mt-1 text-sm text-slate-300">{t('admin.pages.inventory.index.stock')}: {product.stock_available_quantity ?? 0}</p>
+                <Link href={`/admin/inventory/${product.id}/batches`} className="mt-3 inline-flex rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('admin.pages.inventory.index.viewDetails')}</Link>
               </article>
             ))
           )}

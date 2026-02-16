@@ -33,12 +33,12 @@ function formatDate(value?: string | null) {
   return date.toLocaleString();
 }
 
-function customerName(order: Order) {
+function customerName(order: Order, manualOrderLabel: string) {
   if (order.client_id) {
     const full = `${order.client?.first_name || ''} ${order.client?.last_name || ''}`.trim();
     return full || '-';
   }
-  return order.client_name || 'Manual Order';
+  return order.client_name || manualOrderLabel;
 }
 
 export default function DeliveryShow() {
@@ -52,7 +52,7 @@ export default function DeliveryShow() {
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
             <h1 className="text-2xl font-bold text-white">{delivery.full_name || `${delivery.first_name} ${delivery.last_name}`}</h1>
-            <p className="text-sm text-slate-300">Delivery profile and assigned orders.</p>
+            <p className="text-sm text-slate-300">{t('admin.pages.delivery.show.subtitle')}</p>
           </div>
           <div className="flex gap-2">
             <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">{t('common.edit')}</Link>
@@ -62,14 +62,14 @@ export default function DeliveryShow() {
 
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-slate-200">
           <div className="grid gap-3 md:grid-cols-2">
-            <Info label="Phone" value={delivery.phone} />
-            <Info label="Phone Plus" value={delivery.phone_plus || '-'} />
-            <Info label="Email" value={delivery.email || '-'} />
-            <Info label="Status" value={delivery.status} />
+            <Info label={t('admin.pages.delivery.form.phone')} value={delivery.phone} />
+            <Info label={t('admin.pages.delivery.form.phonePlus')} value={delivery.phone_plus || '-'} />
+            <Info label={t('common.email')} value={delivery.email || '-'} />
+            <Info label={t('common.status')} value={delivery.status === 'available' ? t('admin.pages.delivery.status.available') : delivery.status === 'busy' ? t('admin.pages.delivery.status.busy') : t('admin.pages.delivery.status.inactive')} />
           </div>
           {delivery.info ? (
             <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/40 p-4">
-              <p className="mb-1 text-xs uppercase tracking-[0.12em] text-slate-400">Additional Info</p>
+              <p className="mb-1 text-xs uppercase tracking-[0.12em] text-slate-400">{t('admin.pages.delivery.form.additionalInfo')}</p>
               <p>{delivery.info}</p>
             </div>
           ) : null}
@@ -77,14 +77,21 @@ export default function DeliveryShow() {
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
           <div className="border-b border-white/10 px-4 py-3">
-            <h2 className="text-lg font-semibold text-white">Assigned Orders</h2>
+            <h2 className="text-lg font-semibold text-white">{t('admin.pages.delivery.show.assignedOrders')}</h2>
           </div>
 
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead className="bg-white/[0.03]">
                 <tr>
-                  {['Order', 'Customer', 'Total', 'Status', 'Date', 'Action'].map((h) => (
+                  {[
+                    t('admin.pages.delivery.show.columns.order'),
+                    t('admin.pages.delivery.show.columns.customer'),
+                    t('admin.pages.delivery.show.columns.total'),
+                    t('common.status'),
+                    t('admin.pages.delivery.show.columns.date'),
+                    t('common.actions'),
+                  ].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>
                   ))}
                 </tr>
@@ -92,13 +99,13 @@ export default function DeliveryShow() {
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">No assigned orders.</td>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">{t('admin.pages.delivery.show.emptyOrders')}</td>
                   </tr>
                 ) : (
                   rows.map((order) => (
                     <tr key={order.id} className="border-t border-white/10">
                       <td className="px-4 py-3 text-sm text-slate-200">#{order.id}</td>
-                      <td className="px-4 py-3 text-sm text-slate-200">{customerName(order)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-200">{customerName(order, t('admin.pages.delivery.show.manualOrder'))}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">${Number(order.total_amount ?? 0).toFixed(2)}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{order.status || '-'}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{formatDate(order.order_date || order.created_at)}</td>

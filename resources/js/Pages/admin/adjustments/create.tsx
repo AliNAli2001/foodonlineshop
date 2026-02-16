@@ -11,13 +11,13 @@ export default function AdjustmentsCreate() {
   return (
     <AdminLayout title={t('admin.pages.adjustments.create.title')}>
       <div className="mx-auto max-w-3xl space-y-6">
-        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><h1 className="text-2xl font-bold text-white">Create Adjustment</h1></section>
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><h1 className="text-2xl font-bold text-white">{t('admin.pages.adjustments.create.heading')}</h1></section>
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <Field label="Amount" error={errors.quantity}><input type="number" value={data.quantity} onChange={(e) => setData('quantity', e.target.value)} className={inputClass} required /></Field>
-          <Field label="Adjustment Type" error={errors.adjustment_type}><select value={data.adjustment_type} onChange={(e) => setData('adjustment_type', e.target.value)} className={inputClass} required><option value="">Select</option><option value="gain">Gain</option><option value="loss">Loss</option></select></Field>
-          <Field label="Date" error={errors.date}><input type="date" value={data.date} onChange={(e) => setData('date', e.target.value)} className={inputClass} required /></Field>
-          <Field label="Reason" error={errors.reason}><textarea rows={4} value={data.reason} onChange={(e) => setData('reason', e.target.value)} className={inputClass} required /></Field>
-          <div className="flex gap-3"><button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? 'Saving...' : 'Save Adjustment'}</button><Link href="/admin/adjustments" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link></div>
+          <Field label={t('admin.pages.adjustments.form.amount')} error={errors.quantity}><input type="number" value={data.quantity} onChange={(e) => setData('quantity', e.target.value)} className={inputClass} required /></Field>
+          <Field label={t('admin.pages.adjustments.form.adjustmentType')} error={errors.adjustment_type}><select value={data.adjustment_type} onChange={(e) => setData('adjustment_type', e.target.value)} className={inputClass} required><option value="">{t('admin.pages.adjustments.form.select')}</option><option value="gain">{t('admin.pages.adjustments.form.gain')}</option><option value="loss">{t('admin.pages.adjustments.form.loss')}</option></select></Field>
+          <Field label={t('admin.pages.adjustments.form.date')} error={errors.date}><input type="date" value={data.date} onChange={(e) => setData('date', e.target.value)} className={inputClass} required /></Field>
+          <Field label={t('admin.pages.adjustments.form.reason')} error={errors.reason}><textarea rows={4} value={data.reason} onChange={(e) => setData('reason', e.target.value)} className={inputClass} required /></Field>
+          <div className="flex gap-3"><button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? t('admin.pages.adjustments.form.saving') : t('admin.pages.adjustments.create.submit')}</button><Link href="/admin/adjustments" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link></div>
         </form>
       </div>
     </AdminLayout>

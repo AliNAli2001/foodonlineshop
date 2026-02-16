@@ -10,7 +10,7 @@ export default function TagsIndex() {
   const rows = Array.isArray(tags?.data) ? tags.data : Array.isArray(tags) ? tags : [];
 
   const removeTag = (id: number) => {
-    if (!window.confirm('Delete this tag?')) return;
+    if (!window.confirm(t('admin.pages.tags.index.deleteConfirm'))) return;
     router.delete(`/admin/tags/${id}`);
   };
 
@@ -18,16 +18,21 @@ export default function TagsIndex() {
     <AdminLayout title={t('admin.pages.tags.index.title')}>
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <div><h1 className="text-2xl font-bold text-white">Tags</h1><p className="text-sm text-slate-300">Manage product tags.</p></div>
-          <Link href="/admin/tags/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">+ Add Tag</Link>
+          <div><h1 className="text-2xl font-bold text-white">{t('admin.pages.tags.index.heading')}</h1><p className="text-sm text-slate-300">{t('admin.pages.tags.index.subtitle')}</p></div>
+          <Link href="/admin/tags/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.tags.index.addTag')}</Link>
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
           <div className="overflow-x-auto">
             <table className="min-w-full">
-              <thead className="bg-white/[0.03]"><tr>{['ID', 'English Name', 'Arabic Name', 'Actions'].map((h) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}</tr></thead>
+              <thead className="bg-white/[0.03]"><tr>{[
+                t('admin.pages.tags.index.columns.id'),
+                t('admin.pages.tags.index.columns.englishName'),
+                t('admin.pages.tags.index.columns.arabicName'),
+                t('common.actions'),
+              ].map((h) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}</tr></thead>
               <tbody>
-                {rows.length === 0 ? <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-400">No tags found.</td></tr> : rows.map((tag: any) => (
+                {rows.length === 0 ? <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-400">{t('admin.pages.tags.index.empty')}</td></tr> : rows.map((tag: any) => (
                   <tr key={tag.id} className="border-t border-white/10">
                     <td className="px-4 py-3 text-sm text-slate-200">{tag.id}</td>
                     <td className="px-4 py-3 text-sm text-slate-200">{tag.name_en}</td>

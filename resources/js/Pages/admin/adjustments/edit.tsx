@@ -38,11 +38,11 @@ export default function AdjustmentsEdit() {
     <AdminLayout title={t('admin.pages.adjustments.edit.title')}>
       <div className="mx-auto max-w-3xl space-y-6">
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <h1 className="text-2xl font-bold text-white">Edit Adjustment</h1>
+          <h1 className="text-2xl font-bold text-white">{t('admin.pages.adjustments.edit.heading')}</h1>
         </section>
 
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <Field label="Amount" error={errors.quantity}>
+          <Field label={t('admin.pages.adjustments.form.amount')} error={errors.quantity}>
             <input
               type="number"
               step="0.01"
@@ -52,20 +52,20 @@ export default function AdjustmentsEdit() {
             />
           </Field>
 
-          <Field label="Adjustment Type" error={errors.adjustment_type}>
+          <Field label={t('admin.pages.adjustments.form.adjustmentType')} error={errors.adjustment_type}>
             <select
               value={data.adjustment_type}
               onChange={(e) => setData('adjustment_type', e.target.value as 'gain' | 'loss')}
               className={inputClass}
               required
             >
-              <option value="">Select type</option>
-              <option value="gain">Gain</option>
-              <option value="loss">Loss</option>
+              <option value="">{t('admin.pages.adjustments.form.selectType')}</option>
+              <option value="gain">{t('admin.pages.adjustments.form.gain')}</option>
+              <option value="loss">{t('admin.pages.adjustments.form.loss')}</option>
             </select>
           </Field>
 
-          <Field label="Date" error={errors.date}>
+          <Field label={t('admin.pages.adjustments.form.date')} error={errors.date}>
             <input
               type="date"
               value={data.date}
@@ -75,7 +75,7 @@ export default function AdjustmentsEdit() {
             />
           </Field>
 
-          <Field label="Reason" error={errors.reason}>
+          <Field label={t('admin.pages.adjustments.form.reason')} error={errors.reason}>
             <textarea
               rows={4}
               value={data.reason}
@@ -87,10 +87,10 @@ export default function AdjustmentsEdit() {
 
           <div className="flex gap-3">
             <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">
-              {processing ? 'Updating...' : 'Update Adjustment'}
+              {processing ? t('admin.pages.adjustments.form.updating') : t('admin.pages.adjustments.edit.submit')}
             </button>
             <Link href="/admin/adjustments" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">
-              Cancel
+              {t('common.cancel')}
             </Link>
           </div>
         </form>

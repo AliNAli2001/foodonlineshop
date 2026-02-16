@@ -32,40 +32,40 @@ export default function AdjustmentsShow() {
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white">Adjustment #{adjustment.id}</h1>
-            <p className="text-sm text-slate-300">Review financial adjustment details.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.adjustments.show.heading')} #{adjustment.id}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.adjustments.show.subtitle')}</p>
           </div>
           <div className="flex gap-2">
             {!isDamagedGoodsLinked && (
               <Link href={`/admin/adjustments/${adjustment.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">
-                Edit
+                {t('common.edit')}
               </Link>
             )}
             <Link href="/admin/adjustments" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">
-              Back
+              {t('common.back')}
             </Link>
           </div>
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-slate-200">
           <div className="grid gap-3 md:grid-cols-2">
-            <Info label="ID" value={String(adjustment.id)} />
-            <Info label="Amount" value={adjustment.quantity != null ? String(adjustment.quantity) : '-'} />
-            <Info label="Type" value={adjustment.adjustment_type === 'gain' ? 'Gain' : 'Loss'} />
-            <Info label="Date" value={formatDate(adjustment.date)} />
-            <Info label="Created At" value={formatDate(adjustment.created_at)} />
-            <Info label="Updated At" value={formatDate(adjustment.updated_at)} />
+            <Info label={t('admin.pages.adjustments.index.columns.id')} value={String(adjustment.id)} />
+            <Info label={t('admin.pages.adjustments.form.amount')} value={adjustment.quantity != null ? String(adjustment.quantity) : '-'} />
+            <Info label={t('admin.pages.adjustments.form.adjustmentType')} value={adjustment.adjustment_type === 'gain' ? t('admin.pages.adjustments.form.gain') : t('admin.pages.adjustments.form.loss')} />
+            <Info label={t('admin.pages.adjustments.form.date')} value={formatDate(adjustment.date)} />
+            <Info label={t('admin.pages.adjustments.show.createdAt')} value={formatDate(adjustment.created_at)} />
+            <Info label={t('admin.pages.adjustments.show.updatedAt')} value={formatDate(adjustment.updated_at)} />
           </div>
 
           <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/40 p-4">
-            <p className="mb-1 text-xs uppercase tracking-[0.12em] text-slate-400">Reason</p>
+            <p className="mb-1 text-xs uppercase tracking-[0.12em] text-slate-400">{t('admin.pages.adjustments.form.reason')}</p>
             <p>{adjustment.reason || '-'}</p>
           </div>
 
           {isDamagedGoodsLinked && adjustment.adjustable_id ? (
             <div className="mt-4">
               <Link href={`/admin/damaged-goods/${adjustment.adjustable_id}`} className="inline-flex rounded-lg border border-indigo-300/30 bg-indigo-500/10 px-3 py-1.5 text-xs text-indigo-200 hover:bg-indigo-500/20">
-                Open Linked Damaged Goods
+                {t('admin.pages.adjustments.show.openLinkedDamagedGoods')}
               </Link>
             </div>
           ) : null}

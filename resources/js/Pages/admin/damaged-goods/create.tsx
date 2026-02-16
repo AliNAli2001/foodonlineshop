@@ -44,12 +44,12 @@ export default function DamagedGoodsCreate() {
     <AdminLayout title={t('admin.pages.damagedGoods.create.title')}>
       <div className="mx-auto max-w-4xl space-y-6">
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <h1 className="text-2xl font-bold text-white">Register Damaged Goods</h1>
-          <p className="mt-1 text-sm text-slate-300">This record will deduct stock from the selected inventory batch.</p>
+          <h1 className="text-2xl font-bold text-white">{t('admin.pages.damagedGoods.create.heading')}</h1>
+          <p className="mt-1 text-sm text-slate-300">{t('admin.pages.damagedGoods.create.subtitle')}</p>
         </section>
 
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <Field label="Product" error={errors.product_id}>
+          <Field label={t('admin.pages.damagedGoods.form.product')} error={errors.product_id}>
             <select
               value={data.product_id}
               onChange={(e) => {
@@ -59,14 +59,14 @@ export default function DamagedGoodsCreate() {
               className={inputClass}
               required
             >
-              <option value="">Select product</option>
+              <option value="">{t('admin.pages.damagedGoods.form.selectProduct')}</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>{p.name_en || p.name_ar}</option>
               ))}
             </select>
           </Field>
 
-          <Field label="Inventory Batch" error={errors.inventory_batch_id}>
+          <Field label={t('admin.pages.damagedGoods.form.inventoryBatch')} error={errors.inventory_batch_id}>
             <select
               value={data.inventory_batch_id}
               onChange={(e) => setData('inventory_batch_id', e.target.value)}
@@ -74,16 +74,16 @@ export default function DamagedGoodsCreate() {
               required
               disabled={!data.product_id}
             >
-              <option value="">Select batch</option>
+              <option value="">{t('admin.pages.damagedGoods.form.selectBatch')}</option>
               {batches.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {`Invoice: ${b.batch_number || '-'} | Expiry: ${b.expiry_date ? String(b.expiry_date).slice(0, 10) : '-'} | Available: ${b.available_quantity}`}
+                  {`${t('admin.pages.damagedGoods.form.invoice')}: ${b.batch_number || '-'} | ${t('admin.pages.inventory.form.expiryDate')}: ${b.expiry_date ? String(b.expiry_date).slice(0, 10) : '-'} | ${t('admin.pages.inventory.status.available')}: ${b.available_quantity}`}
                 </option>
               ))}
             </select>
           </Field>
 
-          <Field label="Quantity" error={errors.quantity}>
+          <Field label={t('admin.pages.damagedGoods.form.quantity')} error={errors.quantity}>
             <input
               type="number"
               min="1"
@@ -94,7 +94,7 @@ export default function DamagedGoodsCreate() {
             />
           </Field>
 
-          <Field label="Reason" error={errors.reason}>
+          <Field label={t('admin.pages.damagedGoods.form.reason')} error={errors.reason}>
             <textarea
               rows={3}
               value={data.reason}
@@ -106,10 +106,10 @@ export default function DamagedGoodsCreate() {
 
           <div className="flex gap-3">
             <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">
-              {processing ? 'Saving...' : 'Save Record'}
+              {processing ? t('admin.pages.damagedGoods.form.saving') : t('admin.pages.damagedGoods.create.submit')}
             </button>
             <Link href="/admin/damaged-goods" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">
-              Cancel
+              {t('common.cancel')}
             </Link>
           </div>
         </form>

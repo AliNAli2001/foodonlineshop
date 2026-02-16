@@ -19,12 +19,12 @@ export default function CompaniesCreate() {
   return (
     <AdminLayout title={t('admin.pages.companies.create.title')}>
       <div className="mx-auto max-w-3xl space-y-6">
-        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><h1 className="text-2xl font-bold text-white">Create Company</h1></section>
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"><h1 className="text-2xl font-bold text-white">{t('admin.pages.companies.create.heading')}</h1></section>
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <Field label="Arabic Name" error={errors.name_ar}><input value={data.name_ar} onChange={(e) => setData('name_ar', e.target.value)} className={inputClass} required /></Field>
-          <Field label="English Name" error={errors.name_en}><input value={data.name_en} onChange={(e) => setData('name_en', e.target.value)} className={inputClass} required /></Field>
-          <Field label="Logo" error={errors.logo}><input type="file" accept="image/*" onChange={(e) => setData('logo', e.target.files?.[0] || null)} className={inputClass} /></Field>
-          <div className="flex gap-3"><button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? 'Saving...' : 'Create Company'}</button><Link href="/admin/companies" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link></div>
+          <Field label={t('admin.pages.companies.form.arabicName')} error={errors.name_ar}><input value={data.name_ar} onChange={(e) => setData('name_ar', e.target.value)} className={inputClass} required /></Field>
+          <Field label={t('admin.pages.companies.form.englishName')} error={errors.name_en}><input value={data.name_en} onChange={(e) => setData('name_en', e.target.value)} className={inputClass} required /></Field>
+          <Field label={t('admin.pages.companies.form.logo')} error={errors.logo}><input type="file" accept="image/*" onChange={(e) => setData('logo', e.target.files?.[0] || null)} className={inputClass} /></Field>
+          <div className="flex gap-3"><button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? t('admin.pages.companies.form.saving') : t('admin.pages.companies.create.submit')}</button><Link href="/admin/companies" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link></div>
         </form>
       </div>
     </AdminLayout>

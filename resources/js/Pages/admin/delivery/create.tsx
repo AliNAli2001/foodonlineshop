@@ -26,49 +26,49 @@ export default function DeliveryCreate() {
     <AdminLayout title={t('admin.pages.delivery.create.title')}>
       <div className="mx-auto max-w-3xl space-y-6">
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <h1 className="text-2xl font-bold text-white">Create Delivery Person</h1>
+          <h1 className="text-2xl font-bold text-white">{t('admin.pages.delivery.create.heading')}</h1>
         </section>
 
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="First Name" error={errors.first_name}>
+            <Field label={t('admin.pages.delivery.form.firstName')} error={errors.first_name}>
               <input value={data.first_name} onChange={(e) => setData('first_name', e.target.value)} className={inputClass} required />
             </Field>
-            <Field label="Last Name" error={errors.last_name}>
+            <Field label={t('admin.pages.delivery.form.lastName')} error={errors.last_name}>
               <input value={data.last_name} onChange={(e) => setData('last_name', e.target.value)} className={inputClass} required />
             </Field>
           </div>
 
-          <Field label="Phone" error={errors.phone}>
+          <Field label={t('admin.pages.delivery.form.phone')} error={errors.phone}>
             <input value={data.phone} onChange={(e) => setData('phone', e.target.value)} className={inputClass} required />
           </Field>
 
-          <Field label="Phone Plus" error={errors.phone_plus}>
+          <Field label={t('admin.pages.delivery.form.phonePlus')} error={errors.phone_plus}>
             <input value={data.phone_plus} onChange={(e) => setData('phone_plus', e.target.value)} className={inputClass} />
           </Field>
 
-          <Field label="Email" error={errors.email}>
+          <Field label={t('common.email')} error={errors.email}>
             <input type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} className={inputClass} />
           </Field>
 
-          <Field label="Status" error={errors.status}>
+          <Field label={t('common.status')} error={errors.status}>
             <select value={data.status} onChange={(e) => setData('status', e.target.value as Status)} className={inputClass} required>
-              <option value="available">Available</option>
-              <option value="busy">Busy</option>
-              <option value="inactive">Inactive</option>
+              <option value="available">{t('admin.pages.delivery.status.available')}</option>
+              <option value="busy">{t('admin.pages.delivery.status.busy')}</option>
+              <option value="inactive">{t('admin.pages.delivery.status.inactive')}</option>
             </select>
           </Field>
 
-          <Field label="Additional Info" error={errors.info}>
+          <Field label={t('admin.pages.delivery.form.additionalInfo')} error={errors.info}>
             <textarea rows={4} value={data.info} onChange={(e) => setData('info', e.target.value)} className={inputClass} />
           </Field>
 
           <div className="flex gap-3">
             <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">
-              {processing ? 'Saving...' : 'Create'}
+              {processing ? t('admin.pages.delivery.form.saving') : t('admin.pages.delivery.create.submit')}
             </button>
             <Link href="/admin/delivery" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">
-              Cancel
+              {t('common.cancel')}
             </Link>
           </div>
         </form>

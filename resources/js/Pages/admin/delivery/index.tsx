@@ -31,7 +31,7 @@ export default function DeliveryIndex() {
       : [];
 
   const removeDelivery = (id: number) => {
-    if (!window.confirm('Delete this delivery person?')) return;
+    if (!window.confirm(t('admin.pages.delivery.index.deleteConfirm'))) return;
     router.delete(`/admin/delivery/${id}`);
   };
 
@@ -48,11 +48,11 @@ export default function DeliveryIndex() {
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div>
-            <h1 className="text-2xl font-bold text-white">Delivery Team</h1>
-            <p className="text-sm text-slate-300">Manage delivery staff and order assignments.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.delivery.index.heading')}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.delivery.index.subtitle')}</p>
           </div>
           <Link href="/admin/delivery/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
-            + Add Delivery Person
+            {t('admin.pages.delivery.index.addDeliveryPerson')}
           </Link>
         </section>
 
@@ -60,7 +60,7 @@ export default function DeliveryIndex() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {rows.length === 0 ? (
               <article className="col-span-full rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center text-sm text-slate-400">
-                No delivery staff found.
+                {t('admin.pages.delivery.index.empty')}
               </article>
             ) : (
               rows.map((delivery) => (
@@ -68,20 +68,20 @@ export default function DeliveryIndex() {
                   <div className="mb-4 flex items-start justify-between">
                     <div>
                       <h2 className="text-lg font-semibold text-white">{delivery.full_name || `${delivery.first_name} ${delivery.last_name}`}</h2>
-                      <p className="text-xs text-slate-400">ID: #{delivery.id}</p>
+                      <p className="text-xs text-slate-400">{t('admin.pages.delivery.index.id')}: #{delivery.id}</p>
                     </div>
                     <span className={`rounded-full px-2 py-0.5 text-xs ring-1 ${statusClass(delivery.status)}`}>
-                      {delivery.status}
+                      {delivery.status === 'available' ? t('admin.pages.delivery.status.available') : delivery.status === 'busy' ? t('admin.pages.delivery.status.busy') : t('admin.pages.delivery.status.inactive')}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm text-slate-200">
                     <p className="flex items-center justify-between gap-2">
-                      <span>Phone: {delivery.phone}</span>
-                      <button onClick={() => copy(delivery.phone)} className="rounded-md border border-white/15 px-2 py-0.5 text-xs text-slate-300 hover:bg-white/10">Copy</button>
+                      <span>{t('admin.pages.delivery.form.phone')}: {delivery.phone}</span>
+                      <button onClick={() => copy(delivery.phone)} className="rounded-md border border-white/15 px-2 py-0.5 text-xs text-slate-300 hover:bg-white/10">{t('admin.pages.delivery.index.copy')}</button>
                     </p>
-                    <p>Phone Plus: {delivery.phone_plus || '-'}</p>
-                    <p>Orders: {delivery.orders_count ?? 0}</p>
+                    <p>{t('admin.pages.delivery.form.phonePlus')}: {delivery.phone_plus || '-'}</p>
+                    <p>{t('admin.pages.delivery.index.orders')}: {delivery.orders_count ?? 0}</p>
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
