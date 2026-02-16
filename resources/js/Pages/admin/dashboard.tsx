@@ -52,20 +52,28 @@ function Card({ title, action, children }) {
     );
 }
 
-function TableHead({ children, end = false }) {
+function TableHead({ children, end = false, isRtl = false }) {
     return (
-        <th className={`pb-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 ${end ? '' : 'pr-4'}`}>
+        <th
+            className={`pb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 ${
+                isRtl ? 'text-right' : 'text-left'
+            } ${end ? '' : isRtl ? 'pl-4' : 'pr-4'}`}
+        >
             {children}
         </th>
     );
 }
 
-function TableCell({ children, end = false }) {
-    return <td className={`py-3 text-sm text-slate-200 ${end ? '' : 'pr-4'}`}>{children}</td>;
+function TableCell({ children, end = false, isRtl = false }) {
+    return (
+        <td className={`py-3 text-sm text-slate-200 ${isRtl ? 'text-right' : 'text-left'} ${end ? '' : isRtl ? 'pl-4' : 'pr-4'}`}>
+            {children}
+        </td>
+    );
 }
 
 export default function Dashboard() {
-    const { t } = useI18n();
+    const { t, isRtl } = useI18n();
     const {
         pendingOrders = 0,
         confirmedOrders = 0,
@@ -122,19 +130,19 @@ export default function Dashboard() {
                                 <table className="min-w-full">
                                     <thead>
                                         <tr>
-                                            <TableHead>{t('admin.pages.dashboard.table.product')}</TableHead>
-                                            <TableHead>{t('admin.pages.dashboard.table.available')}</TableHead>
-                                            <TableHead>{t('admin.pages.dashboard.table.alert')}</TableHead>
-                                            <TableHead end>{t('common.actions')}</TableHead>
+                                            <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.product')}</TableHead>
+                                            <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.available')}</TableHead>
+                                            <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.alert')}</TableHead>
+                                            <TableHead end isRtl={isRtl}>{t('common.actions')}</TableHead>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {lowStockProducts.map((product) => (
                                             <tr key={product.id} className="border-t border-white/10">
-                                                <TableCell>{product.name_en}</TableCell>
-                                                <TableCell>{product.stock_available_quantity}</TableCell>
-                                                <TableCell>{product.minimum_alert_quantity}</TableCell>
-                                                <TableCell end>
+                                                <TableCell isRtl={isRtl}>{product.name_en}</TableCell>
+                                                <TableCell isRtl={isRtl}>{product.stock_available_quantity}</TableCell>
+                                                <TableCell isRtl={isRtl}>{product.minimum_alert_quantity}</TableCell>
+                                                <TableCell end isRtl={isRtl}>
                                                     <Link
                                                         href={`/admin/inventory/${product.id}/batches`}
                                                         className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
@@ -158,21 +166,21 @@ export default function Dashboard() {
                                 <table className="min-w-full">
                                     <thead>
                                         <tr>
-                                            <TableHead>{t('admin.pages.dashboard.table.product')}</TableHead>
-                                            <TableHead>{t('admin.pages.dashboard.table.batch')}</TableHead>
-                                            <TableHead>{t('admin.pages.dashboard.table.qty')}</TableHead>
-                                            <TableHead>{t('admin.pages.dashboard.table.expiry')}</TableHead>
-                                            <TableHead end>{t('common.actions')}</TableHead>
+                                            <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.product')}</TableHead>
+                                            <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.batch')}</TableHead>
+                                            <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.qty')}</TableHead>
+                                            <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.expiry')}</TableHead>
+                                            <TableHead end isRtl={isRtl}>{t('common.actions')}</TableHead>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {expiredSoonInventories.map((batch) => (
                                             <tr key={batch.id} className="border-t border-white/10">
-                                                <TableCell>{batch.product?.name_en ?? '-'}</TableCell>
-                                                <TableCell>{batch.batch_number}</TableCell>
-                                                <TableCell>{batch.available_quantity}</TableCell>
-                                                <TableCell>{batch.expiry_date}</TableCell>
-                                                <TableCell end>
+                                                <TableCell isRtl={isRtl}>{batch.product?.name_en ?? '-'}</TableCell>
+                                                <TableCell isRtl={isRtl}>{batch.batch_number}</TableCell>
+                                                <TableCell isRtl={isRtl}>{batch.available_quantity}</TableCell>
+                                                <TableCell isRtl={isRtl}>{batch.expiry_date}</TableCell>
+                                                <TableCell end isRtl={isRtl}>
                                                     <Link
                                                         href={`/admin/inventory/${batch.product_id}/batches`}
                                                         className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
@@ -197,26 +205,26 @@ export default function Dashboard() {
                             <table className="min-w-full">
                                 <thead>
                                     <tr>
-                                        <TableHead>{t('admin.pages.dashboard.table.order')}</TableHead>
-                                        <TableHead>{t('admin.pages.dashboard.table.type')}</TableHead>
-                                        <TableHead>{t('admin.pages.dashboard.table.customer')}</TableHead>
-                                        <TableHead>{t('admin.pages.dashboard.table.total')}</TableHead>
-                                        <TableHead>{t('common.status')}</TableHead>
-                                        <TableHead end>{t('common.actions')}</TableHead>
+                                        <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.order')}</TableHead>
+                                        <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.type')}</TableHead>
+                                        <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.customer')}</TableHead>
+                                        <TableHead isRtl={isRtl}>{t('admin.pages.dashboard.table.total')}</TableHead>
+                                        <TableHead isRtl={isRtl}>{t('common.status')}</TableHead>
+                                        <TableHead end isRtl={isRtl}>{t('common.actions')}</TableHead>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {recentOrders.map((order) => (
                                         <tr key={order.id} className="border-t border-white/10">
-                                            <TableCell>#{order.id}</TableCell>
-                                            <TableCell>{order.client_id ? t('admin.pages.dashboard.recentOrders.typeClient') : t('admin.pages.dashboard.recentOrders.typeManual')}</TableCell>
-                                            <TableCell>
+                                            <TableCell isRtl={isRtl}>#{order.id}</TableCell>
+                                            <TableCell isRtl={isRtl}>{order.client_id ? t('admin.pages.dashboard.recentOrders.typeClient') : t('admin.pages.dashboard.recentOrders.typeManual')}</TableCell>
+                                            <TableCell isRtl={isRtl}>
                                                 {order.client_id
                                                     ? `${order.client?.first_name ?? ''} ${order.client?.last_name ?? ''}`.trim()
                                                     : order.client_name}
                                             </TableCell>
-                                            <TableCell>${Number(order.total_amount ?? 0).toFixed(2)}</TableCell>
-                                            <TableCell>
+                                            <TableCell isRtl={isRtl}>${Number(order.total_amount ?? 0).toFixed(2)}</TableCell>
+                                            <TableCell isRtl={isRtl}>
                                                 <span
                                                     className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${
                                                         statusBadge[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'
@@ -225,7 +233,7 @@ export default function Dashboard() {
                                                     {statusLabel(order.status, t)}
                                                 </span>
                                             </TableCell>
-                                            <TableCell end>
+                                            <TableCell end isRtl={isRtl}>
                                                 <Link
                                                     href={`/admin/orders/${order.id}`}
                                                     className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
