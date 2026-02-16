@@ -30,6 +30,8 @@ export default function OrdersShow() {
     const { t } = useI18n();
     const { order, deliveryPersons = [], availableTransitions = [] } = usePage<any>().props;
     const [rejectOpen, setRejectOpen] = useState(false);
+    const [assignMenuOpen, setAssignMenuOpen] = useState(false);
+    const [deliverySearch, setDeliverySearch] = useState('');
 
     const rejectForm = useForm({ reason: '' });
     const assignForm = useForm({ status: 'delivered', delivery_id: '' });
@@ -73,8 +75,28 @@ export default function OrdersShow() {
 
     const submitAssignDelivered = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        assignForm.post(`/admin/orders/${order.id}/update-status`);
+        assignForm.post(`/admin/orders/${order.id}/update-status`, {
+            onSuccess: () => {
+                setAssignMenuOpen(false);
+                setDeliverySearch('');
+            },
+        });
     };
+
+    const filteredDeliveryPersons = useMemo(() => {
+        const query = deliverySearch.trim().toLowerCase();
+        if (!query) return deliveryPersons;
+        return deliveryPersons.filter((d: any) => {
+            const full = `${d.first_name ?? ''} ${d.last_name ?? ''}`.toLowerCase();
+            const phone = String(d.phone ?? '').toLowerCase();
+            return full.includes(query) || phone.includes(query);
+        });
+    }, [deliveryPersons, deliverySearch]);
+
+    const selectedDelivery = useMemo(
+        () => deliveryPersons.find((d: any) => String(d.id) === String(assignForm.data.delivery_id)),
+        [deliveryPersons, assignForm.data.delivery_id],
+    );
 
     const transitionButtons = useMemo(() => {
         return availableTransitions.map((status: string) => {
@@ -109,23 +131,25 @@ export default function OrdersShow() {
         });
     }, [availableTransitions, order.status, canDeliverWithAssign]);
 
-    const preparedMessages = [
-        {
-            key: 'confirm',
-            label: t('admin.pages.orders.show.messages.confirmedLabel'),
-            text: t('admin.pages.orders.show.messages.confirmedText', `Order #${order.id} has been confirmed and is being prepared.`),
-        },
-        {
-            key: 'shipped',
-            label: t('admin.pages.orders.show.messages.shippedLabel'),
-            text: t('admin.pages.orders.show.messages.shippedText', `Order #${order.id} is on the way.`),
-        },
-        {
-            key: 'delivered',
-            label: t('admin.pages.orders.show.messages.deliveredLabel'),
-            text: t('admin.pages.orders.show.messages.deliveredText', `Order #${order.id} has been delivered. Thank you.`),
-        },
-    ];
+    const preparedMessages = useMemo(() => {
+        const byStatus: Record<string, Array<{ key: string; labelKey: string; textKey: string }>> = {
+            pending: [{ key: 'pending', labelKey: 'admin.pages.orders.show.messages.templates.pendingLabel', textKey: 'admin.pages.orders.show.messages.templates.pendingText' }],
+            confirmed: [{ key: 'confirmed', labelKey: 'admin.pages.orders.show.messages.templates.confirmedLabel', textKey: 'admin.pages.orders.show.messages.templates.confirmedText' }],
+            shipped: [{ key: 'shipped', labelKey: 'admin.pages.orders.show.messages.templates.shippedLabel', textKey: 'admin.pages.orders.show.messages.templates.shippedText' }],
+            delivered: [{ key: 'delivered', labelKey: 'admin.pages.orders.show.messages.templates.deliveredLabel', textKey: 'admin.pages.orders.show.messages.templates.deliveredText' }],
+            done: [{ key: 'done', labelKey: 'admin.pages.orders.show.messages.templates.doneLabel', textKey: 'admin.pages.orders.show.messages.templates.doneText' }],
+            canceled: [{ key: 'canceled', labelKey: 'admin.pages.orders.show.messages.templates.canceledLabel', textKey: 'admin.pages.orders.show.messages.templates.canceledText' }],
+            rejected: [{ key: 'rejected', labelKey: 'admin.pages.orders.show.messages.templates.rejectedLabel', textKey: 'admin.pages.orders.show.messages.templates.rejectedText' }],
+            returned: [{ key: 'returned', labelKey: 'admin.pages.orders.show.messages.templates.returnedLabel', textKey: 'admin.pages.orders.show.messages.templates.returnedText' }],
+        };
+
+        const rows = byStatus[order.status] || [{ key: 'generic', labelKey: 'admin.pages.orders.show.messages.templates.genericLabel', textKey: 'admin.pages.orders.show.messages.templates.genericText' }];
+        return rows.map((row) => ({
+            key: row.key,
+            label: t(row.labelKey),
+            text: t(row.textKey),
+        }));
+    }, [order.status, t]);
 
     return (
         <AdminLayout title={`${t('admin.pages.orders.show.title')} #${order.id}`}>
@@ -206,27 +230,23 @@ export default function OrdersShow() {
                             )}
 
                             {canDeliverWithAssign && availableTransitions.includes('delivered') && (
-                                <form onSubmit={submitAssignDelivered} className="mt-4 rounded-xl border border-white/10 bg-slate-900/40 p-3">
+                                <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/40 p-3">
                                     <p className="mb-2 text-sm text-slate-200">{t('admin.pages.orders.show.assignBeforeDelivered')}</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        <select
-                                            value={assignForm.data.delivery_id}
-                                            onChange={(e) => assignForm.setData('delivery_id', e.target.value)}
-                                            className="min-w-64 rounded-lg border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white"
-                                            required
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAssignMenuOpen(true)}
+                                            className="rounded-lg border border-cyan-300/30 bg-cyan-500/10 px-3 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-500/20"
                                         >
-                                            <option value="">{t('admin.pages.orders.show.selectDelivery')}</option>
-                                            {deliveryPersons.map((d: any) => (
-                                                <option key={d.id} value={d.id}>
-                                                    {d.first_name} {d.last_name} - {d.phone}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <button type="submit" className="rounded-lg bg-cyan-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
-                                            {t('admin.pages.orders.show.assignAndDelivered')}
+                                            {t('admin.pages.orders.show.openDeliveryMenu')}
                                         </button>
+                                        {selectedDelivery && (
+                                            <p className="text-xs text-slate-300">
+                                                {t('admin.pages.orders.show.selectedDelivery')}: {selectedDelivery.first_name} {selectedDelivery.last_name} ({selectedDelivery.phone})
+                                            </p>
+                                        )}
                                     </div>
-                                </form>
+                                </div>
                             )}
                         </section>
                     </div>
@@ -250,6 +270,9 @@ export default function OrdersShow() {
                         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                             <h3 className="text-lg font-semibold text-white">{t('admin.pages.orders.show.messages.title')}</h3>
                             <p className="mt-1 text-xs text-slate-400">{t('admin.pages.orders.show.messages.subtitle')}</p>
+                            <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-slate-300">
+                                {t('admin.pages.orders.show.messages.forStatus')}: {statusLabel(order.status)}
+                            </p>
 
                             <div className="mt-3 space-y-2">
                                 {preparedMessages.map((msg) => (
@@ -280,6 +303,76 @@ export default function OrdersShow() {
                                 ))}
                             </div>
                         </div>
+
+                        {assignMenuOpen && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+                                <form onSubmit={submitAssignDelivered} className="w-full max-w-2xl rounded-2xl border border-white/10 bg-slate-900 p-5 shadow-2xl">
+                                    <div className="mb-4 flex items-start justify-between gap-3">
+                                        <div>
+                                            <h4 className="text-lg font-semibold text-white">{t('admin.pages.orders.show.deliveryMenuTitle')}</h4>
+                                            <p className="text-xs text-slate-400">{t('admin.pages.orders.show.deliveryMenuSubtitle')}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setAssignMenuOpen(false)}
+                                            className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/10"
+                                        >
+                                            {t('common.cancel')}
+                                        </button>
+                                    </div>
+
+                                    <input
+                                        type="text"
+                                        value={deliverySearch}
+                                        onChange={(e) => setDeliverySearch(e.target.value)}
+                                        placeholder={t('admin.pages.orders.show.searchDeliveryPlaceholder')}
+                                        className="mb-3 w-full rounded-xl border border-white/15 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                    />
+
+                                    <div className="max-h-72 space-y-2 overflow-auto rounded-xl border border-white/10 bg-slate-950/60 p-2">
+                                        {filteredDeliveryPersons.length === 0 ? (
+                                            <p className="px-2 py-3 text-sm text-slate-400">{t('admin.pages.orders.show.noDeliveryMatch')}</p>
+                                        ) : (
+                                            filteredDeliveryPersons.map((d: any) => {
+                                                const active = String(assignForm.data.delivery_id) === String(d.id);
+                                                return (
+                                                    <button
+                                                        key={d.id}
+                                                        type="button"
+                                                        onClick={() => assignForm.setData('delivery_id', String(d.id))}
+                                                        className={`w-full rounded-xl border px-3 py-2 text-left transition ${
+                                                            active
+                                                                ? 'border-cyan-300/40 bg-cyan-500/10'
+                                                                : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'
+                                                        }`}
+                                                    >
+                                                        <p className="text-sm font-medium text-slate-100">{d.first_name} {d.last_name}</p>
+                                                        <p className="text-xs text-slate-400">{d.phone}</p>
+                                                    </button>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+
+                                    <div className="mt-4 flex items-center justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAssignMenuOpen(false)}
+                                            className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10"
+                                        >
+                                            {t('common.cancel')}
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={!assignForm.data.delivery_id || assignForm.processing}
+                                            className="rounded-lg bg-cyan-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            {t('admin.pages.orders.show.assignAndDelivered')}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
 
                         {rejectOpen && (
                             <div className="rounded-2xl border border-rose-300/30 bg-rose-500/10 p-4">

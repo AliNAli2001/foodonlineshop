@@ -254,7 +254,18 @@
         "create": {
           "title": "Create Order",
           "subtitle": "Fast order creation with searchable customer and products.",
+          "stepper": {
+            "customer": "Customer",
+            "delivery": "Delivery",
+            "items": "Items",
+            "next": "Next",
+            "previous": "Previous",
+            "validation": "Please complete required fields before moving to the next step."
+          },
           "validationTitle": "Please review form errors.",
+          "validationNoProducts": "Add at least one product before creating the order.",
+          "validationIncompleteProduct": "Every product row must have a selected product or be removed.",
+          "validationInvalidQuantity": "One or more product quantities are invalid.",
           "customerSection": "Customer",
           "searchClient": "Search Existing Client",
           "searchClientPlaceholder": "Name / phone / email",
@@ -283,7 +294,9 @@
           "summary": "Summary",
           "summaryItems": "Items",
           "summaryTotal": "Total",
-          "summaryNote": "This order is created from admin workflow and follows system transitions."
+          "summaryNote": "This order is created from admin workflow and follows system transitions.",
+          "selectProductFirst": "Select a product first to increase quantity.",
+          "reachedMaxStock": "Quantity reached current available stock."
         },
         "show": {
           "title": "Order Details",
@@ -308,6 +321,12 @@
           "confirm": "Confirm",
           "reject": "Reject",
           "assignBeforeDelivered": "Assign delivery person before delivered.",
+          "openDeliveryMenu": "Choose Delivery Person",
+          "selectedDelivery": "Selected",
+          "deliveryMenuTitle": "Select Delivery Person",
+          "deliveryMenuSubtitle": "Pick who will deliver this order, then confirm.",
+          "searchDeliveryPlaceholder": "Search by name or phone",
+          "noDeliveryMatch": "No delivery person matches this search.",
           "selectDelivery": "Select Delivery",
           "assignAndDelivered": "Assign + Delivered",
           "summary": "Summary",
@@ -319,6 +338,7 @@
           "messages": {
             "title": "Prepared Messages",
             "subtitle": "Quick send updates via WhatsApp.",
+            "forStatus": "Suitable for status",
             "confirmedLabel": "Order Confirmed",
             "confirmedText": "Order has been confirmed.",
             "shippedLabel": "Order Shipped",
@@ -326,7 +346,27 @@
             "deliveredLabel": "Order Delivered",
             "deliveredText": "Order has been delivered. Thank you.",
             "sendToCustomer": "Send to Customer",
-            "sendToDelivery": "Send to Delivery"
+            "sendToDelivery": "Send to Delivery",
+            "templates": {
+              "pendingLabel": "Pending Follow-up",
+              "pendingText": "Your order is pending confirmation. We will contact you shortly.",
+              "confirmedLabel": "Confirmed Update",
+              "confirmedText": "Your order has been confirmed and is now being prepared.",
+              "shippedLabel": "Shipped Update",
+              "shippedText": "Your order is out for delivery.",
+              "deliveredLabel": "Delivered Update",
+              "deliveredText": "Your order has been delivered. Thank you for your order.",
+              "doneLabel": "Completed Order",
+              "doneText": "Your order is completed successfully. We appreciate your trust.",
+              "canceledLabel": "Canceled Order",
+              "canceledText": "Your order has been canceled. Contact us if you need any help.",
+              "rejectedLabel": "Rejected Order",
+              "rejectedText": "Your order was rejected. Please contact support for details.",
+              "returnedLabel": "Returned Order",
+              "returnedText": "Your order has been marked as returned. We are available for assistance.",
+              "genericLabel": "Order Update",
+              "genericText": "We are sharing an update regarding your order."
+            }
           }
         }
       },
@@ -676,7 +716,29 @@
         }
       },
       "settings": {
-        "index": { "title": "Settings" }
+        "index": {
+          "title": "Settings",
+          "administration": "Administration",
+          "heading": "System Settings",
+          "subtitle": "Configure pricing and operational guardrails used across orders and inventory.",
+          "saving": "Saving...",
+          "saveSettings": "Save Settings",
+          "applyHint": "Changes are applied immediately after saving.",
+          "fields": {
+            "dollarExchangeRate": {
+              "label": "Dollar Exchange Rate",
+              "hint": "Used where USD-based values are converted in calculations."
+            },
+            "generalMinimumAlertQuantity": {
+              "label": "General Minimum Alert Quantity",
+              "hint": "Default threshold for low-stock warnings."
+            },
+            "maxOrderItems": {
+              "label": "Max Order Items",
+              "hint": "Maximum number of line items allowed in a single order."
+            }
+          }
+        }
       },
       "statistics": {
         "common": {

@@ -254,7 +254,18 @@
         "create": {
           "title": "إنشاء طلب",
           "subtitle": "إنشاء سريع للطلب مع بحث عن العميل والمنتجات.",
+          "stepper": {
+            "customer": "العميل",
+            "delivery": "التوصيل",
+            "items": "العناصر",
+            "next": "التالي",
+            "previous": "السابق",
+            "validation": "يرجى إكمال الحقول المطلوبة قبل الانتقال للخطوة التالية."
+          },
           "validationTitle": "يرجى مراجعة أخطاء النموذج.",
+          "validationNoProducts": "أضف منتجًا واحدًا على الأقل قبل إنشاء الطلب.",
+          "validationIncompleteProduct": "يجب اختيار منتج لكل صف أو حذف الصف الفارغ.",
+          "validationInvalidQuantity": "كمية منتج واحدة أو أكثر غير صحيحة.",
           "customerSection": "بيانات العميل",
           "searchClient": "البحث عن عميل موجود",
           "searchClientPlaceholder": "الاسم / الهاتف / البريد",
@@ -283,7 +294,9 @@
           "summary": "الملخص",
           "summaryItems": "العناصر",
           "summaryTotal": "الإجمالي",
-          "summaryNote": "يتم إنشاء هذا الطلب من لوحة الإدارة ويتبع انتقالات النظام."
+          "summaryNote": "يتم إنشاء هذا الطلب من لوحة الإدارة ويتبع انتقالات النظام.",
+          "selectProductFirst": "اختر منتجًا أولًا لزيادة الكمية.",
+          "reachedMaxStock": "وصلت الكمية إلى الحد المتاح في المخزون."
         },
         "show": {
           "title": "تفاصيل الطلب",
@@ -308,6 +321,12 @@
           "confirm": "تأكيد",
           "reject": "رفض",
           "assignBeforeDelivered": "يجب تعيين موظف توصيل قبل حالة تم التسليم.",
+          "openDeliveryMenu": "اختيار موظف التوصيل",
+          "selectedDelivery": "المحدد",
+          "deliveryMenuTitle": "اختيار موظف التوصيل",
+          "deliveryMenuSubtitle": "اختر من سيقوم بتسليم الطلب ثم أكّد العملية.",
+          "searchDeliveryPlaceholder": "ابحث بالاسم أو رقم الهاتف",
+          "noDeliveryMatch": "لا يوجد موظف توصيل مطابق لنتيجة البحث.",
           "selectDelivery": "اختر موظف التوصيل",
           "assignAndDelivered": "تعيين + تم التسليم",
           "summary": "الملخص",
@@ -319,6 +338,7 @@
           "messages": {
             "title": "رسائل جاهزة",
             "subtitle": "إرسال تحديثات سريعة عبر واتساب.",
+            "forStatus": "مناسبة للحالة",
             "confirmedLabel": "تم تأكيد الطلب",
             "confirmedText": "تم تأكيد الطلب.",
             "shippedLabel": "تم شحن الطلب",
@@ -326,7 +346,27 @@
             "deliveredLabel": "تم تسليم الطلب",
             "deliveredText": "تم تسليم الطلب. شكرًا لك.",
             "sendToCustomer": "إرسال للعميل",
-            "sendToDelivery": "إرسال للتوصيل"
+            "sendToDelivery": "إرسال للتوصيل",
+            "templates": {
+              "pendingLabel": "متابعة الطلب المعلق",
+              "pendingText": "طلبك قيد الانتظار للتأكيد، وسنتواصل معك قريبًا.",
+              "confirmedLabel": "تحديث التأكيد",
+              "confirmedText": "تم تأكيد طلبك وهو الآن قيد التجهيز.",
+              "shippedLabel": "تحديث الشحن",
+              "shippedText": "طلبك خرج للتسليم.",
+              "deliveredLabel": "تحديث التسليم",
+              "deliveredText": "تم تسليم طلبك. شكرًا لطلبك.",
+              "doneLabel": "طلب مكتمل",
+              "doneText": "اكتمل طلبك بنجاح. نقدّر ثقتك بنا.",
+              "canceledLabel": "طلب ملغي",
+              "canceledText": "تم إلغاء طلبك. تواصل معنا إذا احتجت أي مساعدة.",
+              "rejectedLabel": "طلب مرفوض",
+              "rejectedText": "تم رفض طلبك. يرجى التواصل مع الدعم لمعرفة التفاصيل.",
+              "returnedLabel": "طلب مرتجع",
+              "returnedText": "تم وضع طلبك كمرتجع. نحن متاحون للمساعدة.",
+              "genericLabel": "تحديث الطلب",
+              "genericText": "نشارك معك تحديثًا بخصوص طلبك."
+            }
           }
         }
       },
@@ -676,7 +716,29 @@
         }
       },
       "settings": {
-        "index": { "title": "الإعدادات" }
+        "index": {
+          "title": "الإعدادات",
+          "administration": "الإدارة",
+          "heading": "إعدادات النظام",
+          "subtitle": "ضبط إعدادات التسعير وحدود التشغيل المستخدمة في الطلبات والمخزون.",
+          "saving": "جارٍ الحفظ...",
+          "saveSettings": "حفظ الإعدادات",
+          "applyHint": "تُطبق التغييرات مباشرة بعد الحفظ.",
+          "fields": {
+            "dollarExchangeRate": {
+              "label": "سعر صرف الدولار",
+              "hint": "يُستخدم عند تحويل القيم المعتمدة على الدولار في الحسابات."
+            },
+            "generalMinimumAlertQuantity": {
+              "label": "الحد الأدنى العام للتنبيه",
+              "hint": "العتبة الافتراضية لتنبيهات انخفاض المخزون."
+            },
+            "maxOrderItems": {
+              "label": "الحد الأقصى لعناصر الطلب",
+              "hint": "أقصى عدد لعناصر السطر المسموح بها في الطلب الواحد."
+            }
+          }
+        }
       },
       "statistics": {
         "common": {

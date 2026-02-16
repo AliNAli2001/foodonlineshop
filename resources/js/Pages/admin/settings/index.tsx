@@ -1,6 +1,7 @@
 import React from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 function Field({ id, label, hint, error, children }) {
     return (
@@ -16,6 +17,7 @@ function Field({ id, label, hint, error, children }) {
 }
 
 export default function SettingsPage() {
+    const { t } = useI18n();
     const { settings } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
@@ -30,13 +32,13 @@ export default function SettingsPage() {
     };
 
     return (
-        <AdminLayout title="Settings">
+        <AdminLayout title={t('admin.pages.settings.index.title')}>
             <div className="mx-auto max-w-4xl space-y-6">
                 <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/70 via-slate-900/40 to-cyan-950/30 p-6 md:p-8">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Administration</p>
-                    <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">System Settings</h1>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">{t('admin.pages.settings.index.administration')}</p>
+                    <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">{t('admin.pages.settings.index.heading')}</h1>
                     <p className="mt-2 text-sm text-slate-300">
-                        Configure pricing and operational guardrails used across orders and inventory.
+                        {t('admin.pages.settings.index.subtitle')}
                     </p>
                 </section>
 
@@ -44,8 +46,8 @@ export default function SettingsPage() {
                     <div className="grid gap-5 md:grid-cols-2">
                         <Field
                             id="dollar_exchange_rate"
-                            label="Dollar Exchange Rate"
-                            hint="Used where USD-based values are converted in calculations."
+                            label={t('admin.pages.settings.index.fields.dollarExchangeRate.label')}
+                            hint={t('admin.pages.settings.index.fields.dollarExchangeRate.hint')}
                             error={errors.dollar_exchange_rate}
                         >
                             <input
@@ -62,8 +64,8 @@ export default function SettingsPage() {
 
                         <Field
                             id="general_minimum_alert_quantity"
-                            label="General Minimum Alert Quantity"
-                            hint="Default threshold for low-stock warnings."
+                            label={t('admin.pages.settings.index.fields.generalMinimumAlertQuantity.label')}
+                            hint={t('admin.pages.settings.index.fields.generalMinimumAlertQuantity.hint')}
                             error={errors.general_minimum_alert_quantity}
                         >
                             <input
@@ -79,8 +81,8 @@ export default function SettingsPage() {
 
                         <Field
                             id="max_order_items"
-                            label="Max Order Items"
-                            hint="Maximum number of line items allowed in a single order."
+                            label={t('admin.pages.settings.index.fields.maxOrderItems.label')}
+                            hint={t('admin.pages.settings.index.fields.maxOrderItems.hint')}
                             error={errors.max_order_items}
                         >
                             <input
@@ -101,9 +103,9 @@ export default function SettingsPage() {
                             disabled={processing}
                             className="rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                            {processing ? 'Saving...' : 'Save Settings'}
+                            {processing ? t('admin.pages.settings.index.saving') : t('admin.pages.settings.index.saveSettings')}
                         </button>
-                        <p className="text-xs text-slate-400">Changes are applied immediately after saving.</p>
+                        <p className="text-xs text-slate-400">{t('admin.pages.settings.index.applyHint')}</p>
                     </div>
                 </form>
             </div>

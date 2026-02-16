@@ -125,6 +125,9 @@ export default function OrdersCreate() {
     const [clientResults, setClientResults] = useState<ClientResult[]>([]);
     const [clientSearch, setClientSearch] = useState('');
     const [productResults, setProductResults] = useState<Record<number, ProductResult[]>>({});
+    const [step, setStep] = useState<1 | 2 | 3>(1);
+    const [stepError, setStepError] = useState('');
+    const [productSubmitError, setProductSubmitError] = useState('');
 
     const { data, setData, post, processing, errors } = useForm({
         client_id: '',
@@ -242,10 +245,15 @@ export default function OrdersCreate() {
 
     const selectProduct = (rowId: number, product: ProductResult) => {
         if (product.disabled) return;
+        const currentLine = data.products.find((line: OrderLine) => line.row_id === rowId);
+        const maxStock = Number(product.available_stock || 0);
+        const currentQty = Number(currentLine?.quantity || 1);
+        const safeQty = maxStock > 0 ? Math.min(Math.max(currentQty, 1), maxStock) : Math.max(currentQty, 1);
 
         updateLine(rowId, {
             product_id: String(product.id),
             product_text: product.text,
+            quantity: safeQty,
             unit_price: Number(product.price || 0),
             available_stock: Number(product.available_stock || 0),
             search: '',
@@ -285,6 +293,31 @@ export default function OrdersCreate() {
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        const selectedLines = data.products.filter((line: OrderLine) => line.product_id);
+        if (selectedLines.length === 0) {
+            setProductSubmitError(t('admin.pages.orders.create.validationNoProducts'));
+            return;
+        }
+
+        const hasIncompleteLine = data.products.some((line: OrderLine) => !line.product_id);
+        if (hasIncompleteLine) {
+            setProductSubmitError(t('admin.pages.orders.create.validationIncompleteProduct'));
+            return;
+        }
+
+        const hasInvalidQty = selectedLines.some((line: OrderLine) => {
+            const qty = Number(line.quantity || 0);
+            if (qty <= 0) return true;
+            if (line.available_stock > 0 && qty > line.available_stock) return true;
+            return false;
+        });
+        if (hasInvalidQty) {
+            setProductSubmitError(t('admin.pages.orders.create.validationInvalidQuantity'));
+            return;
+        }
+
+        setProductSubmitError('');
+
         const payload = {
             ...data,
             products: data.products
@@ -296,6 +329,63 @@ export default function OrdersCreate() {
         };
 
         post('/admin/orders', { data: payload });
+    };
+
+    const hasSelectedItems = data.products.some((line: OrderLine) => line.product_id && Number(line.quantity) > 0);
+
+    const isStepValid = (currentStep: 1 | 2 | 3) => {
+        if (currentStep === 1) {
+            return Boolean(data.client_name.trim() && data.client_phone_number.trim());
+        }
+
+        if (currentStep === 2) {
+            if (!data.order_source || !data.delivery_method) return false;
+            if (showAddressFields && !data.address_details.trim()) return false;
+            return true;
+        }
+
+        return hasSelectedItems;
+    };
+
+    const goNextStep = () => {
+        if (!isStepValid(step)) {
+            setStepError(t('admin.pages.orders.create.stepper.validation'));
+            return;
+        }
+
+        setStepError('');
+        setStep((prev) => (prev < 3 ? ((prev + 1) as 1 | 2 | 3) : prev));
+    };
+
+    const goPrevStep = () => {
+        setStepError('');
+        setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3) : prev));
+    };
+
+    const setStepDirect = (target: 1 | 2 | 3) => {
+        if (target < step) {
+            setStepError('');
+            setStep(target);
+            return;
+        }
+
+        if (target > step && !isStepValid(step)) {
+            setStepError(t('admin.pages.orders.create.stepper.validation'));
+            return;
+        }
+
+        setStepError('');
+        setStep(target);
+    };
+
+    const changeLineQuantity = (rowId: number, nextQty: number) => {
+        const line = data.products.find((row: OrderLine) => row.row_id === rowId);
+        if (!line) return;
+
+        const minimum = 1;
+        const maximum = line.available_stock > 0 ? line.available_stock : Number.POSITIVE_INFINITY;
+        const safeQty = Math.max(minimum, Math.min(nextQty, maximum));
+        updateLine(rowId, { quantity: safeQty });
     };
 
     return (
@@ -320,6 +410,40 @@ export default function OrdersCreate() {
 
                 <form onSubmit={submit} className="grid gap-6 xl:grid-cols-3">
                     <div className="space-y-6 xl:col-span-2">
+                        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                            <div className="grid gap-2 sm:grid-cols-3">
+                                {[
+                                    { id: 1 as const, label: t('admin.pages.orders.create.stepper.customer') },
+                                    { id: 2 as const, label: t('admin.pages.orders.create.stepper.delivery') },
+                                    { id: 3 as const, label: t('admin.pages.orders.create.stepper.items') },
+                                ].map((item) => {
+                                    const active = step === item.id;
+                                    const done = step > item.id;
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            onClick={() => setStepDirect(item.id)}
+                                            className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                                                active
+                                                    ? 'border-cyan-300/40 bg-cyan-400/10 text-cyan-200'
+                                                    : done
+                                                        ? 'border-emerald-300/40 bg-emerald-500/10 text-emerald-200'
+                                                        : 'border-white/10 bg-white/[0.02] text-slate-300'
+                                            }`}
+                                        >
+                                            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current/30 text-xs">
+                                                {item.id}
+                                            </span>
+                                            <span>{item.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {stepError && <p className="mt-3 text-sm text-rose-300">{stepError}</p>}
+                        </section>
+
+                        {step === 1 && (
                         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                             <h2 className="mb-4 text-lg font-semibold text-white">{t('admin.pages.orders.create.customerSection')}</h2>
 
@@ -378,7 +502,9 @@ export default function OrdersCreate() {
                                 </div>
                             </div>
                         </section>
+                        )}
 
+                        {step === 2 && (
                         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                             <h2 className="mb-4 text-lg font-semibold text-white">{t('admin.pages.orders.create.deliverySection')}</h2>
 
@@ -486,7 +612,9 @@ export default function OrdersCreate() {
                                 </div>
                             </div>
                         </section>
+                        )}
 
+                        {step === 3 && (
                         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                             <div className="mb-4 flex items-center justify-between">
                                 <h2 className="text-lg font-semibold text-white">{t('admin.pages.orders.create.itemsSection')}</h2>
@@ -529,15 +657,39 @@ export default function OrdersCreate() {
 
                                             <div className="md:col-span-3">
                                                 <label className="mb-1 block text-xs text-slate-400">{t('admin.pages.orders.create.quantity')}</label>
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    max={line.available_stock || undefined}
-                                                    value={line.quantity}
-                                                    onChange={(e) => updateLine(line.row_id, { quantity: Number(e.target.value || 1) })}
-                                                    className="w-full rounded-lg border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
-                                                    required
-                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => changeLineQuantity(line.row_id, Number(line.quantity) - 1)}
+                                                        className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-2 text-sm text-slate-100 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                                                        disabled={Number(line.quantity) <= 1}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        max={line.available_stock || undefined}
+                                                        value={line.quantity}
+                                                        onChange={(e) => changeLineQuantity(line.row_id, Number(e.target.value || 1))}
+                                                        className="w-full rounded-lg border border-white/15 bg-slate-900/70 px-3 py-2 text-center text-sm text-white outline-none focus:border-cyan-300/40"
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => changeLineQuantity(line.row_id, Number(line.quantity) + 1)}
+                                                        className="rounded-lg border border-cyan-300/30 bg-cyan-500/10 px-2.5 py-2 text-sm text-cyan-200 hover:bg-cyan-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                                                        disabled={!line.product_id || (line.available_stock > 0 && Number(line.quantity) >= line.available_stock)}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                                {!line.product_id && (
+                                                    <p className="mt-1 text-[11px] text-amber-300">{t('admin.pages.orders.create.selectProductFirst')}</p>
+                                                )}
+                                                {line.product_id && line.available_stock > 0 && Number(line.quantity) >= line.available_stock && (
+                                                    <p className="mt-1 text-[11px] text-amber-300">{t('admin.pages.orders.create.reachedMaxStock')}</p>
+                                                )}
                                             </div>
 
                                             <div className="md:col-span-2">
@@ -562,19 +714,32 @@ export default function OrdersCreate() {
                                 ))}
                             </div>
                         </section>
+                        )}
 
                         <div className="flex flex-wrap gap-3">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
-                            >
-                                {processing ? t('admin.pages.orders.create.creating') : t('admin.pages.orders.create.submit')}
-                            </button>
+                            {step > 1 && (
+                            <button type="button" onClick={goPrevStep} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-slate-100 hover:bg-white/10">
+                                    {t('admin.pages.orders.create.stepper.previous')}
+                                </button>
+                            )}
+                            {step < 3 ? (
+                                <button type="button" onClick={goNextStep} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
+                                    {t('admin.pages.orders.create.stepper.next')}
+                                </button>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
+                                >
+                                    {processing ? t('admin.pages.orders.create.creating') : t('admin.pages.orders.create.submit')}
+                                </button>
+                            )}
                             <Link href="/admin/orders" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-slate-100 hover:bg-white/10">
                                 {t('common.cancel')}
                             </Link>
                         </div>
+                        {productSubmitError && step === 3 && <p className="text-sm text-rose-300">{productSubmitError}</p>}
                     </div>
 
                     <aside className="xl:col-span-1">
