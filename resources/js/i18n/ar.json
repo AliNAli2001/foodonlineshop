@@ -131,7 +131,10 @@
             "minStock": "أقل مخزون",
             "maxStock": "أعلى مخزون",
             "apply": "تطبيق التصفية",
-            "reset": "إعادة ضبط"
+            "reset": "إعادة ضبط",
+            "showFilters": "إظهار التصفية",
+            "hideFilters": "إخفاء التصفية",
+            "clearActive": "مسح التصفية"
           },
           "columns": {
             "id": "المعرف",

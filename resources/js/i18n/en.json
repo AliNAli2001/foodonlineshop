@@ -131,7 +131,10 @@
             "minStock": "Min stock",
             "maxStock": "Max stock",
             "apply": "Apply Filters",
-            "reset": "Reset"
+            "reset": "Reset",
+            "showFilters": "Show Filters",
+            "hideFilters": "Hide Filters",
+            "clearActive": "Clear Filters"
           },
           "columns": {
             "id": "ID",

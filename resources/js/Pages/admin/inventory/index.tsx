@@ -3,7 +3,14 @@ import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
-type Product = { id: number; name_en?: string; name_ar?: string; stock_available_quantity?: number };
+type Product = {
+  id: number;
+  name_en?: string;
+  name_ar?: string;
+  stock_available_quantity?: number;
+  stock?: { available_quantity?: number };
+  inventoryBatches?: Array<{ available_quantity?: number }>;
+};
 
 type PageProps = {
   products: any;
@@ -14,6 +21,15 @@ function getRows(products: any): Product[] {
   if (Array.isArray(products?.data)) return products.data;
   if (Array.isArray(products)) return products;
   return [];
+}
+
+function stockAmount(product: Product): number {
+  if (typeof product.stock_available_quantity === 'number') return product.stock_available_quantity;
+  if (typeof product.stock?.available_quantity === 'number') return product.stock.available_quantity;
+  if (Array.isArray(product.inventoryBatches)) {
+    return product.inventoryBatches.reduce((sum, batch) => sum + Number(batch?.available_quantity ?? 0), 0);
+  }
+  return 0;
 }
 
 export default function InventoryIndex() {
@@ -49,7 +65,7 @@ export default function InventoryIndex() {
             rows.map((product) => (
               <article key={product.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <h3 className="font-semibold text-white">{product.name_en || product.name_ar || `${t('admin.pages.inventory.index.product')} #${product.id}`}</h3>
-                <p className="mt-1 text-sm text-slate-300">{t('admin.pages.inventory.index.stock')}: {product.stock_available_quantity ?? 0}</p>
+                <p className="mt-1 text-sm text-slate-300">{t('admin.pages.inventory.index.stock')}: {stockAmount(product)}</p>
                 <Link href={`/admin/inventory/${product.id}/batches`} className="mt-3 inline-flex rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('admin.pages.inventory.index.viewDetails')}</Link>
               </article>
             ))

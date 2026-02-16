@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
@@ -50,6 +50,14 @@ export default function ProductsIndex() {
     const products = page.props.products;
     const params = queryFromUrl(page.url || '');
     const productRows = Array.isArray(products?.data) ? products.data : Array.isArray(products) ? products : [];
+    const [filtersOpen, setFiltersOpen] = useState(true);
+
+    const hasActiveFilters = useMemo(() => {
+        const tracked = ['search', 'sort', 'low_stock', 'min_price', 'max_price', 'min_stock', 'max_stock'];
+        if (tracked.some((key) => (params.get(key) || '').toString().trim() !== '')) return true;
+        const order = (params.get('order') || 'desc').toLowerCase();
+        return order !== 'desc';
+    }, [page.url]);
 
     const applyFilters = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -82,31 +90,50 @@ export default function ProductsIndex() {
                 </section>
 
                 <form onSubmit={applyFilters} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        <input name="search" defaultValue={params.get('search') || ''} placeholder={t('admin.pages.products.index.filters.searchPlaceholder')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                        <select name="sort" defaultValue={params.get('sort') || ''} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white">
-                            <option value="">{t('admin.pages.products.index.filters.sortBy')}</option>
-                            <option value="stock">{t('admin.pages.products.index.filters.stock')}</option>
-                            <option value="price">{t('admin.pages.products.index.filters.price')}</option>
-                            <option value="created_at">{t('admin.pages.products.index.filters.createdDate')}</option>
-                        </select>
-                        <select name="order" defaultValue={params.get('order') || 'desc'} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white">
-                            <option value="desc">{t('admin.pages.products.index.filters.descending')}</option>
-                            <option value="asc">{t('admin.pages.products.index.filters.ascending')}</option>
-                        </select>
-                        <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-900/40 px-3 py-2 text-sm text-slate-200">
-                            <input type="checkbox" name="low_stock" value="1" defaultChecked={params.has('low_stock')} />
-                            {t('admin.pages.products.index.filters.lowStockOnly')}
-                        </label>
-                        <input name="min_price" type="number" step="0.01" defaultValue={params.get('min_price') || ''} placeholder={t('admin.pages.products.index.filters.minPrice')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                        <input name="max_price" type="number" step="0.01" defaultValue={params.get('max_price') || ''} placeholder={t('admin.pages.products.index.filters.maxPrice')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                        <input name="min_stock" type="number" defaultValue={params.get('min_stock') || ''} placeholder={t('admin.pages.products.index.filters.minStock')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                        <input name="max_stock" type="number" defaultValue={params.get('max_stock') || ''} placeholder={t('admin.pages.products.index.filters.maxStock')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setFiltersOpen((prev) => !prev)}
+                            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10"
+                        >
+                            {filtersOpen ? t('admin.pages.products.index.filters.hideFilters') : t('admin.pages.products.index.filters.showFilters')}
+                        </button>
+                        {hasActiveFilters && (
+                            <Link href="/admin/products" className="rounded-xl border border-rose-300/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200 hover:bg-rose-500/20">
+                                {t('admin.pages.products.index.filters.clearActive')}
+                            </Link>
+                        )}
                     </div>
-                    <div className="mt-3 flex gap-2">
-                        <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.products.index.filters.apply')}</button>
-                        <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('admin.pages.products.index.filters.reset')}</Link>
-                    </div>
+
+                    {filtersOpen && (
+                        <>
+                            <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                                <input name="search" defaultValue={params.get('search') || ''} placeholder={t('admin.pages.products.index.filters.searchPlaceholder')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+                                <select name="sort" defaultValue={params.get('sort') || ''} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white">
+                                    <option value="">{t('admin.pages.products.index.filters.sortBy')}</option>
+                                    <option value="stock">{t('admin.pages.products.index.filters.stock')}</option>
+                                    <option value="price">{t('admin.pages.products.index.filters.price')}</option>
+                                    <option value="created_at">{t('admin.pages.products.index.filters.createdDate')}</option>
+                                </select>
+                                <select name="order" defaultValue={params.get('order') || 'desc'} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white">
+                                    <option value="desc">{t('admin.pages.products.index.filters.descending')}</option>
+                                    <option value="asc">{t('admin.pages.products.index.filters.ascending')}</option>
+                                </select>
+                                <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-900/40 px-3 py-2 text-sm text-slate-200">
+                                    <input type="checkbox" name="low_stock" value="1" defaultChecked={params.has('low_stock')} />
+                                    {t('admin.pages.products.index.filters.lowStockOnly')}
+                                </label>
+                                <input name="min_price" type="number" step="0.01" defaultValue={params.get('min_price') || ''} placeholder={t('admin.pages.products.index.filters.minPrice')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+                                <input name="max_price" type="number" step="0.01" defaultValue={params.get('max_price') || ''} placeholder={t('admin.pages.products.index.filters.maxPrice')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+                                <input name="min_stock" type="number" defaultValue={params.get('min_stock') || ''} placeholder={t('admin.pages.products.index.filters.minStock')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+                                <input name="max_stock" type="number" defaultValue={params.get('max_stock') || ''} placeholder={t('admin.pages.products.index.filters.maxStock')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+                            </div>
+                            <div className="mt-3 flex gap-2">
+                                <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.products.index.filters.apply')}</button>
+                                <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('admin.pages.products.index.filters.reset')}</Link>
+                            </div>
+                        </>
+                    )}
                 </form>
 
                 <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
