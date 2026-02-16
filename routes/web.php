@@ -91,6 +91,7 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/work', [AdminOrderController::class, 'work'])->name('orders.work');
     Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');

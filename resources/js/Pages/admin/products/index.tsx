@@ -50,7 +50,7 @@ export default function ProductsIndex() {
     const products = page.props.products;
     const params = queryFromUrl(page.url || '');
     const productRows = Array.isArray(products?.data) ? products.data : Array.isArray(products) ? products : [];
-    const [filtersOpen, setFiltersOpen] = useState(true);
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     const hasActiveFilters = useMemo(() => {
         const tracked = ['search', 'sort', 'low_stock', 'min_price', 'max_price', 'min_stock', 'max_stock'];

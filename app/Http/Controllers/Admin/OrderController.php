@@ -97,6 +97,66 @@ class OrderController extends Controller
     }
 
     /**
+     * Work queue page for operational statuses.
+     */
+    public function work()
+    {
+        $workStatuses = ['pending', 'confirmed', 'shipped', 'delivered'];
+
+        $orders = Order::with(['client', 'delivery'])
+            ->whereIn('status', $workStatuses)
+            ->latest()
+            ->limit(400)
+            ->get();
+
+        $statusCounts = collect($workStatuses)->mapWithKeys(function (string $status) use ($orders) {
+            return [$status => $orders->where('status', $status)->count()];
+        });
+
+        $ordersByStatus = collect($workStatuses)->mapWithKeys(function (string $status) use ($orders) {
+            $rows = $orders
+                ->where('status', $status)
+                ->values()
+                ->map(function (Order $order) {
+                    $total = (float) ($order->total_amount ?? 0);
+                    $cost = (float) ($order->cost_price ?? 0);
+
+                    return [
+                        'id' => $order->id,
+                        'status' => $order->status,
+                        'order_source' => $order->order_source,
+                        'order_date' => $order->order_date,
+                        'created_at' => $order->created_at,
+                        'client_id' => $order->client_id,
+                        'client_name' => $order->client_name,
+                        'client_phone_number' => $order->client_phone_number,
+                        'client' => $order->client ? [
+                            'first_name' => $order->client->first_name,
+                            'last_name' => $order->client->last_name,
+                            'phone' => $order->client->phone,
+                        ] : null,
+                        'delivery' => $order->delivery ? [
+                            'first_name' => $order->delivery->first_name,
+                            'last_name' => $order->delivery->last_name,
+                            'phone' => $order->delivery->phone,
+                        ] : null,
+                        'total_amount' => $total,
+                        'cost_price' => $cost,
+                        'profit' => round($total - $cost, 2),
+                    ];
+                });
+
+            return [$status => $rows];
+        });
+
+        return Inertia::render('admin.orders.work', [
+            'ordersByStatus' => $ordersByStatus,
+            'statusCounts' => $statusCounts,
+            'lastUpdatedAt' => now()->toDateTimeString(),
+        ]);
+    }
+
+    /**
      * Store a new admin-created order in pending status (requires confirmation).
      */
     public function store(Request $request)

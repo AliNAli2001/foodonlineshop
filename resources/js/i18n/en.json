@@ -396,6 +396,21 @@
               "genericText": "We are sharing an update regarding your order."
             }
           }
+        },
+        "work": {
+          "title": "Orders Work",
+          "subtitle": "Operational order queue by status, auto-refresh every 10 seconds.",
+          "lastUpdated": "Last updated",
+          "count": "Count",
+          "cost": "Cost",
+          "profit": "Profit",
+          "complete": "Complete",
+          "tabs": {
+            "pending": "Pending (Need Confirm/Reject)",
+            "confirmed": "Confirmed (Need Complete)",
+            "shipped": "Shipping Company",
+            "delivered": "Delivery Person"
+          }
         }
       },
       "inventory": {

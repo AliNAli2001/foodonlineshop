@@ -104,6 +104,12 @@ export default function OrdersIndex() {
                         <p className="text-sm text-slate-300">{t('admin.pages.orders.index.subtitle')}</p>
                     </div>
                     <div className="flex items-center gap-2">
+                        <Link
+                            href="/admin/orders/work"
+                            className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
+                        >
+                            {t('admin.pages.orders.work.title', 'Orders Work')}
+                        </Link>
                         <button
                             type="button"
                             onClick={() =>
