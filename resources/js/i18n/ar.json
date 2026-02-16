@@ -247,11 +247,29 @@
         "index": {
           "title": "الطلبات",
           "subtitle": "إدارة ومتابعة دورة حياة الطلب.",
+          "refresh": "تحديث",
           "sourceInside": "داخل المدينة",
           "sourceOutside": "خارج المدينة",
           "typeClient": "عميل",
           "typeManual": "يدوي",
           "empty": "لا توجد طلبات بعد.",
+          "cards": {
+            "title": "ملخص حالات الطلبات",
+            "subtitle": "العدد والإجمالي لكل حالة.",
+            "total": "إجمالي السعر"
+          },
+          "filters": {
+            "title": "عوامل التصفية",
+            "subtitle": "تصفية حسب الحالة ومبلغ الطلب.",
+            "allStatuses": "كل الحالات",
+            "minPrice": "أقل سعر",
+            "maxPrice": "أعلى سعر",
+            "totalPrice": "إجمالي السعر (مطابقة تامة)",
+            "apply": "تطبيق التصفية",
+            "clear": "مسح",
+            "collapse": "إخفاء",
+            "expand": "إظهار"
+          },
           "columns": {
             "order": "الطلب",
             "source": "المصدر",

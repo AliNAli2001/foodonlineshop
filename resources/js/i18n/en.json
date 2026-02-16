@@ -247,11 +247,29 @@
         "index": {
           "title": "Orders",
           "subtitle": "Manage and track order lifecycle.",
+          "refresh": "Refresh",
           "sourceInside": "Inside City",
           "sourceOutside": "Outside City",
           "typeClient": "Client",
           "typeManual": "Manual",
           "empty": "No orders yet.",
+          "cards": {
+            "title": "Order Status Summary",
+            "subtitle": "Counts and totals by status.",
+            "total": "Total Price"
+          },
+          "filters": {
+            "title": "Filters",
+            "subtitle": "Filter by status and order amount.",
+            "allStatuses": "All statuses",
+            "minPrice": "Min Price",
+            "maxPrice": "Max Price",
+            "totalPrice": "Total Price (Exact)",
+            "apply": "Apply Filters",
+            "clear": "Clear",
+            "collapse": "Collapse",
+            "expand": "Expand"
+          },
           "columns": {
             "order": "Order",
             "source": "Source",

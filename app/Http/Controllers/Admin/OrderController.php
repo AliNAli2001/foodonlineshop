@@ -22,10 +22,66 @@ class OrderController extends Controller
     /**
      * Show all orders.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with(['client', 'delivery'])->latest()->paginate(15);
-        return Inertia::render('admin.orders.index', compact('orders'));
+        $validStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'done', 'canceled', 'returned', 'rejected'];
+
+        $status = $request->query('status');
+        $minPrice = $request->query('min_price');
+        $maxPrice = $request->query('max_price');
+        $totalPrice = $request->query('total_price');
+
+        $baseQuery = Order::query();
+
+        if (is_string($status) && in_array($status, $validStatuses, true)) {
+            $baseQuery->where('status', $status);
+        }
+
+        if ($minPrice !== null && $minPrice !== '' && is_numeric($minPrice)) {
+            $baseQuery->where('total_amount', '>=', (float) $minPrice);
+        }
+
+        if ($maxPrice !== null && $maxPrice !== '' && is_numeric($maxPrice)) {
+            $baseQuery->where('total_amount', '<=', (float) $maxPrice);
+        }
+
+        if ($totalPrice !== null && $totalPrice !== '' && is_numeric($totalPrice)) {
+            $baseQuery->where('total_amount', '=', (float) $totalPrice);
+        }
+
+        $summaryRows = (clone $baseQuery)
+            ->selectRaw('status, COUNT(*) as orders_count, COALESCE(SUM(total_amount), 0) as total_amount_sum')
+            ->groupBy('status')
+            ->get()
+            ->keyBy('status');
+
+        $statusSummary = collect($validStatuses)->mapWithKeys(function (string $currentStatus) use ($summaryRows) {
+            $row = $summaryRows->get($currentStatus);
+
+            return [
+                $currentStatus => [
+                    'count' => (int) ($row->orders_count ?? 0),
+                    'total' => (float) ($row->total_amount_sum ?? 0),
+                ],
+            ];
+        });
+
+        $orders = (clone $baseQuery)
+            ->with(['client', 'delivery'])
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return Inertia::render('admin.orders.index', [
+            'orders' => $orders,
+            'statusSummary' => $statusSummary,
+            'filters' => [
+                'status' => is_string($status) ? $status : null,
+                'min_price' => is_string($minPrice) ? $minPrice : null,
+                'max_price' => is_string($maxPrice) ? $maxPrice : null,
+                'total_price' => is_string($totalPrice) ? $totalPrice : null,
+            ],
+        ]);
     }
 
     /**
