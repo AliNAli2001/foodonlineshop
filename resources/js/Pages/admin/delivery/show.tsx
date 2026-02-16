@@ -26,6 +26,18 @@ type Order = {
   client?: { first_name?: string; last_name?: string };
 };
 
+function normalizePhone(value?: string | null): string {
+  if (!value) return '';
+  return value.replace(/[^\d+]/g, '');
+}
+
+function whatsappLink(phone?: string | null, message?: string): string {
+  const normalized = normalizePhone(phone).replace('+', '');
+  if (!normalized) return '#';
+  const text = encodeURIComponent(message || '');
+  return `https://wa.me/${normalized}${text ? `?text=${text}` : ''}`;
+}
+
 function formatDate(value?: string | null) {
   if (!value) return '-';
   const date = new Date(value);
@@ -55,6 +67,22 @@ export default function DeliveryShow() {
             <p className="text-sm text-slate-300">{t('admin.pages.delivery.show.subtitle')}</p>
           </div>
           <div className="flex gap-2">
+            <a
+              href={`tel:${normalizePhone(delivery.phone)}`}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300/30 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-500/20"
+            >
+              <CallIcon />
+              {t('admin.pages.delivery.actions.call')}
+            </a>
+            <a
+              href={whatsappLink(delivery.phone_plus || delivery.phone, t('admin.pages.delivery.actions.defaultMessage'))}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-green-300/30 bg-green-500/10 px-3 py-2 text-sm font-medium text-green-200 hover:bg-green-500/20"
+            >
+              <WhatsappIcon />
+              {t('admin.pages.delivery.actions.whatsapp')}
+            </a>
             <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">{t('common.edit')}</Link>
             <Link href="/admin/delivery" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
           </div>
@@ -150,6 +178,22 @@ function Info({ label, value }: { label: string; value: string }) {
       <span className="text-slate-400">{label}: </span>
       {value}
     </p>
+  );
+}
+
+function CallIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+      <path d="M5 4h4l2 5-2.5 2.5a14 14 0 0 0 4 4L15 13l5 2v4a2 2 0 0 1-2 2C10.3 21 3 13.7 3 6a2 2 0 0 1 2-2Z" />
+    </svg>
+  );
+}
+
+function WhatsappIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+      <path d="M20.5 3.5A11 11 0 0 0 3.8 17.3L2 22l4.9-1.7A11 11 0 1 0 20.5 3.5Zm-8.5 17a8.9 8.9 0 0 1-4.5-1.2l-.3-.2-2.9 1 .9-2.8-.2-.3a8.9 8.9 0 1 1 7 3.5Zm4.9-6.7c-.3-.2-1.8-.9-2-.9-.3-.1-.4-.2-.6.2s-.7.9-.8 1c-.2.2-.3.2-.6.1-1.5-.7-2.5-1.2-3.5-2.8-.3-.4.3-.4.8-1.4.1-.2.1-.4 0-.5l-.9-2.1c-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.8.4s-1 1-1 2.3 1 2.6 1.2 2.7c.1.2 2 3.1 4.9 4.3 1.8.7 2.5.8 3.4.7.5-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.4Z" />
+    </svg>
   );
 }
 

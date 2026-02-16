@@ -315,7 +315,19 @@
           "deliveryPerson": "موظف التوصيل",
           "rejectModalTitle": "رفض الطلب",
           "reason": "السبب",
-          "submitReject": "تأكيد الرفض"
+          "submitReject": "تأكيد الرفض",
+          "messages": {
+            "title": "رسائل جاهزة",
+            "subtitle": "إرسال تحديثات سريعة عبر واتساب.",
+            "confirmedLabel": "تم تأكيد الطلب",
+            "confirmedText": "تم تأكيد الطلب.",
+            "shippedLabel": "تم شحن الطلب",
+            "shippedText": "الطلب في الطريق.",
+            "deliveredLabel": "تم تسليم الطلب",
+            "deliveredText": "تم تسليم الطلب. شكرًا لك.",
+            "sendToCustomer": "إرسال للعميل",
+            "sendToDelivery": "إرسال للتوصيل"
+          }
         }
       },
       "inventory": {
@@ -609,6 +621,11 @@
         }
       },
       "delivery": {
+        "actions": {
+          "call": "اتصال",
+          "whatsapp": "واتساب",
+          "defaultMessage": "مرحبًا، هذه رسالة من إدارة متجر الطعام الإلكتروني."
+        },
         "status": {
           "available": "متاح",
           "busy": "مشغول",

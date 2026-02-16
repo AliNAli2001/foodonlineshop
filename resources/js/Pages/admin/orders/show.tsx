@@ -14,6 +14,18 @@ const statusClass: Record<string, string> = {
     rejected: 'bg-rose-400/20 text-rose-200 ring-rose-300/30',
 };
 
+function normalizePhone(value?: string | null): string {
+    if (!value) return '';
+    return value.replace(/[^\d+]/g, '');
+}
+
+function whatsappUrl(phone?: string | null, message?: string): string {
+    const normalized = normalizePhone(phone).replace('+', '');
+    if (!normalized) return '#';
+    const text = encodeURIComponent(message || '');
+    return `https://wa.me/${normalized}${text ? `?text=${text}` : ''}`;
+}
+
 export default function OrdersShow() {
     const { t } = useI18n();
     const { order, deliveryPersons = [], availableTransitions = [] } = usePage<any>().props;
@@ -25,6 +37,8 @@ export default function OrdersShow() {
     const orderTotal = Number(order.total_amount ?? 0).toFixed(2);
     const canDeliverWithAssign = order.delivery_method === 'delivery' && !order.delivery_id;
     const items = order.items ?? [];
+    const customerPhone = order.client?.phone || order.client_phone_number || '';
+    const deliveryPhone = order.delivery?.phone || '';
 
     const sourceLabel = (source: string) => {
         if (source === 'inside_city') return t('admin.pages.orders.index.sourceInside');
@@ -94,6 +108,24 @@ export default function OrdersShow() {
             );
         });
     }, [availableTransitions, order.status, canDeliverWithAssign]);
+
+    const preparedMessages = [
+        {
+            key: 'confirm',
+            label: t('admin.pages.orders.show.messages.confirmedLabel'),
+            text: t('admin.pages.orders.show.messages.confirmedText', `Order #${order.id} has been confirmed and is being prepared.`),
+        },
+        {
+            key: 'shipped',
+            label: t('admin.pages.orders.show.messages.shippedLabel'),
+            text: t('admin.pages.orders.show.messages.shippedText', `Order #${order.id} is on the way.`),
+        },
+        {
+            key: 'delivered',
+            label: t('admin.pages.orders.show.messages.deliveredLabel'),
+            text: t('admin.pages.orders.show.messages.deliveredText', `Order #${order.id} has been delivered. Thank you.`),
+        },
+    ];
 
     return (
         <AdminLayout title={`${t('admin.pages.orders.show.title')} #${order.id}`}>
@@ -215,6 +247,40 @@ export default function OrdersShow() {
                             )}
                         </div>
 
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                            <h3 className="text-lg font-semibold text-white">{t('admin.pages.orders.show.messages.title')}</h3>
+                            <p className="mt-1 text-xs text-slate-400">{t('admin.pages.orders.show.messages.subtitle')}</p>
+
+                            <div className="mt-3 space-y-2">
+                                {preparedMessages.map((msg) => (
+                                    <div key={msg.key} className="rounded-lg border border-white/10 bg-slate-900/40 p-3">
+                                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">{msg.label}</p>
+                                        <p className="mb-3 text-xs text-slate-400">{msg.text}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <a
+                                                href={whatsappUrl(customerPhone, msg.text)}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs ${customerPhone ? 'border-green-300/30 bg-green-500/10 text-green-200 hover:bg-green-500/20' : 'pointer-events-none border-white/10 bg-white/5 text-slate-500'}`}
+                                            >
+                                                <SendIcon />
+                                                {t('admin.pages.orders.show.messages.sendToCustomer')}
+                                            </a>
+                                            <a
+                                                href={whatsappUrl(deliveryPhone, msg.text)}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs ${deliveryPhone ? 'border-cyan-300/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20' : 'pointer-events-none border-white/10 bg-white/5 text-slate-500'}`}
+                                            >
+                                                <SendIcon />
+                                                {t('admin.pages.orders.show.messages.sendToDelivery')}
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                         {rejectOpen && (
                             <div className="rounded-2xl border border-rose-300/30 bg-rose-500/10 p-4">
                                 <h4 className="text-sm font-semibold text-rose-200">{t('admin.pages.orders.show.rejectModalTitle')}</h4>
@@ -242,5 +308,13 @@ export default function OrdersShow() {
                 </div>
             </div>
         </AdminLayout>
+    );
+}
+
+function SendIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+            <path d="M3 11.5 20.5 3c.8-.4 1.6.4 1.2 1.2L13 21.7c-.4.8-1.5.7-1.8-.2L9.3 14.7 2.5 12.8c-.9-.2-1-.9-.2-1.3l11.4-5.1-9.6 7.2 5.6 1.6 1.7 5.5 7-14.2L3 11.5Z" />
+        </svg>
     );
 }

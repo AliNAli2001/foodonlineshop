@@ -315,7 +315,19 @@
           "deliveryPerson": "Delivery Person",
           "rejectModalTitle": "Reject Order",
           "reason": "Reason",
-          "submitReject": "Submit Reject"
+          "submitReject": "Submit Reject",
+          "messages": {
+            "title": "Prepared Messages",
+            "subtitle": "Quick send updates via WhatsApp.",
+            "confirmedLabel": "Order Confirmed",
+            "confirmedText": "Order has been confirmed.",
+            "shippedLabel": "Order Shipped",
+            "shippedText": "Order is on the way.",
+            "deliveredLabel": "Order Delivered",
+            "deliveredText": "Order has been delivered. Thank you.",
+            "sendToCustomer": "Send to Customer",
+            "sendToDelivery": "Send to Delivery"
+          }
         }
       },
       "inventory": {
@@ -609,6 +621,11 @@
         }
       },
       "delivery": {
+        "actions": {
+          "call": "Call",
+          "whatsapp": "WhatsApp",
+          "defaultMessage": "Hello, this is admin from Food Online Shop."
+        },
         "status": {
           "available": "Available",
           "busy": "Busy",
