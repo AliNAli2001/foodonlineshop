@@ -26,6 +26,22 @@ function whatsappUrl(phone?: string | null, message?: string): string {
     return `https://wa.me/${normalized}${text ? `?text=${text}` : ''}`;
 }
 
+function formatDateTime(value?: string | null): string {
+    if (!value) return '-';
+    const normalized = value.replace(/(\.\d{3})\d+Z$/, '$1Z');
+    const date = new Date(normalized);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+    });
+}
+
 export default function OrdersShow() {
     const { t } = useI18n();
     const { order, deliveryPersons = [], availableTransitions = [] } = usePage<any>().props;
@@ -171,7 +187,7 @@ export default function OrdersShow() {
                             <div className="grid gap-3 text-sm text-slate-200 md:grid-cols-2">
                                 <p><span className="text-slate-400">{t('admin.pages.orders.show.customer')}: </span>{order.client_id ? `${order.client?.first_name ?? ''} ${order.client?.last_name ?? ''}` : (order.client_name || '-')}</p>
                                 <p><span className="text-slate-400">{t('admin.pages.orders.show.phone')}: </span>{order.client?.phone || order.client_phone_number || '-'}</p>
-                                <p><span className="text-slate-400">{t('admin.pages.orders.show.date')}: </span>{order.order_date || order.created_at || '-'}</p>
+                                <p><span className="text-slate-400">{t('admin.pages.orders.show.date')}: </span>{formatDateTime(order.order_date || order.created_at)}</p>
                                 <p><span className="text-slate-400">{t('admin.pages.orders.show.source')}: </span>{sourceLabel(order.order_source)}</p>
                                 <p><span className="text-slate-400">{t('admin.pages.orders.show.deliveryMethod')}: </span>{deliveryLabel(order.delivery_method)}</p>
                                 <p><span className="text-slate-400">{t('common.status')}: </span><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${statusClass[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'}`}>{statusLabel(order.status)}</span></p>

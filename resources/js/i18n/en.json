@@ -109,7 +109,14 @@
       "auth": {
         "login": {
           "title": "Admin Login",
-          "subtitle": "Sign in to access the dashboard."
+          "subtitle": "Sign in to access the dashboard.",
+          "welcome": "Secure Access",
+          "description": "Manage orders, products, and operations from one control center.",
+          "secureNote": "Use your admin account credentials to continue.",
+          "emailPlaceholder": "admin@example.com",
+          "passwordPlaceholder": "Enter your password",
+          "showPassword": "Show",
+          "hidePassword": "Hide"
         }
       },
       "products": {

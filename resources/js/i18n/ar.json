@@ -109,7 +109,14 @@
       "auth": {
         "login": {
           "title": "تسجيل دخول المدير",
-          "subtitle": "سجّل الدخول للوصول إلى لوحة التحكم."
+          "subtitle": "سجّل الدخول للوصول إلى لوحة التحكم.",
+          "welcome": "وصول آمن",
+          "description": "أدر الطلبات والمنتجات والعمليات من مركز تحكم واحد.",
+          "secureNote": "استخدم بيانات حساب المدير للمتابعة.",
+          "emailPlaceholder": "admin@example.com",
+          "passwordPlaceholder": "أدخل كلمة المرور",
+          "showPassword": "إظهار",
+          "hidePassword": "إخفاء"
         }
       },
       "products": {

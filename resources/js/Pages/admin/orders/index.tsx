@@ -14,6 +14,22 @@ const statusClass: Record<string, string> = {
     rejected: 'bg-rose-400/20 text-rose-200 ring-rose-300/30',
 };
 
+function formatDateTime(value?: string | null): string {
+    if (!value) return '-';
+    const normalized = value.replace(/(\.\d{3})\d+Z$/, '$1Z');
+    const date = new Date(normalized);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+    });
+}
+
 export default function OrdersIndex() {
     const { t } = useI18n();
     const { orders } = usePage<any>().props;
@@ -94,7 +110,7 @@ export default function OrdersIndex() {
                                                     {statusLabel(order.status)}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-slate-300">{order.order_date ?? order.created_at ?? '-'}</td>
+                                            <td className="px-4 py-3 text-sm text-slate-300">{formatDateTime(order.order_date ?? order.created_at)}</td>
                                             <td className="px-4 py-3 text-sm">
                                                 <Link
                                                     href={`/admin/orders/${order.id}`}

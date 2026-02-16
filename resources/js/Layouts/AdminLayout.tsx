@@ -83,11 +83,12 @@ export default function AdminLayout({ title = 'Admin', children }) {
             <Head title={title} />
 
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
-                <div className="absolute -top-44 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan-400/20 blur-3xl" />
-                <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl" />
+                <div className="absolute -top-44 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan-400/15 blur-3xl" />
+                <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-blue-500/15 blur-3xl" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,0.08),transparent_35%),radial-gradient(circle_at_90%_90%,rgba(59,130,246,0.08),transparent_30%)]" />
             </div>
 
-            <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+            <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/70 backdrop-blur-2xl">
                 <div className="mx-auto flex h-16 max-w-[1700px] items-center justify-between gap-3 px-4 md:px-6">
                     <div className="flex items-center gap-3">
                         <button
@@ -97,25 +98,28 @@ export default function AdminLayout({ title = 'Admin', children }) {
                         >
                             {t('common.menu')}
                         </button>
-                        <div className="flex items-center gap-2">
-                            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-xs font-black text-slate-950">
+                        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-2.5 py-1.5">
+                            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-xs font-black text-slate-950 shadow-[0_0_20px_rgba(34,211,238,0.35)]">
                                 AD
                             </div>
-                            <p className="text-sm font-semibold tracking-wide text-slate-200">{t('common.adminControl')}</p>
+                            <div>
+                                <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-200/80">{t('common.workspace')}</p>
+                                <p className="text-sm font-semibold tracking-wide text-slate-200">{t('common.adminControl')}</p>
+                            </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                         <Link
                             href="/admin/settings"
-                            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
+                            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 transition hover:border-cyan-300/30 hover:bg-white/10"
                         >
                             {t('common.settings')}
                         </Link>
                         <button
                             type="button"
                             onClick={() => router.post('/admin/logout')}
-                            className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-500/20"
+                            className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-200 transition hover:border-rose-300/40 hover:bg-rose-500/20"
                         >
                             {t('common.logout')}
                         </button>
@@ -132,14 +136,11 @@ export default function AdminLayout({ title = 'Admin', children }) {
                 />
 
                 <aside
-                    className={`fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-80 border-r border-white/10 bg-slate-900/95 p-4 backdrop-blur-xl transition-transform lg:static lg:h-auto lg:w-72 lg:translate-x-0 lg:bg-transparent ${
+                    className={`fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-80 border-r border-white/10 bg-slate-900/95 p-4 backdrop-blur-xl transition-transform lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:w-72 lg:translate-x-0 lg:overflow-y-auto lg:bg-transparent ${
                         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
                 >
-                    <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{t('common.workspace')}</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-200">{t('common.appName')}</p>
-                    </div>
+                    
 
                     <nav className="grid gap-2">
                         {navItems.map((item) => {
@@ -152,8 +153,8 @@ export default function AdminLayout({ title = 'Admin', children }) {
                                     onClick={() => setSidebarOpen(false)}
                                     className={`group flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-sm font-medium transition ${
                                         active
-                                            ? 'border-cyan-400/40 bg-cyan-400/15 text-cyan-100'
-                                            : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:bg-white/10 hover:text-slate-100'
+                                            ? 'border-cyan-400/40 bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-100 shadow-[0_0_16px_rgba(34,211,238,0.18)]'
+                                            : 'border-white/10 bg-white/5 text-slate-300 hover:border-cyan-300/25 hover:bg-white/10 hover:text-slate-100'
                                     }`}
                                 >
                                     <span
@@ -172,7 +173,7 @@ export default function AdminLayout({ title = 'Admin', children }) {
                     </nav>
                 </aside>
 
-                <main className="relative z-10 w-full p-4 md:p-6 lg:p-8">
+                <main className="admin-fade-in relative z-10 w-full p-4 md:p-6 lg:p-8">
                     {children}
                 </main>
             </div>
@@ -185,6 +186,8 @@ export default function AdminLayout({ title = 'Admin', children }) {
                 pauseOnHover
                 draggable
                 theme="dark"
+                toastClassName="!rounded-2xl !border !border-white/15 !bg-slate-900/95 !text-slate-100"
+                bodyClassName="!text-sm"
             />
         </div>
     );
