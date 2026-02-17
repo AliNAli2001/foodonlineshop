@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Adjustment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AdjustmentController extends Controller
@@ -12,10 +13,30 @@ class AdjustmentController extends Controller
     /**
      * Show all adjustments.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $adjustments = Adjustment::latest()->paginate(15);
-        return Inertia::render('admin.adjustments.index', compact('adjustments'));
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $query = Adjustment::query()->orderByDesc('created_at');
+
+        if (is_string($startDate) && $startDate !== '') {
+            $query->whereDate(DB::raw('COALESCE(date, created_at)'), '>=', $startDate);
+        }
+
+        if (is_string($endDate) && $endDate !== '') {
+            $query->whereDate(DB::raw('COALESCE(date, created_at)'), '<=', $endDate);
+        }
+
+        $adjustments = $query->paginate(15)->withQueryString();
+
+        return Inertia::render('admin.adjustments.index', [
+            'adjustments' => $adjustments,
+            'filters' => [
+                'start_date' => is_string($startDate) ? $startDate : '',
+                'end_date' => is_string($endDate) ? $endDate : '',
+            ],
+        ]);
     }
 
     /**

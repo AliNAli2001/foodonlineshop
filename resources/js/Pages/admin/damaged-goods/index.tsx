@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
@@ -22,11 +22,28 @@ export default function DamagedGoodsIndex() {
   const { t } = useI18n();
   const page = usePage<any>();
   const damagedGoods = page.props.damagedGoods;
+  const filters = page.props.filters || {};
   const rows: DamagedRow[] = Array.isArray(damagedGoods?.data)
     ? damagedGoods.data
     : Array.isArray(damagedGoods)
       ? damagedGoods
       : [];
+  const [infoOpen, setInfoOpen] = useState(false);
+
+  const info = useMemo(() => {
+    const totalQty = rows.reduce((sum, r) => sum + Number(r.quantity || 0), 0);
+    return {
+      count: rows.length,
+      totalQty,
+    };
+  }, [rows]);
+
+  const applyFilters = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const params = Object.fromEntries(form.entries());
+    router.get('/admin/damaged-goods', params, { preserveState: true, preserveScroll: true });
+  };
 
   const removeRow = (id: number) => {
     if (!window.confirm(t('admin.pages.damagedGoods.index.deleteConfirm'))) return;
@@ -49,6 +66,42 @@ export default function DamagedGoodsIndex() {
               {t('common.back')}
             </Link>
           </div>
+        </section>
+
+        <form onSubmit={applyFilters} className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 md:grid-cols-4">
+          <input type="date" name="start_date" defaultValue={filters.start_date || ''} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+          <input type="date" name="end_date" defaultValue={filters.end_date || ''} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+          <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
+            {t('admin.pages.statistics.common.filter', 'Filter')}
+          </button>
+          <Link href="/admin/damaged-goods" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-center text-sm text-slate-200 hover:bg-white/10">
+            {t('admin.pages.products.index.filters.reset', 'Reset')}
+          </Link>
+        </form>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-white">{t('admin.pages.damagedGoods.index.heading')}</h2>
+            <button
+              type="button"
+              onClick={() => setInfoOpen((prev) => !prev)}
+              className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10"
+            >
+              {infoOpen ? t('admin.pages.inventory.index.filters.hideFilters', 'Hide') : t('admin.pages.inventory.index.filters.showFilters', 'Show')}
+            </button>
+          </div>
+          {infoOpen && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <article className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <p className="text-xs text-slate-400">{t('admin.pages.damagedGoods.index.cards.records', 'Records')}</p>
+                <p className="mt-1 text-2xl font-bold text-white">{info.count}</p>
+              </article>
+              <article className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <p className="text-xs text-slate-400">{t('admin.pages.damagedGoods.index.cards.totalQuantity', 'Total Quantity')}</p>
+                <p className="mt-1 text-2xl font-bold text-white">{info.totalQty}</p>
+              </article>
+            </div>
+          )}
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">

@@ -48,6 +48,16 @@ export default function StatisticsSales() {
 
                 <Table title={t('admin.pages.statistics.sales.topSellingProducts.title')} headers={['#', t('admin.pages.statistics.common.product'), t('admin.pages.statistics.common.quantity'), t('admin.pages.statistics.common.revenue')]} rows={topProducts.map((p, i) => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
                 <Table title={t('admin.pages.statistics.sales.dailySales.title')} headers={[t('admin.pages.statistics.common.date'), t('admin.pages.statistics.common.orders'), t('admin.pages.statistics.common.revenue'), t('admin.pages.statistics.common.cost'), t('admin.pages.statistics.common.profit')]} rows={dailySales.map((d) => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
+                <SimpleBarChart
+                    title={t('admin.pages.statistics.sales.charts.ordersTrend', 'Orders Trend')}
+                    labels={dailySales.map((d) => d.date)}
+                    values={dailySales.map((d) => Number(d.orders || 0))}
+                />
+                <SimpleBarChart
+                    title={t('admin.pages.statistics.sales.charts.revenueTrend', 'Revenue Trend')}
+                    labels={dailySales.map((d) => d.date)}
+                    values={dailySales.map((d) => Number(d.revenue || 0))}
+                />
             </div>
         </AdminLayout>
     );
@@ -69,6 +79,33 @@ function Table({ title, headers, rows, emptyText }) {
                     </tbody>
                 </table>
             </div>
+        </section>
+    );
+}
+
+function SimpleBarChart({ title, labels, values }) {
+    const maxValue = Math.max(1, ...values.map((v) => Number(v || 0)));
+    return (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
+            {values.length === 0 ? (
+                <p className="text-sm text-slate-400">No chart data.</p>
+            ) : (
+                <div className="space-y-2">
+                    {values.map((value, idx) => {
+                        const width = `${Math.max(2, (Number(value || 0) / maxValue) * 100)}%`;
+                        return (
+                            <div key={`${labels[idx]}-${idx}`} className="grid grid-cols-[150px_1fr_auto] items-center gap-2 text-xs">
+                                <span className="truncate text-slate-400">{labels[idx]}</span>
+                                <div className="h-2.5 rounded bg-slate-800">
+                                    <div className="h-2.5 rounded bg-cyan-400" style={{ width }} />
+                                </div>
+                                <span className="text-slate-200">{money(value)}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </section>
     );
 }

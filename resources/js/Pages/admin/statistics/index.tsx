@@ -97,6 +97,17 @@ export default function StatisticsIndex() {
                     footer={[t('admin.pages.statistics.common.total'), totals.orders, `$${money(totals.revenue)}`, `$${money(totals.cost)}`, `$${money(totals.profit)}`]}
                     emptyText={t('admin.pages.statistics.common.noData')}
                 />
+
+                <SimpleBarChart
+                    title={t('admin.pages.statistics.index.charts.revenueTrend', 'Revenue Trend')}
+                    labels={dailySales.map((d) => d.date)}
+                    values={dailySales.map((d) => Number(d.revenue || 0))}
+                />
+                <SimpleBarChart
+                    title={t('admin.pages.statistics.index.charts.profitTrend', 'Profit Trend')}
+                    labels={dailySales.map((d) => d.date)}
+                    values={dailySales.map((d) => Number(d.profit || 0))}
+                />
             </div>
         </AdminLayout>
     );
@@ -145,6 +156,33 @@ function DataTable({ title, headers, rows, footer, emptyText }) {
                     ) : null}
                 </table>
             </div>
+        </section>
+    );
+}
+
+function SimpleBarChart({ title, labels, values }) {
+    const maxValue = Math.max(1, ...values.map((v) => Number(v || 0)));
+    return (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
+            {values.length === 0 ? (
+                <p className="text-sm text-slate-400">No chart data.</p>
+            ) : (
+                <div className="space-y-2">
+                    {values.map((value, idx) => {
+                        const width = `${Math.max(2, (Number(value || 0) / maxValue) * 100)}%`;
+                        return (
+                            <div key={`${labels[idx]}-${idx}`} className="grid grid-cols-[150px_1fr_auto] items-center gap-2 text-xs">
+                                <span className="truncate text-slate-400">{labels[idx]}</span>
+                                <div className="h-2.5 rounded bg-slate-800">
+                                    <div className="h-2.5 rounded bg-cyan-400" style={{ width }} />
+                                </div>
+                                <span className="text-slate-200">{money(value)}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </section>
     );
 }

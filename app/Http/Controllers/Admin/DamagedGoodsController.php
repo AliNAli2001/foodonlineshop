@@ -19,10 +19,31 @@ class DamagedGoodsController extends Controller
     /**
      * Display a listing of damaged goods.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $damagedGoods = $this->damagedGoodsService->getAllDamagedGoods();
-        return Inertia::render('admin.damaged-goods.index', compact('damagedGoods'));
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $query = \App\Models\DamagedGoods::with(['product', 'inventoryBatch'])
+            ->orderBy('created_at', 'desc');
+
+        if (is_string($startDate) && $startDate !== '') {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if (is_string($endDate) && $endDate !== '') {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $damagedGoods = $query->paginate(15)->withQueryString();
+
+        return Inertia::render('admin.damaged-goods.index', [
+            'damagedGoods' => $damagedGoods,
+            'filters' => [
+                'start_date' => is_string($startDate) ? $startDate : '',
+                'end_date' => is_string($endDate) ? $endDate : '',
+            ],
+        ]);
     }
 
     /**

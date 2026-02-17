@@ -78,6 +78,16 @@ export default function StatisticsEarnings() {
                         ${money(earningsStats.net_earnings)}
                     </p>
                 </section>
+
+                <SimpleComparisonChart
+                    title={t('admin.pages.statistics.earnings.charts.earningsBreakdown', 'Earnings Breakdown')}
+                    rows={[
+                        { label: t('admin.pages.statistics.earnings.cards.profitFromSales'), value: Number(earningsStats.profit_from_sales || 0), tone: 'bg-emerald-400' },
+                        { label: t('admin.pages.statistics.earnings.cards.gainsFromAdjustments'), value: Number(earningsStats.gains_from_adjustments || 0), tone: 'bg-sky-400' },
+                        { label: t('admin.pages.statistics.earnings.cards.lossesFromAdjustments'), value: Number(earningsStats.losses_from_adjustments || 0), tone: 'bg-rose-400' },
+                        { label: t('admin.pages.statistics.earnings.cards.netEarnings'), value: Number(earningsStats.net_earnings || 0), tone: 'bg-cyan-400' },
+                    ]}
+                />
             </div>
         </AdminLayout>
     );
@@ -85,4 +95,27 @@ export default function StatisticsEarnings() {
 
 function Card({ label, value, tone }) {
     return <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm text-slate-400">{label}</p><p className={`mt-1 text-2xl font-bold ${tone}`}>{value}</p></div>;
+}
+
+function SimpleComparisonChart({ title, rows }) {
+    const maxValue = Math.max(1, ...rows.map((r) => Math.abs(Number(r.value || 0))));
+    return (
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
+            <div className="space-y-2">
+                {rows.map((row, idx) => {
+                    const width = `${Math.max(2, (Math.abs(Number(row.value || 0)) / maxValue) * 100)}%`;
+                    return (
+                        <div key={`${row.label}-${idx}`} className="grid grid-cols-[220px_1fr_auto] items-center gap-2 text-xs">
+                            <span className="truncate text-slate-400">{row.label}</span>
+                            <div className="h-2.5 rounded bg-slate-800">
+                                <div className={`h-2.5 rounded ${row.tone}`} style={{ width }} />
+                            </div>
+                            <span className="text-slate-200">{money(row.value)}</span>
+                        </div>
+                    );
+                })}
+            </div>
+        </section>
+    );
 }
