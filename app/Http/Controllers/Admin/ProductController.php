@@ -28,6 +28,13 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        $tagIds = collect((array) $request->query('tags', []))
+            ->filter(fn ($value) => is_numeric($value))
+            ->map(fn ($value) => (int) $value)
+            ->unique()
+            ->values()
+            ->all();
+
         $query = Product::with(['stock', 'company', 'category', 'tags', 'primaryImage'])
             ->select('products.*')
             ->leftJoin('product_stocks', 'products.id', '=', 'product_stocks.product_id');
@@ -64,6 +71,12 @@ class ProductController extends Controller
                 ->where('product_stocks.available_quantity', '<', DB::raw('products.minimum_alert_quantity'));
         });
 
+        $query->when(!empty($tagIds), function ($q) use ($tagIds) {
+            $q->whereHas('tags', function ($tagQuery) use ($tagIds) {
+                $tagQuery->whereIn('tags.id', $tagIds);
+            });
+        });
+
         $query->when($request->sort, function ($q) use ($request) {
             $sort = $request->sort;
             $order = $request->order ?? 'asc';
@@ -79,8 +92,12 @@ class ProductController extends Controller
         });
 
         $products = $query->paginate(15)->withQueryString();
+        $tags = Tag::query()
+            ->select('id', 'name_ar', 'name_en')
+            ->orderBy('name_en')
+            ->get();
 
-        return Inertia::render('admin.products.index', compact('products'));
+        return Inertia::render('admin.products.index', compact('products', 'tags'));
     }
     // public function index(Request $request)
     // {

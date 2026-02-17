@@ -137,6 +137,7 @@
             "maxPrice": "Max price",
             "minStock": "Min stock",
             "maxStock": "Max stock",
+            "tags": "Tags",
             "apply": "Apply Filters",
             "reset": "Reset",
             "showFilters": "Show Filters",
