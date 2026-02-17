@@ -195,7 +195,13 @@
           "createFailed": "Failed to create item.",
           "tags": "Tags",
           "productImages": "Product Images",
+          "uploadCta": "Upload product images",
+          "uploadHint": "PNG, JPG, WEBP. Pick one or multiple files.",
           "filesSelected": "files selected.",
+          "validation": {
+            "step1": "Fill required fields in Basic Info before continuing.",
+            "step4": "Complete required initial stock fields before submitting."
+          },
           "enableInitialStockBatch": "Enable Initial Stock Batch",
           "initialQuantity": "Initial Quantity",
           "batchNumber": "Batch Number",

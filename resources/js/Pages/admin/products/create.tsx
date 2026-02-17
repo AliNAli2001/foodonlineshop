@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
@@ -23,6 +23,9 @@ export default function ProductsCreate() {
     const [creatingType, setCreatingType] = useState<MetaType | null>(null);
     const [metaError, setMetaError] = useState('');
     const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+    const [stepError, setStepError] = useState('');
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const submitIntentRef = useRef(false);
 
     const { data, setData, post, processing, errors } = useForm({
         name_ar: '',
@@ -119,6 +122,7 @@ export default function ProductsCreate() {
     }, [imagePreviewUrls]);
 
     const onImagesChange = (files: File[]) => {
+        setStepError('');
         imagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
         const nextUrls = files.map((file) => URL.createObjectURL(file));
         setImagePreviewUrls(nextUrls);
@@ -137,6 +141,11 @@ export default function ProductsCreate() {
         setData('primary_image_index', 0);
     };
 
+    const removeImageAt = (index: number) => {
+        const nextFiles = (data.images || []).filter((_: File, idx: number) => idx !== index);
+        onImagesChange(nextFiles);
+    };
+
     const isStepOneValid = () => {
         if (!String(data.name_ar || '').trim()) return false;
         if (!String(data.name_en || '').trim()) return false;
@@ -144,7 +153,48 @@ export default function ProductsCreate() {
         return Number.isFinite(price) && price > 0;
     };
 
-    const canGoNext = () => (step === 1 ? isStepOneValid() : true);
+    const isInitialStockStepValid = () => {
+        if (!data.enable_initial_stock) return true;
+        const qty = Number(data.initial_stock_quantity);
+        const cost = Number(data.initial_cost_price);
+        if (!Number.isFinite(qty) || qty < 1) return false;
+        if (!String(data.initial_batch_number || '').trim()) return false;
+        if (!Number.isFinite(cost) || cost <= 0) return false;
+        return true;
+    };
+
+    const validateStep = (stepToValidate: number) => {
+        if (stepToValidate === 1 && !isStepOneValid()) {
+            return t('admin.pages.products.create.validation.step1', 'Fill required fields in Basic Info before continuing.');
+        }
+        if (stepToValidate === 4 && !isInitialStockStepValid()) {
+            return t('admin.pages.products.create.validation.step4', 'Complete required initial stock fields before submitting.');
+        }
+        return '';
+    };
+
+    const canGoNext = () => validateStep(step) === '';
+
+    const goToStep = (targetStep: number) => {
+        const normalizedTarget = Math.min(STEP_TOTAL, Math.max(1, targetStep));
+        if (normalizedTarget <= step) {
+            setStepError('');
+            setStep(normalizedTarget);
+            return;
+        }
+
+        for (let current = step; current < normalizedTarget; current += 1) {
+            const validationMessage = validateStep(current);
+            if (validationMessage) {
+                setStepError(validationMessage);
+                setStep(current);
+                return;
+            }
+        }
+
+        setStepError('');
+        setStep(normalizedTarget);
+    };
 
     const openCreateModal = (type: MetaType) => {
         setMetaError('');
@@ -240,10 +290,20 @@ export default function ProductsCreate() {
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (step < STEP_TOTAL) {
-            setStep((prev) => Math.min(STEP_TOTAL, prev + 1));
+        if (!submitIntentRef.current || step !== STEP_TOTAL) {
+            submitIntentRef.current = false;
             return;
         }
+
+        const finalValidationMessage = validateStep(4);
+        if (finalValidationMessage) {
+            submitIntentRef.current = false;
+            setStepError(finalValidationMessage);
+            return;
+        }
+
+        setStepError('');
+        submitIntentRef.current = false;
         post('/admin/products', { forceFormData: true });
     };
 
@@ -268,7 +328,7 @@ export default function ProductsCreate() {
                                 <button
                                     key={title}
                                     type="button"
-                                    onClick={() => setStep(itemStep)}
+                                    onClick={() => goToStep(itemStep)}
                                     className={`rounded-xl border px-3 py-2 text-left text-xs ${active ? 'border-cyan-300/40 bg-cyan-400/20 text-cyan-100' : done ? 'border-emerald-300/30 bg-emerald-400/10 text-emerald-100' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]'}`}
                                 >
                                     <span className="block text-[10px] uppercase tracking-[0.12em]">{t('admin.pages.products.create.step', 'Step')} {itemStep}</span>
@@ -279,7 +339,15 @@ export default function ProductsCreate() {
                     </div>
                 </section>
 
-                <form onSubmit={submit} className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <form
+                    onSubmit={submit}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && step < STEP_TOTAL) {
+                            e.preventDefault();
+                        }
+                    }}
+                    className="space-y-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5"
+                >
                     {step === 1 && (
                         <div className="grid gap-4 md:grid-cols-2">
                             <Field label={t('admin.pages.products.create.arabicName')} error={errors.name_ar}><input value={data.name_ar} onChange={(e) => setData('name_ar', e.target.value)} className={inputClass} required /></Field>
@@ -383,21 +451,58 @@ export default function ProductsCreate() {
 
                     {step === 3 && (
                         <Field label={t('admin.pages.products.create.productImages')} error={errors.images}>
-                            <input type="file" multiple accept="image/*" onChange={(e) => onImagesChange(Array.from(e.target.files || []))} className={inputClass} />
-                            {imagesPreviewCount > 0 && <p className="mt-1 text-xs text-slate-400">{imagesPreviewCount} {t('admin.pages.products.create.filesSelected')}</p>}
+                            <div className="space-y-3">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={(e) => onImagesChange(Array.from(e.target.files || []))}
+                                    className="hidden"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full rounded-2xl border border-dashed border-cyan-300/35 bg-cyan-400/5 px-4 py-6 text-center transition hover:bg-cyan-400/10"
+                                >
+                                    <p className="text-sm font-semibold text-cyan-100">{t('admin.pages.products.create.uploadCta', 'Upload product images')}</p>
+                                    <p className="mt-1 text-xs text-slate-300">{t('admin.pages.products.create.uploadHint', 'PNG, JPG, WEBP. Pick one or multiple files.')}</p>
+                                </button>
+                                {imagesPreviewCount > 0 && (
+                                    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                                        <p className="text-xs text-slate-300">{imagesPreviewCount} {t('admin.pages.products.create.filesSelected')}</p>
+                                        <button
+                                            type="button"
+                                            onClick={() => onImagesChange([])}
+                                            className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20"
+                                        >
+                                            {t('admin.pages.products.create.clearSelection', 'Clear')}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             {imagesPreviewCount > 0 && (
                                 <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                     {imagePreviewUrls.map((url, idx) => (
                                         <label key={`${url}-${idx}`} className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] p-2">
                                             <img src={url} alt={`preview-${idx}`} className="h-28 w-full rounded-lg object-cover" />
-                                            <div className="mt-2 flex items-center gap-2 text-xs text-slate-200">
-                                                <input
-                                                    type="radio"
-                                                    name="primary_image_index"
-                                                    checked={Number(data.primary_image_index) === idx}
-                                                    onChange={() => setData('primary_image_index', idx)}
-                                                />
-                                                {t('admin.pages.products.create.primaryImage', 'Primary image')}
+                                            <div className="mt-2 flex items-center justify-between gap-2 text-xs text-slate-200">
+                                                <span className="flex items-center gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="primary_image_index"
+                                                        checked={Number(data.primary_image_index) === idx}
+                                                        onChange={() => setData('primary_image_index', idx)}
+                                                    />
+                                                    {t('admin.pages.products.create.primaryImage', 'Primary image')}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImageAt(idx)}
+                                                    className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2 py-0.5 text-[11px] text-rose-200 hover:bg-rose-500/20"
+                                                >
+                                                    {t('common.delete')}
+                                                </button>
                                             </div>
                                         </label>
                                     ))}
@@ -447,7 +552,7 @@ export default function ProductsCreate() {
                             <button
                                 type="button"
                                 disabled={step === 1}
-                                onClick={() => setStep((prev) => Math.max(1, prev - 1))}
+                                onClick={() => goToStep(step - 1)}
                                 className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {t('admin.pages.products.create.previous', 'Previous')}
@@ -457,19 +562,27 @@ export default function ProductsCreate() {
                                 <button
                                     type="button"
                                     disabled={!canGoNext()}
-                                    onClick={() => setStep((prev) => Math.min(STEP_TOTAL, prev + 1))}
+                                    onClick={() => goToStep(step + 1)}
                                     className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {t('admin.pages.products.create.next', 'Next')}
                                 </button>
                             ) : (
-                                <button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">
+                                <button
+                                    type="submit"
+                                    onClick={() => {
+                                        submitIntentRef.current = true;
+                                    }}
+                                    disabled={processing}
+                                    className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70"
+                                >
                                     {processing ? t('admin.pages.products.create.saving') : t('admin.pages.products.create.submit')}
                                 </button>
                             )}
                             <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link>
                         </div>
                     </div>
+                    {stepError ? <p className="text-sm text-rose-300">{stepError}</p> : null}
                 </form>
             </div>
 

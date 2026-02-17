@@ -195,7 +195,13 @@
           "createFailed": "فشل إنشاء العنصر.",
           "tags": "الوسوم",
           "productImages": "صور المنتج",
+          "uploadCta": "رفع صور المنتج",
+          "uploadHint": "PNG و JPG و WEBP. يمكنك اختيار صورة واحدة أو عدة صور.",
           "filesSelected": "ملفات تم اختيارها.",
+          "validation": {
+            "step1": "أكمل الحقول المطلوبة في المعلومات الأساسية قبل المتابعة.",
+            "step4": "أكمل الحقول المطلوبة للمخزون الأولي قبل الحفظ."
+          },
           "enableInitialStockBatch": "تفعيل دفعة مخزون أولية",
           "initialQuantity": "الكمية الأولية",
           "batchNumber": "رقم الدفعة",
