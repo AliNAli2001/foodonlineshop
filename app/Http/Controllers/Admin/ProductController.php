@@ -168,6 +168,7 @@ class ProductController extends Controller
             // Images
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:3072',
+            'primary_image_index' => 'nullable|integer|min:0',
         ]);
 
         try {
@@ -175,7 +176,10 @@ class ProductController extends Controller
 
             // Handle image uploads
             if ($request->hasFile('images')) {
-                $this->storeProductImages($request->file('images'), $product);
+                $primaryImageIndex = isset($validated['primary_image_index'])
+                    ? (int) $validated['primary_image_index']
+                    : null;
+                $this->storeProductImages($request->file('images'), $product, $primaryImageIndex);
             }
 
             return redirect()->route('admin.products.index')
@@ -349,12 +353,17 @@ class ProductController extends Controller
     /**
      * Helper: Store uploaded images for a product.
      */
-    private function storeProductImages(array $images, Product $product): void
+    private function storeProductImages(array $images, Product $product, ?int $primaryImageIndex = null): void
     {
         $folder = "products/{$product->id}";
+        $imageCount = count($images);
+        $resolvedPrimaryIndex = $primaryImageIndex;
+        if ($resolvedPrimaryIndex === null || $resolvedPrimaryIndex < 0 || $resolvedPrimaryIndex >= $imageCount) {
+            $resolvedPrimaryIndex = 0;
+        }
 
         foreach ($images as $index => $image) {
-            $isPrimary = $index === 0 && $product->images()->where('is_primary', true)->doesntExist();
+            $isPrimary = $index === $resolvedPrimaryIndex && $product->images()->where('is_primary', true)->doesntExist();
 
             $imageName = uniqid('img_', true) . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs($folder, $imageName, 'public');

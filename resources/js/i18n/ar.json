@@ -172,12 +172,23 @@
           "searchCategory": "ابحث عن تصنيف...",
           "searchTag": "ابحث عن وسوم...",
           "selectedTags": "الوسوم المختارة",
+          "step": "الخطوة",
+          "previous": "السابق",
+          "next": "التالي",
+          "steps": {
+            "basic": "المعلومات الأساسية",
+            "meta": "الشركة والتصنيف والوسوم",
+            "images": "الصور",
+            "inventory": "المخزون والإرسال"
+          },
           "newArabicName": "اسم جديد بالعربية",
           "newEnglishName": "اسم جديد بالإنجليزية",
           "addCompanyInline": "إنشاء شركة",
           "addCategoryInline": "إنشاء تصنيف",
           "addTagInline": "إنشاء وسم",
           "clearSelectedTags": "مسح المختار",
+          "clearSelection": "مسح",
+          "noResults": "لا توجد نتائج",
           "creating": "جارٍ الإنشاء...",
           "requireBothNames": "الاسمان العربي والإنجليزي مطلوبان.",
           "createFailed": "فشل إنشاء العنصر.",
@@ -196,6 +207,10 @@
         "edit": {
           "title": "تعديل المنتج",
           "subtitle": "تحديث البيانات والوسوم وإعدادات إدارة الصور.",
+          "steps": {
+            "currentImages": "الصور الحالية",
+            "uploadSubmit": "الرفع والإرسال"
+          },
           "viewProduct": "عرض المنتج",
           "currentImages": "الصور الحالية",
           "noImages": "لا توجد صور.",

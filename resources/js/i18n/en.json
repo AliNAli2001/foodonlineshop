@@ -172,12 +172,23 @@
           "searchCategory": "Search category...",
           "searchTag": "Search tags...",
           "selectedTags": "Selected tags",
+          "step": "Step",
+          "previous": "Previous",
+          "next": "Next",
+          "steps": {
+            "basic": "Basic Info",
+            "meta": "Company, Category, Tags",
+            "images": "Images",
+            "inventory": "Inventory & Submit"
+          },
           "newArabicName": "New Arabic name",
           "newEnglishName": "New English name",
           "addCompanyInline": "Create company",
           "addCategoryInline": "Create category",
           "addTagInline": "Create tag",
           "clearSelectedTags": "Clear selected",
+          "clearSelection": "Clear",
+          "noResults": "No results",
           "creating": "Creating...",
           "requireBothNames": "Arabic and English names are required.",
           "createFailed": "Failed to create item.",
@@ -196,6 +207,10 @@
         "edit": {
           "title": "Edit Product",
           "subtitle": "Update details, tags, and image management settings.",
+          "steps": {
+            "currentImages": "Current Images",
+            "uploadSubmit": "Upload & Submit"
+          },
           "viewProduct": "View Product",
           "currentImages": "Current Images",
           "noImages": "No images.",
