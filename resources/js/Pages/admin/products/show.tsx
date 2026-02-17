@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
@@ -12,6 +12,16 @@ function stockState(product) {
 export default function ProductsShow() {
   const { t } = useI18n();
     const { product, previousProduct, nextProduct } = usePage().props;
+    const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!activeImageUrl) return;
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setActiveImageUrl(null);
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [activeImageUrl]);
 
     return (
         <AdminLayout title={`${t('admin.pages.products.show.title')} #${product.id}`}>
@@ -78,7 +88,9 @@ export default function ProductsShow() {
                                         const url = img.full_url || (img.image_url ? `/storage/${img.image_url}` : '');
                                         return (
                                             <div key={img.id} className="rounded-lg border border-white/10 bg-slate-900/40 p-2">
-                                                <img src={url} alt="product" className="h-40 w-full rounded-lg object-cover" />
+                                                <button type="button" onClick={() => setActiveImageUrl(url)} className="w-full">
+                                                    <img src={url} alt="product" className="h-40 w-full rounded-lg object-cover transition hover:opacity-90 cursor-zoom-in" />
+                                                </button>
                                                 {img.is_primary ? <span className="mt-2 inline-flex rounded-full bg-cyan-400/20 px-2 py-0.5 text-xs text-cyan-200">{t('admin.pages.products.show.primary')}</span> : null}
                                             </div>
                                         );
@@ -113,6 +125,29 @@ export default function ProductsShow() {
                     </aside>
                 </div>
             </div>
+
+            {activeImageUrl && (
+                <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/90 p-4" onClick={() => setActiveImageUrl(null)}>
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveImageUrl(null);
+                        }}
+                        className="absolute right-4 top-4 z-[91] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-slate-900/85 text-xl font-bold text-white shadow-lg hover:bg-slate-800"
+                        aria-label={t('common.close', 'Close')}
+                        title={t('common.close', 'Close')}
+                    >
+                        x
+                    </button>
+                    <img
+                        src={activeImageUrl}
+                        alt="product enlarged"
+                        className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </AdminLayout>
     );
 }
