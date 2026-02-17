@@ -894,6 +894,10 @@
           },
           "dailySales": {
             "title": "Daily Sales"
+          },
+          "charts": {
+            "revenueTrend": "Revenue Trend",
+            "profitTrend": "Profit Trend"
           }
         },
         "sales": {
@@ -912,6 +916,10 @@
           },
           "dailySales": {
             "title": "Daily Sales"
+          },
+          "charts": {
+            "ordersTrend": "Orders Trend",
+            "revenueTrend": "Revenue Trend"
           }
         },
         "earnings": {
@@ -931,7 +939,10 @@
             "gainRecords": "Gain Records",
             "lossRecords": "Loss Records"
           },
-          "finalNetEarnings": "Final Net Earnings"
+          "finalNetEarnings": "Final Net Earnings",
+          "charts": {
+            "earningsBreakdown": "Earnings Breakdown"
+          }
         }
       }
     }

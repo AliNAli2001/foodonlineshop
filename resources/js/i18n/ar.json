@@ -894,6 +894,10 @@
           },
           "dailySales": {
             "title": "المبيعات اليومية"
+          },
+          "charts": {
+            "revenueTrend": "اتجاه الإيرادات",
+            "profitTrend": "اتجاه الأرباح"
           }
         },
         "sales": {
@@ -912,6 +916,10 @@
           },
           "dailySales": {
             "title": "المبيعات اليومية"
+          },
+          "charts": {
+            "ordersTrend": "اتجاه الطلبات",
+            "revenueTrend": "اتجاه الإيرادات"
           }
         },
         "earnings": {
@@ -931,7 +939,10 @@
             "gainRecords": "سجلات الأرباح",
             "lossRecords": "سجلات الخسائر"
           },
-          "finalNetEarnings": "صافي الأرباح النهائي"
+          "finalNetEarnings": "صافي الأرباح النهائي",
+          "charts": {
+            "earningsBreakdown": "تفصيل الأرباح"
+          }
         }
       }
     }
