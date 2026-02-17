@@ -63,11 +63,17 @@ class CompanyController extends Controller
             $logoPath = $request->file('logo')->store('companies', 'public');
         }
 
-        Company::create([
+        $company = Company::create([
             'name_ar' => $validated['name_ar'],
             'name_en' => $validated['name_en'],
             'logo' => $logoPath,
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'company' => $company->only(['id', 'name_ar', 'name_en']),
+            ], 201);
+        }
 
         return redirect()->route('admin.companies.index')
             ->with('success', 'تم إنشاء الشركة بنجاح.');

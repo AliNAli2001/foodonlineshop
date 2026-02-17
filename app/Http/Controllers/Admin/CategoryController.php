@@ -66,12 +66,18 @@ class CategoryController extends Controller
             $imagePath = $request->file('category_image')->store('categories', 'public');
         }
 
-        Category::create([
+        $category = Category::create([
             'name_ar' => $validated['name_ar'],
             'name_en' => $validated['name_en'],
             'featured' => $validated['featured'] ?? false,
             'category_image' => $imagePath,
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'category' => $category->only(['id', 'name_ar', 'name_en']),
+            ], 201);
+        }
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'تم إنشاء الصنف بنجاح.');

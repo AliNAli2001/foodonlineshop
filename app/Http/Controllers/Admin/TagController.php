@@ -58,10 +58,16 @@ class TagController extends Controller
 
  
 
-        Tag::create([
+        $tag = Tag::create([
             'name_ar' => $validated['name_ar'],
             'name_en' => $validated['name_en'],
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'tag' => $tag->only(['id', 'name_ar', 'name_en']),
+            ], 201);
+        }
 
         return redirect()->route('admin.tags.index')
             ->with('success', 'تم إنشاء الوسم بنجاح.');

@@ -139,6 +139,11 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'enable_initial_stock' => $request->boolean('enable_initial_stock') ? 1 : 0,
+            'featured' => $request->boolean('featured'),
+        ]);
+
         $validated = $request->validate([
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
@@ -155,10 +160,10 @@ class ProductController extends Controller
 
             // Initial inventory batch (optional)
             'enable_initial_stock' => 'boolean',
-            'initial_stock_quantity' => 'required_if:enable_initial_stock,1|integer|min:1',
-            'initial_batch_number' => 'required_if:enable_initial_stock,1|string|max:100',
-            'initial_expiry_date' => 'nullable|date|after_or_equal:today',
-            'initial_cost_price' => 'required_if:enable_initial_stock,1|numeric|min:0.001',
+            'initial_stock_quantity' => 'exclude_unless:enable_initial_stock,1|required|integer|min:1',
+            'initial_batch_number' => 'exclude_unless:enable_initial_stock,1|required|string|max:100',
+            'initial_expiry_date' => 'exclude_unless:enable_initial_stock,1|nullable|date|after_or_equal:today',
+            'initial_cost_price' => 'exclude_unless:enable_initial_stock,1|required|numeric|min:0.001',
 
             // Images
             'images' => 'nullable|array',

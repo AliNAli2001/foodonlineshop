@@ -1,11 +1,30 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
 export default function ProductsCreate() {
-  const { t } = useI18n();
-    const { categories = [], tags = [], companies = [], maxOrderItems = null, generalMinimumAlertQuantity = null } = usePage().props;
+    const { t } = useI18n();
+    const { categories = [], tags = [], companies = [], maxOrderItems = null, generalMinimumAlertQuantity = null } = usePage<any>().props;
+    const [companyOptions, setCompanyOptions] = useState<any[]>(companies);
+    const [categoryOptions, setCategoryOptions] = useState<any[]>(categories);
+    const [tagOptions, setTagOptions] = useState<any[]>(tags);
+
+    const [companySearch, setCompanySearch] = useState('');
+    const [categorySearch, setCategorySearch] = useState('');
+    const [tagSearch, setTagSearch] = useState('');
+
+    const [newCompanyAr, setNewCompanyAr] = useState('');
+    const [newCompanyEn, setNewCompanyEn] = useState('');
+    const [newCategoryAr, setNewCategoryAr] = useState('');
+    const [newCategoryEn, setNewCategoryEn] = useState('');
+    const [newTagAr, setNewTagAr] = useState('');
+    const [newTagEn, setNewTagEn] = useState('');
+
+    const [creatingCompany, setCreatingCompany] = useState(false);
+    const [creatingCategory, setCreatingCategory] = useState(false);
+    const [creatingTag, setCreatingTag] = useState(false);
+    const [metaError, setMetaError] = useState('');
 
     const { data, setData, post, processing, errors } = useForm({
         name_ar: '',
@@ -37,7 +56,111 @@ export default function ProductsCreate() {
         setData('tags', data.tags.includes(value) ? data.tags.filter((t) => t !== value) : [...data.tags, value]);
     };
 
+    const filteredCompanies = useMemo(() => {
+        const q = companySearch.trim().toLowerCase();
+        if (!q) return companyOptions;
+        return companyOptions.filter((c) => `${c?.name_en || ''} ${c?.name_ar || ''}`.toLowerCase().includes(q));
+    }, [companyOptions, companySearch]);
+
+    const filteredCategories = useMemo(() => {
+        const q = categorySearch.trim().toLowerCase();
+        if (!q) return categoryOptions;
+        return categoryOptions.filter((c) => `${c?.name_en || ''} ${c?.name_ar || ''}`.toLowerCase().includes(q));
+    }, [categoryOptions, categorySearch]);
+
+    const filteredTags = useMemo(() => {
+        const q = tagSearch.trim().toLowerCase();
+        if (!q) return tagOptions;
+        return tagOptions.filter((tag) => `${tag?.name_en || ''} ${tag?.name_ar || ''}`.toLowerCase().includes(q));
+    }, [tagOptions, tagSearch]);
+
     const imagesPreviewCount = useMemo(() => (data.images?.length ? data.images.length : 0), [data.images]);
+    const selectedTagsCount = useMemo(() => data.tags.length || 0, [data.tags]);
+
+    const csrfToken = () =>
+        document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    const createMeta = async (type: 'company' | 'category' | 'tag') => {
+        setMetaError('');
+
+        const payloadByType: Record<'company' | 'category' | 'tag', { endpoint: string; body: { name_ar: string; name_en: string; featured?: boolean }; key: 'company' | 'category' | 'tag' }> = {
+            company: {
+                endpoint: '/admin/companies',
+                body: { name_ar: newCompanyAr.trim(), name_en: newCompanyEn.trim() },
+                key: 'company',
+            },
+            category: {
+                endpoint: '/admin/categories',
+                body: { name_ar: newCategoryAr.trim(), name_en: newCategoryEn.trim(), featured: false },
+                key: 'category',
+            },
+            tag: {
+                endpoint: '/admin/tags',
+                body: { name_ar: newTagAr.trim(), name_en: newTagEn.trim() },
+                key: 'tag',
+            },
+        };
+
+        const current = payloadByType[type];
+        if (!current.body.name_ar || !current.body.name_en) {
+            setMetaError(t('admin.pages.products.create.requireBothNames', 'Arabic and English names are required.'));
+            return;
+        }
+
+        if (type === 'company') setCreatingCompany(true);
+        if (type === 'category') setCreatingCategory(true);
+        if (type === 'tag') setCreatingTag(true);
+
+        try {
+            const response = await fetch(current.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken(),
+                },
+                body: JSON.stringify(current.body),
+            });
+
+            const json = await response.json();
+            if (!response.ok) {
+                const firstError = json?.message || Object.values(json?.errors || {}).flat()?.[0];
+                throw new Error((firstError as string) || 'Unable to create item.');
+            }
+
+            const created = json?.[current.key];
+            if (!created?.id) throw new Error('Invalid server response.');
+
+            if (type === 'company') {
+                setCompanyOptions((prev) => [created, ...prev]);
+                setData('company_id', String(created.id));
+                setNewCompanyAr('');
+                setNewCompanyEn('');
+            }
+
+            if (type === 'category') {
+                setCategoryOptions((prev) => [created, ...prev]);
+                setData('category_id', String(created.id));
+                setNewCategoryAr('');
+                setNewCategoryEn('');
+            }
+
+            if (type === 'tag') {
+                setTagOptions((prev) => [created, ...prev]);
+                const id = Number(created.id);
+                if (!data.tags.includes(id)) setData('tags', [...data.tags, id]);
+                setNewTagAr('');
+                setNewTagEn('');
+            }
+        } catch (err: any) {
+            setMetaError(err?.message || t('admin.pages.products.create.createFailed', 'Failed to create item.'));
+        } finally {
+            setCreatingCompany(false);
+            setCreatingCategory(false);
+            setCreatingTag(false);
+        }
+    };
 
     return (
         <AdminLayout title={t('admin.pages.products.create.title')}>
@@ -61,30 +184,97 @@ export default function ProductsCreate() {
                         <Field label={t('admin.pages.products.create.minimumAlertQuantity')} error={errors.minimum_alert_quantity}><input type="number" min="0" value={data.minimum_alert_quantity} onChange={(e) => setData('minimum_alert_quantity', e.target.value)} className={inputClass} /></Field>
 
                         <Field label={t('admin.pages.products.create.company')} error={errors.company_id}>
+                            <input
+                                value={companySearch}
+                                onChange={(e) => setCompanySearch(e.target.value)}
+                                placeholder={t('admin.pages.products.create.searchCompany', 'Search company...')}
+                                className={`${inputClass} mb-2`}
+                            />
                             <select value={data.company_id} onChange={(e) => setData('company_id', e.target.value)} className={inputClass}>
                                 <option value="">{t('admin.pages.products.create.selectCompany')}</option>
-                                {companies.map((c) => <option key={c.id} value={c.id}>{c.name_en || c.name_ar}</option>)}
+                                {filteredCompanies.map((c) => <option key={c.id} value={c.id}>{c.name_en || c.name_ar}</option>)}
                             </select>
+                            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                                <input value={newCompanyAr} onChange={(e) => setNewCompanyAr(e.target.value)} placeholder={t('admin.pages.products.create.newArabicName', 'New Arabic name')} className={inputClass} />
+                                <input value={newCompanyEn} onChange={(e) => setNewCompanyEn(e.target.value)} placeholder={t('admin.pages.products.create.newEnglishName', 'New English name')} className={inputClass} />
+                            </div>
+                            <button
+                                type="button"
+                                disabled={creatingCompany}
+                                onClick={() => createMeta('company')}
+                                className="mt-2 rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-70"
+                            >
+                                {creatingCompany ? t('admin.pages.products.create.creating', 'Creating...') : t('admin.pages.products.create.addCompanyInline', 'Create company')}
+                            </button>
                         </Field>
 
                         <Field label={t('admin.pages.products.create.category')} error={errors.category_id}>
+                            <input
+                                value={categorySearch}
+                                onChange={(e) => setCategorySearch(e.target.value)}
+                                placeholder={t('admin.pages.products.create.searchCategory', 'Search category...')}
+                                className={`${inputClass} mb-2`}
+                            />
                             <select value={data.category_id} onChange={(e) => setData('category_id', e.target.value)} className={inputClass}>
                                 <option value="">{t('admin.pages.products.create.selectCategory')}</option>
-                                {categories.map((c) => <option key={c.id} value={c.id}>{c.name_en || c.name_ar}</option>)}
+                                {filteredCategories.map((c) => <option key={c.id} value={c.id}>{c.name_en || c.name_ar}</option>)}
                             </select>
+                            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                                <input value={newCategoryAr} onChange={(e) => setNewCategoryAr(e.target.value)} placeholder={t('admin.pages.products.create.newArabicName', 'New Arabic name')} className={inputClass} />
+                                <input value={newCategoryEn} onChange={(e) => setNewCategoryEn(e.target.value)} placeholder={t('admin.pages.products.create.newEnglishName', 'New English name')} className={inputClass} />
+                            </div>
+                            <button
+                                type="button"
+                                disabled={creatingCategory}
+                                onClick={() => createMeta('category')}
+                                className="mt-2 rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-70"
+                            >
+                                {creatingCategory ? t('admin.pages.products.create.creating', 'Creating...') : t('admin.pages.products.create.addCategoryInline', 'Create category')}
+                            </button>
                         </Field>
                     </div>
 
                     <Field label={t('admin.pages.products.create.tags')} error={errors.tags}>
-                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                            {tags.map((tag) => (
+                        <input
+                            value={tagSearch}
+                            onChange={(e) => setTagSearch(e.target.value)}
+                            placeholder={t('admin.pages.products.create.searchTag', 'Search tags...')}
+                            className={`${inputClass} mb-2`}
+                        />
+                        <div className="mb-2 text-xs text-slate-400">
+                            {t('admin.pages.products.create.selectedTags', 'Selected tags')}: {selectedTagsCount}
+                        </div>
+                        <div className="grid max-h-48 gap-2 overflow-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+                            {filteredTags.map((tag) => (
                                 <label key={tag.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200">
                                     <input type="checkbox" checked={data.tags.includes(Number(tag.id))} onChange={() => toggleTag(tag.id)} />
                                     {tag.name_en || tag.name_ar}
                                 </label>
                             ))}
                         </div>
+                        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                            <input value={newTagAr} onChange={(e) => setNewTagAr(e.target.value)} placeholder={t('admin.pages.products.create.newArabicName', 'New Arabic name')} className={inputClass} />
+                            <input value={newTagEn} onChange={(e) => setNewTagEn(e.target.value)} placeholder={t('admin.pages.products.create.newEnglishName', 'New English name')} className={inputClass} />
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                disabled={creatingTag}
+                                onClick={() => createMeta('tag')}
+                                className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-70"
+                            >
+                                {creatingTag ? t('admin.pages.products.create.creating', 'Creating...') : t('admin.pages.products.create.addTagInline', 'Create tag')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setData('tags', [])}
+                                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10"
+                            >
+                                {t('admin.pages.products.create.clearSelectedTags', 'Clear selected')}
+                            </button>
+                        </div>
                     </Field>
+                    {metaError ? <p className="text-sm text-rose-300">{metaError}</p> : null}
 
                     <Field label={t('admin.pages.products.create.productImages')} error={errors.images}>
                         <input type="file" multiple accept="image/*" onChange={(e) => setData('images', Array.from(e.target.files || []))} className={inputClass} />
@@ -93,7 +283,20 @@ export default function ProductsCreate() {
 
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                         <label className="flex items-center gap-2 text-sm text-slate-100">
-                            <input type="checkbox" checked={data.enable_initial_stock} onChange={(e) => setData('enable_initial_stock', e.target.checked)} />
+                            <input
+                                type="checkbox"
+                                checked={data.enable_initial_stock}
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setData('enable_initial_stock', checked);
+                                    if (!checked) {
+                                        setData('initial_stock_quantity', '');
+                                        setData('initial_batch_number', '');
+                                        setData('initial_expiry_date', '');
+                                        setData('initial_cost_price', '');
+                                    }
+                                }}
+                            />
                             {t('admin.pages.products.create.enableInitialStockBatch')}
                         </label>
 
