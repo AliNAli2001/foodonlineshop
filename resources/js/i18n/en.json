@@ -458,6 +458,20 @@
             "expiringMonth": "Expiring In 1 Month",
             "expired": "Expired"
           },
+          "bulk": {
+            "title": "Bulk Create Batches",
+            "defaultBatchNumber": "Default Batch Number",
+            "rowsCount": "Number of rows",
+            "applyRows": "Apply Rows",
+            "item": "Item",
+            "productSearch": "Search Product",
+            "productSearchPlaceholder": "Type product name...",
+            "batchNumber": "Batch Number",
+            "quantity": "Quantity",
+            "expiryDate": "Expiry Date",
+            "costPrice": "Cost Price",
+            "submit": "Create Batches"
+          },
           "allProducts": "All Products",
           "lowStockProducts": "Low Stock Products",
           "empty": "No products found.",

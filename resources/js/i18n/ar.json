@@ -458,6 +458,20 @@
             "expiringMonth": "تنتهي خلال شهر",
             "expired": "منتهي الصلاحية"
           },
+          "bulk": {
+            "title": "إنشاء دفعات متعددة",
+            "defaultBatchNumber": "رقم الدفعة الافتراضي",
+            "rowsCount": "عدد الصفوف",
+            "applyRows": "تطبيق العدد",
+            "item": "عنصر",
+            "productSearch": "بحث عن منتج",
+            "productSearchPlaceholder": "اكتب اسم المنتج...",
+            "batchNumber": "رقم الدفعة",
+            "quantity": "الكمية",
+            "expiryDate": "تاريخ الانتهاء",
+            "costPrice": "سعر التكلفة",
+            "submit": "إنشاء الدفعات"
+          },
           "allProducts": "كل المنتجات",
           "lowStockProducts": "المنتجات منخفضة المخزون",
           "empty": "لا توجد منتجات.",

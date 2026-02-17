@@ -95,6 +95,9 @@ export default function InventoryIndex() {
             <p className="text-sm text-slate-300">{t('admin.pages.inventory.index.subtitle')}</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link href="/admin/inventory/bulk/create" className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-400/20">
+              {t('admin.pages.inventory.index.bulk.title')}
+            </Link>
             {isLowStockRoute ? (
               <Link href="/admin/inventory" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.inventory.index.allProducts')}</Link>
             ) : (

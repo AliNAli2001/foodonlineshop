@@ -116,6 +116,9 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     // Inventory
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/low-stock', [InventoryController::class, 'indexLowStockProducts'])->name('inventory.index.low-stock');
+    Route::get('/inventory/bulk/create', [InventoryController::class, 'bulkCreate'])->name('inventory.bulk-create');
+    Route::post('/inventory/bulk', [InventoryController::class, 'bulkStore'])->name('inventory.bulk-store');
+    Route::get('/inventory/autocomplete/products', [InventoryController::class, 'searchProducts'])->name('inventory.autocomplete.products');
     Route::get('/inventory/{product}', [InventoryController::class, 'show'])->name('inventory.show');
     Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
