@@ -89,8 +89,10 @@ class TagController extends Controller
     {
         $tag = Tag::with('products')->findOrFail($tagId);
         $products = $tag->products()->paginate(15);
+        $previousTag = Tag::where('id', '<', $tag->id)->orderBy('id', 'desc')->first();
+        $nextTag = Tag::where('id', '>', $tag->id)->orderBy('id', 'asc')->first();
 
-        return Inertia::render('admin.tags.show', compact('tag', 'products'));
+        return Inertia::render('admin.tags.show', compact('tag', 'products', 'previousTag', 'nextTag'));
     }
 
     /**

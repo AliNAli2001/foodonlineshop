@@ -5,7 +5,7 @@ import { useI18n } from '../../../i18n';
 
 export default function TagsShow() {
   const { t } = useI18n();
-  const { tag, products } = usePage<any>().props;
+  const { tag, products, previousTag, nextTag } = usePage<any>().props;
   const rows = Array.isArray(products?.data) ? products.data : [];
 
   return (
@@ -16,10 +16,33 @@ export default function TagsShow() {
           <div className="flex gap-2"><Link href={`/admin/tags/${tag.id}/edit`} className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">{t('common.edit')}</Link><Link href="/admin/tags" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link></div>
         </section>
 
-        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <h2 className="mb-3 text-lg font-semibold text-white">{t('admin.pages.tags.show.tagInformation')}</h2>
-          <p className="text-sm text-slate-200"><span className="text-slate-400">{t('admin.pages.tags.form.arabicName')}: </span>{tag.name_ar}</p>
-          <p className="text-sm text-slate-200"><span className="text-slate-400">{t('admin.pages.tags.form.englishName')}: </span>{tag.name_en}</p>
+        <section className="grid gap-6 lg:grid-cols-2">
+          <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+            <h2 className="mb-3 text-lg font-semibold text-white">{t('admin.pages.tags.show.tagInformation')}</h2>
+            <p className="text-sm text-slate-200"><span className="text-slate-400">{t('admin.pages.tags.form.arabicName')}: </span>{tag.name_ar}</p>
+            <p className="text-sm text-slate-200"><span className="text-slate-400">{t('admin.pages.tags.form.englishName')}: </span>{tag.name_en}</p>
+          </article>
+
+          <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+            <h2 className="mb-3 text-lg font-semibold text-white">{t('admin.pages.tags.show.navigate', 'Navigate')}</h2>
+            <div className="space-y-2">
+              {previousTag ? (
+                <Link href={`/admin/tags/${previousTag.id}`} className="block rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">
+                  {t('admin.pages.tags.show.previousTag', 'Previous Tag')}
+                </Link>
+              ) : (
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">{t('admin.pages.tags.show.noPreviousTag', 'No previous tag')}</div>
+              )}
+
+              {nextTag ? (
+                <Link href={`/admin/tags/${nextTag.id}`} className="block rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">
+                  {t('admin.pages.tags.show.nextTag', 'Next Tag')}
+                </Link>
+              ) : (
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">{t('admin.pages.tags.show.noNextTag', 'No next tag')}</div>
+              )}
+            </div>
+          </article>
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">

@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
 export default function CompaniesShow() {
   const { t } = useI18n();
-  const { company, products } = usePage<any>().props;
+  const { company, products, previousCompany, nextCompany } = usePage<any>().props;
   const rows = Array.isArray(products?.data) ? products.data : [];
   const logo = company?.logo ? `/storage/${company.logo}` : null;
+  const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeImageUrl) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveImageUrl(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [activeImageUrl]);
 
   return (
     <AdminLayout title={t('admin.pages.companies.show.title')}>
@@ -22,7 +32,32 @@ export default function CompaniesShow() {
             <h2 className="mb-3 text-lg font-semibold text-white">{t('admin.pages.companies.show.companyInformation')}</h2>
             <p className="text-sm text-slate-200"><span className="text-slate-400">{t('admin.pages.companies.form.arabicName')}: </span>{company.name_ar}</p>
             <p className="text-sm text-slate-200"><span className="text-slate-400">{t('admin.pages.companies.form.englishName')}: </span>{company.name_en}</p>
-            {logo && <img src={logo} alt={company.name_en} className="mt-3 h-48 rounded-xl object-cover" />}
+            {logo && (
+              <button type="button" onClick={() => setActiveImageUrl(logo)} className="mt-3 block w-fit">
+                <img src={logo} alt={company.name_en} className="h-48 rounded-xl object-cover cursor-zoom-in transition hover:opacity-90" />
+              </button>
+            )}
+          </article>
+
+          <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+            <h2 className="mb-3 text-lg font-semibold text-white">{t('admin.pages.companies.show.navigate', 'Navigate')}</h2>
+            <div className="space-y-2">
+              {previousCompany ? (
+                <Link href={`/admin/companies/${previousCompany.id}`} className="block rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">
+                  {t('admin.pages.companies.show.previousCompany', 'Previous Company')}
+                </Link>
+              ) : (
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">{t('admin.pages.companies.show.noPreviousCompany', 'No previous company')}</div>
+              )}
+
+              {nextCompany ? (
+                <Link href={`/admin/companies/${nextCompany.id}`} className="block rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">
+                  {t('admin.pages.companies.show.nextCompany', 'Next Company')}
+                </Link>
+              ) : (
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-500">{t('admin.pages.companies.show.noNextCompany', 'No next company')}</div>
+              )}
+            </div>
           </article>
         </section>
 
@@ -53,6 +88,24 @@ export default function CompaniesShow() {
           {products?.links && <div className="flex flex-wrap gap-2 border-t border-white/10 p-4">{products.links.map((link: any, i: number) => <Link key={`${link.label}-${i}`} href={link.url || '#'} preserveScroll className={`rounded-lg px-3 py-1.5 text-sm ${link.active ? 'bg-cyan-400 text-slate-950' : link.url ? 'bg-white/5 text-slate-200 hover:bg-white/10' : 'cursor-not-allowed bg-white/5 text-slate-500'}`} dangerouslySetInnerHTML={{ __html: link.label }} />)}</div>}
         </section>
       </div>
+
+      {activeImageUrl && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/90 p-4" onClick={() => setActiveImageUrl(null)}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveImageUrl(null);
+            }}
+            className="absolute right-4 top-4 z-[91] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-slate-900/85 text-xl font-bold text-white shadow-lg hover:bg-slate-800"
+            aria-label={t('common.close', 'Close')}
+            title={t('common.close', 'Close')}
+          >
+            x
+          </button>
+          <img src={activeImageUrl} alt="company enlarged" className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
     </AdminLayout>
   );
 }

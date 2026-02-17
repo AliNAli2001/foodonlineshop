@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CompanyController extends Controller
@@ -94,8 +95,11 @@ class CompanyController extends Controller
     public function show($companyId)
     {
         $company = Company::with('products')->findOrFail($companyId);
-                $products = $company->products()->paginate(15);
-        return Inertia::render('admin.companies.show', compact('company', 'products'));
+        $products = $company->products()->paginate(15);
+        $previousCompany = Company::where('id', '<', $company->id)->orderBy('id', 'desc')->first();
+        $nextCompany = Company::where('id', '>', $company->id)->orderBy('id', 'asc')->first();
+
+        return Inertia::render('admin.companies.show', compact('company', 'products', 'previousCompany', 'nextCompany'));
     }
 
     /**
@@ -109,10 +113,21 @@ class CompanyController extends Controller
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remove_logo' => 'nullable|boolean',
         ]);
 
         $logoPath = $company->logo;
+        $removeLogo = (bool) ($validated['remove_logo'] ?? false);
+
+        if ($removeLogo && $company->logo) {
+            Storage::disk('public')->delete($company->logo);
+            $logoPath = null;
+        }
+
         if ($request->hasFile('logo')) {
+            if ($company->logo) {
+                Storage::disk('public')->delete($company->logo);
+            }
             $logoPath = $request->file('logo')->store('companies', 'public');
         }
 

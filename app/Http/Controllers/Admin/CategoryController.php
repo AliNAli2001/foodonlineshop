@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
@@ -99,8 +100,10 @@ class CategoryController extends Controller
     {
         $category = Category::with('products')->findOrFail($categoryId);
         $products = $category->products()->paginate(15);
+        $previousCategory = Category::where('id', '<', $category->id)->orderBy('id', 'desc')->first();
+        $nextCategory = Category::where('id', '>', $category->id)->orderBy('id', 'asc')->first();
 
-        return Inertia::render('admin.categories.show', compact('category', 'products'));
+        return Inertia::render('admin.categories.show', compact('category', 'products', 'previousCategory', 'nextCategory'));
     }
 
     /**
@@ -115,10 +118,21 @@ class CategoryController extends Controller
             'name_en' => 'required|string|max:255',
             'featured' => 'boolean',
             'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remove_category_image' => 'nullable|boolean',
         ]);
 
         $imagePath = $category->category_image;
+        $removeImage = (bool) ($validated['remove_category_image'] ?? false);
+
+        if ($removeImage && $category->category_image) {
+            Storage::disk('public')->delete($category->category_image);
+            $imagePath = null;
+        }
+
         if ($request->hasFile('category_image')) {
+            if ($category->category_image) {
+                Storage::disk('public')->delete($category->category_image);
+            }
             $imagePath = $request->file('category_image')->store('categories', 'public');
         }
 

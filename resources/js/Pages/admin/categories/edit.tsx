@@ -12,6 +12,7 @@ export default function CategoriesEdit() {
     name_en: category.name_en ?? '',
     featured: !!category.featured,
     category_image: null as File | null,
+    remove_category_image: false,
   });
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -28,8 +29,20 @@ export default function CategoriesEdit() {
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <Field label={t('admin.pages.categories.form.arabicName')} error={errors.name_ar}><input value={data.name_ar} onChange={(e) => setData('name_ar', e.target.value)} className={inputClass} required /></Field>
           <Field label={t('admin.pages.categories.form.englishName')} error={errors.name_en}><input value={data.name_en} onChange={(e) => setData('name_en', e.target.value)} className={inputClass} required /></Field>
-          {currentImage && <img src={currentImage} alt={category.name_en} className="h-36 rounded-xl object-cover" />}
-          <Field label={t('admin.pages.categories.form.categoryImage')} error={errors.category_image}><input type="file" accept="image/*" onChange={(e) => setData('category_image', e.target.files?.[0] || null)} className={inputClass} /></Field>
+          {currentImage && (
+            <div className="space-y-2">
+              <img src={currentImage} alt={category.name_en} className="h-36 rounded-xl object-cover" />
+              <label className="flex items-center gap-2 text-sm text-rose-200">
+                <input
+                  type="checkbox"
+                  checked={Boolean(data.remove_category_image)}
+                  onChange={(e) => setData('remove_category_image', e.target.checked)}
+                />
+                {t('admin.pages.categories.form.removeImage', 'Remove current image')}
+              </label>
+            </div>
+          )}
+          <Field label={t('admin.pages.categories.form.categoryImage')} error={errors.category_image}><input type="file" accept="image/*" onChange={(e) => { setData('category_image', e.target.files?.[0] || null); if (e.target.files?.[0]) setData('remove_category_image', false); }} className={inputClass} /></Field>
           <label className="flex items-center gap-2 text-sm text-slate-200"><input type="checkbox" checked={data.featured} onChange={(e) => setData('featured', e.target.checked)} /> {t('admin.pages.categories.form.featured')}</label>
           <div className="flex gap-3"><button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? t('admin.pages.categories.form.updating') : t('admin.pages.categories.edit.submit')}</button><Link href="/admin/categories" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link></div>
         </form>
