@@ -290,6 +290,8 @@
             "title": "Filters",
             "subtitle": "Filter by status and order amount.",
             "allStatuses": "All statuses",
+            "startDate": "Start Date",
+            "endDate": "End Date",
             "minPrice": "Min Price",
             "maxPrice": "Max Price",
             "totalPrice": "Total Price (Exact)",

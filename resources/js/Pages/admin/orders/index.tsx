@@ -42,17 +42,29 @@ export default function OrdersIndex() {
     const [minPrice, setMinPrice] = useState(filters.min_price ?? '');
     const [maxPrice, setMaxPrice] = useState(filters.max_price ?? '');
     const [totalPrice, setTotalPrice] = useState(filters.total_price ?? '');
+    const [startDate, setStartDate] = useState(filters.start_date ?? '');
+    const [endDate, setEndDate] = useState(filters.end_date ?? '');
 
     useEffect(() => {
         setStatus(filters.status ?? '');
         setMinPrice(filters.min_price ?? '');
         setMaxPrice(filters.max_price ?? '');
         setTotalPrice(filters.total_price ?? '');
-    }, [filters.status, filters.min_price, filters.max_price, filters.total_price]);
+        setStartDate(filters.start_date ?? '');
+        setEndDate(filters.end_date ?? '');
+    }, [filters.status, filters.min_price, filters.max_price, filters.total_price, filters.start_date, filters.end_date]);
 
     const hasActiveFilters = useMemo(
-        () => Boolean((filters.status ?? '').trim() || (filters.min_price ?? '').trim() || (filters.max_price ?? '').trim() || (filters.total_price ?? '').trim()),
-        [filters.status, filters.min_price, filters.max_price, filters.total_price],
+        () =>
+            Boolean(
+                (filters.status ?? '').trim() ||
+                    (filters.min_price ?? '').trim() ||
+                    (filters.max_price ?? '').trim() ||
+                    (filters.total_price ?? '').trim() ||
+                    (filters.start_date ?? '').trim() ||
+                    (filters.end_date ?? '').trim(),
+            ),
+        [filters.status, filters.min_price, filters.max_price, filters.total_price, filters.start_date, filters.end_date],
     );
 
     const sourceLabel = (source: string) => {
@@ -82,6 +94,8 @@ export default function OrdersIndex() {
                 min_price: minPrice || undefined,
                 max_price: maxPrice || undefined,
                 total_price: totalPrice || undefined,
+                start_date: startDate || undefined,
+                end_date: endDate || undefined,
             },
             { preserveState: true, preserveScroll: true, replace: true },
         );
@@ -92,6 +106,8 @@ export default function OrdersIndex() {
         setMinPrice('');
         setMaxPrice('');
         setTotalPrice('');
+        setStartDate('');
+        setEndDate('');
         router.get('/admin/orders', {}, { preserveState: true, preserveScroll: true, replace: true });
     };
 
@@ -164,37 +180,65 @@ export default function OrdersIndex() {
                     )}
                 </section>
 
-                <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                            <h2 className="text-sm font-semibold text-white">{t('admin.pages.orders.index.filters.title')}</h2>
-                            <p className="text-xs text-slate-400">{t('admin.pages.orders.index.filters.subtitle')}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={() => setFiltersOpen((prev) => !prev)}
+                    className={`fixed top-1/2 z-[60] -translate-y-1/2 rounded-full border border-cyan-300/30 bg-slate-900/95 p-3 text-cyan-200 shadow-lg backdrop-blur transition hover:bg-slate-800 ${
+                        isRtl ? 'left-3' : 'right-3'
+                    }`}
+                    aria-label={filtersOpen ? t('admin.pages.orders.index.filters.collapse') : t('admin.pages.orders.index.filters.expand')}
+                    title={filtersOpen ? t('admin.pages.orders.index.filters.collapse') : t('admin.pages.orders.index.filters.expand')}
+                >
+                    {filtersOpen ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                    )}
+                </button>
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        onClick={clearFilters}
+                        className={`fixed top-[calc(50%+3.75rem)] z-[60] rounded-xl border border-rose-300/30 bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-200 shadow-lg transition hover:bg-rose-500/20 ${
+                            isRtl ? 'left-3' : 'right-3'
+                        }`}
+                    >
+                        {t('admin.pages.orders.index.filters.clear')}
+                    </button>
+                )}
+
+                <div
+                    className={`fixed inset-0 z-40 bg-slate-950/65 transition-opacity duration-300 ${
+                        filtersOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+                    }`}
+                    onClick={() => setFiltersOpen(false)}
+                />
+                <aside
+                    className={`fixed inset-y-0 z-50 w-full max-w-md border-white/10 bg-slate-900/95 p-5 shadow-2xl backdrop-blur transition-transform duration-300 sm:w-[28rem] ${
+                        isRtl ? 'left-0 border-r' : 'right-0 border-l'
+                    } ${filtersOpen ? 'translate-x-0' : isRtl ? '-translate-x-full' : 'translate-x-full'}`}
+                >
+                    <form onSubmit={applyFilters} className="flex h-full flex-col">
+                        <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+                            <div>
+                                <h3 className="text-base font-semibold text-white">{t('admin.pages.orders.index.filters.title')}</h3>
+                                <p className="text-xs text-slate-400">{t('admin.pages.orders.index.filters.subtitle')}</p>
+                            </div>
                             <button
                                 type="button"
-                                onClick={clearFilters}
-                                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
-                                    hasActiveFilters
-                                        ? 'border-rose-300/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20'
-                                        : 'cursor-not-allowed border-white/10 bg-white/5 text-slate-500'
-                                }`}
-                                disabled={!hasActiveFilters}
-                            >
-                                {t('admin.pages.orders.index.filters.clear')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFiltersOpen((prev) => !prev)}
+                                onClick={() => setFiltersOpen(false)}
                                 className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-white/10"
                             >
-                                {filtersOpen ? t('admin.pages.orders.index.filters.collapse') : t('admin.pages.orders.index.filters.expand')}
+                                {t('common.close', 'Close')}
                             </button>
                         </div>
-                    </div>
 
-                    {filtersOpen && (
-                        <form onSubmit={applyFilters} className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                        <div className="mt-4 grid gap-3">
                             <label className="block">
                                 <span className="mb-1 block text-xs font-medium text-slate-300">{t('common.status')}</span>
                                 <select
@@ -209,6 +253,26 @@ export default function OrdersIndex() {
                                         </option>
                                     ))}
                                 </select>
+                            </label>
+
+                            <label className="block">
+                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('admin.pages.orders.index.filters.startDate')}</span>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                />
+                            </label>
+
+                            <label className="block">
+                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('admin.pages.orders.index.filters.endDate')}</span>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                />
                             </label>
 
                             <label className="block">
@@ -243,18 +307,22 @@ export default function OrdersIndex() {
                                     className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
                                 />
                             </label>
+                        </div>
 
-                            <div className={`flex items-end ${isRtl ? 'justify-start' : 'justify-end'}`}>
-                                <button
-                                    type="submit"
-                                    className="w-full rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 xl:w-auto"
-                                >
-                                    {t('admin.pages.orders.index.filters.apply')}
-                                </button>
-                            </div>
-                        </form>
-                    )}
-                </section>
+                        <div className={`mt-auto flex gap-2 border-t border-white/10 pt-4 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                            <button
+                                type="button"
+                                onClick={clearFilters}
+                                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
+                            >
+                                {t('admin.pages.orders.index.filters.clear')}
+                            </button>
+                            <button type="submit" className="w-full rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">
+                                {t('admin.pages.orders.index.filters.apply')}
+                            </button>
+                        </div>
+                    </form>
+                </aside>
 
                 <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
                     <div className="overflow-x-auto">

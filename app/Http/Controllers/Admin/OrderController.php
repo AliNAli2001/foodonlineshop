@@ -30,6 +30,11 @@ class OrderController extends Controller
         $minPrice = $request->query('min_price');
         $maxPrice = $request->query('max_price');
         $totalPrice = $request->query('total_price');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $startDateValue = is_string($startDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) ? $startDate : null;
+        $endDateValue = is_string($endDate) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate) ? $endDate : null;
 
         $baseQuery = Order::query();
 
@@ -47,6 +52,14 @@ class OrderController extends Controller
 
         if ($totalPrice !== null && $totalPrice !== '' && is_numeric($totalPrice)) {
             $baseQuery->where('total_amount', '=', (float) $totalPrice);
+        }
+
+        if ($startDateValue !== null) {
+            $baseQuery->whereRaw('DATE(COALESCE(order_date, created_at)) >= ?', [$startDateValue]);
+        }
+
+        if ($endDateValue !== null) {
+            $baseQuery->whereRaw('DATE(COALESCE(order_date, created_at)) <= ?', [$endDateValue]);
         }
 
         $summaryRows = (clone $baseQuery)
@@ -80,6 +93,8 @@ class OrderController extends Controller
                 'min_price' => is_string($minPrice) ? $minPrice : null,
                 'max_price' => is_string($maxPrice) ? $maxPrice : null,
                 'total_price' => is_string($totalPrice) ? $totalPrice : null,
+                'start_date' => $startDateValue,
+                'end_date' => $endDateValue,
             ],
         ]);
     }
