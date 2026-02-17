@@ -441,6 +441,23 @@
           "title": "Inventory",
           "heading": "Inventory Management",
           "subtitle": "Track products and open batch-level inventory details.",
+          "cards": {
+            "title": "Inventory Summary",
+            "totalInventoryCost": "Total Inventory Cost",
+            "lowStockProducts": "Low Stock Products",
+            "expiringInMonthItems": "Items Expiring In 1 Month",
+            "expiredItems": "Expired Items",
+            "expiredItemsTotalCost": "Expired Items Total Cost"
+          },
+          "filters": {
+            "title": "Inventory Issue Filters",
+            "showFilters": "Show Filters",
+            "hideFilters": "Hide Filters",
+            "all": "All",
+            "lowStock": "Low Stock",
+            "expiringMonth": "Expiring In 1 Month",
+            "expired": "Expired"
+          },
           "allProducts": "All Products",
           "lowStockProducts": "Low Stock Products",
           "empty": "No products found.",

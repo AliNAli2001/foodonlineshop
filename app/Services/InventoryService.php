@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\InventoryBatch;
+use Illuminate\Support\Facades\DB;
 
 class InventoryService
 {
@@ -196,5 +197,60 @@ class InventoryService
     public function getBatch(int $batchId): InventoryBatch
     {
         return InventoryBatch::with('product')->findOrFail($batchId);
+    }
+
+    /**
+     * Summary metrics for inventory index dashboard cards.
+     */
+    public function getIndexSummary(): array
+    {
+        $totalInventoryCost = (float) InventoryBatch::query()
+            ->where('available_quantity', '>', 0)
+            ->where('status', '!=', 'expired')
+            ->selectRaw('COALESCE(SUM(available_quantity * cost_price), 0) as total_cost')
+            ->value('total_cost');
+
+        $lowStockProductsCount = (int) Product::query()
+            ->join('product_stocks', 'products.id', '=', 'product_stocks.product_id')
+            ->whereColumn('product_stocks.available_quantity', '<', 'products.minimum_alert_quantity')
+            ->count();
+
+        $expiringInMonthItemsCount = (int) InventoryBatch::query()
+            ->where('available_quantity', '>', 0)
+            ->where('status', '!=', 'expired')
+            ->whereNotNull('expiry_date')
+            ->whereBetween('expiry_date', [now()->toDateString(), now()->addMonth()->toDateString()])
+            ->sum('available_quantity');
+
+        $expiredItemsCount = (int) InventoryBatch::query()
+            ->where('available_quantity', '>', 0)
+            ->where(function ($query) {
+                $query->where('status', 'expired')
+                    ->orWhere(function ($q) {
+                        $q->whereNotNull('expiry_date')
+                            ->where('expiry_date', '<', now()->toDateString());
+                    });
+            })
+            ->sum('available_quantity');
+
+        $expiredItemsTotalCost = (float) InventoryBatch::query()
+            ->where('available_quantity', '>', 0)
+            ->where(function ($query) {
+                $query->where('status', 'expired')
+                    ->orWhere(function ($q) {
+                        $q->whereNotNull('expiry_date')
+                            ->where('expiry_date', '<', now()->toDateString());
+                    });
+            })
+            ->selectRaw('COALESCE(SUM(available_quantity * cost_price), 0) as total_cost')
+            ->value('total_cost');
+
+        return [
+            'totalInventoryCost' => round($totalInventoryCost, 2),
+            'lowStockProductsCount' => $lowStockProductsCount,
+            'expiringInMonthItemsCount' => $expiringInMonthItemsCount,
+            'expiredItemsCount' => $expiredItemsCount,
+            'expiredItemsTotalCost' => round($expiredItemsTotalCost, 2),
+        ];
     }
 }

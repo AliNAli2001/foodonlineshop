@@ -62,7 +62,8 @@ class InventoryController extends Controller
     public function index()
     {
         $products = $this->inventoryService->getProductsWithBatchesOrderedByLowestStock();
-        return Inertia::render('admin.inventory.index', compact('products'));
+        $summary = $this->inventoryService->getIndexSummary();
+        return Inertia::render('admin.inventory.index', compact('products', 'summary'));
     }
 
     /**
@@ -71,7 +72,8 @@ class InventoryController extends Controller
     public function indexLowStockProducts()
     {
         $products = $this->inventoryService->indexLowStockProducts();
-        return Inertia::render('admin.inventory.index', compact('products'));
+        $summary = $this->inventoryService->getIndexSummary();
+        return Inertia::render('admin.inventory.index', compact('products', 'summary'));
     }
 
     

@@ -441,6 +441,23 @@
           "title": "المخزون",
           "heading": "إدارة المخزون",
           "subtitle": "تتبع المنتجات وافتح تفاصيل المخزون على مستوى الدفعات.",
+          "cards": {
+            "title": "ملخص المخزون",
+            "totalInventoryCost": "إجمالي تكلفة المخزون",
+            "lowStockProducts": "عدد المنتجات منخفضة المخزون",
+            "expiringInMonthItems": "عدد العناصر التي ستنتهي خلال شهر",
+            "expiredItems": "عدد العناصر منتهية الصلاحية",
+            "expiredItemsTotalCost": "إجمالي تكلفة العناصر منتهية الصلاحية"
+          },
+          "filters": {
+            "title": "فلاتر مشاكل المخزون",
+            "showFilters": "إظهار الفلاتر",
+            "hideFilters": "إخفاء الفلاتر",
+            "all": "الكل",
+            "lowStock": "مخزون منخفض",
+            "expiringMonth": "تنتهي خلال شهر",
+            "expired": "منتهي الصلاحية"
+          },
           "allProducts": "كل المنتجات",
           "lowStockProducts": "المنتجات منخفضة المخزون",
           "empty": "لا توجد منتجات.",

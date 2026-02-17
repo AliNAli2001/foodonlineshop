@@ -31,6 +31,26 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
+        if (is_array($request->input('entries'))) {
+            $validated = $request->validate([
+                'entries' => 'required|array|min:1',
+                'entries.*.name_ar' => 'required|string|max:255',
+                'entries.*.name_en' => 'required|string|max:255',
+            ]);
+
+            $createdCount = 0;
+            foreach ($validated['entries'] as $entry) {
+                Tag::create([
+                    'name_ar' => $entry['name_ar'],
+                    'name_en' => $entry['name_en'],
+                ]);
+                $createdCount++;
+            }
+
+            return redirect()->route('admin.tags.index')
+                ->with('success', "Created {$createdCount} tags successfully.");
+        }
+
         $validated = $request->validate([
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
