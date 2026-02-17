@@ -192,13 +192,146 @@ class OrderController extends Controller
      */
     public function show($orderId)
     {
-        $order = Order::with(['client', 'delivery', 'items.product', 'items.batches', 'createdByAdmin'])->findOrFail($orderId);
+        $order = Order::with(['client', 'delivery', 'items.product', 'items.batches.inventoryBatch', 'createdByAdmin'])->findOrFail($orderId);
         $deliveryPersons = Delivery::all();
 
         // Get available status transitions for this order
         $availableTransitions = $this->orderService->getAvailableStatusTransitions($order);
 
-        return Inertia::render('admin.orders.show', compact('order', 'deliveryPersons', 'availableTransitions'));
+        $preparedMessages = $this->buildPreparedMessages($order);
+
+        return Inertia::render('admin.orders.show', compact('order', 'deliveryPersons', 'availableTransitions', 'preparedMessages'));
+    }
+
+    private function buildPreparedMessages(Order $order): array
+    {
+        return [[
+            'key' => $order->status ?: 'generic',
+            'label' => ucfirst((string) ($order->status ?: 'order_update')),
+            'suitable' => [
+                'en' => $this->buildStateMessagePart($order, 'en'),
+                'ar' => $this->buildStateMessagePart($order, 'ar'),
+            ],
+            'summary' => [
+                'en' => $this->buildOrderSummaryPart($order, 'en'),
+                'ar' => $this->buildOrderSummaryPart($order, 'ar'),
+            ],
+            'details' => [
+                'en' => $this->buildOrderDetailsPart($order, 'en'),
+                'ar' => $this->buildOrderDetailsPart($order, 'ar'),
+            ],
+        ]];
+    }
+
+    private function buildOrderSummaryPart(Order $order, string $lang): string
+    {
+        $customerName = $order->client_id
+            ? trim((string) (($order->client->first_name ?? '') . ' ' . ($order->client->last_name ?? '')))
+            : (string) ($order->client_name ?? '');
+        $customerName = $customerName !== '' ? $customerName : '-';
+        $phone = $order->client->phone ?? $order->client_phone_number ?? '-';
+        $total = number_format((float) ($order->total_amount ?? 0), 2, '.', '');
+
+        if ($lang === 'ar') {
+            return implode("\n", [
+                "الطلب #{$order->id}",
+                "العميل: {$customerName}",
+                "الهاتف: {$phone}",
+                "الإجمالي: \${$total}",
+            ]);
+        }
+
+        return implode("\n", [
+            "Order #{$order->id}",
+            "Client: {$customerName}",
+            "Phone: {$phone}",
+            "Total: \${$total}",
+        ]);
+    }
+
+    private function buildOrderDetailsPart(Order $order, string $lang): string
+    {
+        $customerName = $order->client_id
+            ? trim((string) (($order->client->first_name ?? '') . ' ' . ($order->client->last_name ?? '')))
+            : (string) ($order->client_name ?? '');
+        $customerName = $customerName !== '' ? $customerName : '-';
+
+        $dateValue = $order->order_date ?? $order->created_at;
+        $date = $dateValue ? $dateValue->format('Y-m-d H:i:s') : '-';
+        $source = (string) ($order->order_source ?? '-');
+        $method = (string) ($order->delivery_method ?? '-');
+        $address = (string) ($order->address_details ?? '-');
+        $notes = (string) ($order->admin_order_client_notes ?? '-');
+
+        $lines = $lang === 'ar'
+            ? [
+                "تفاصيل الطلب #{$order->id}",
+                "الحالة: " . (string) ($order->status ?? '-'),
+                "العميل: {$customerName}",
+                "الهاتف: " . (string) ($order->client->phone ?? $order->client_phone_number ?? '-'),
+                "التاريخ: {$date}",
+                "المصدر: {$source}",
+                "طريقة التوصيل: {$method}",
+                "العنوان: {$address}",
+                "ملاحظات الإدارة: {$notes}",
+                "العناصر:",
+            ]
+            : [
+                "Order #{$order->id} Details",
+                "Status: " . (string) ($order->status ?? '-'),
+                "Customer: {$customerName}",
+                "Phone: " . (string) ($order->client->phone ?? $order->client_phone_number ?? '-'),
+                "Date: {$date}",
+                "Source: {$source}",
+                "Delivery Method: {$method}",
+                "Address: {$address}",
+                "Admin Notes: {$notes}",
+                "Items:",
+            ];
+
+        foreach ($order->items ?? [] as $item) {
+            $name = (string) ($item->product->name_en ?? $item->product->name_ar ?? '-');
+            $qty = (int) ($item->quantity ?? 0);
+            $unit = number_format((float) ($item->unit_price ?? 0), 2, '.', '');
+            $subtotal = number_format((float) ($item->unit_price ?? 0) * (float) ($item->quantity ?? 0), 2, '.', '');
+            $lines[] = $lang === 'ar'
+                ? "- {$name} | الكمية: {$qty} | سعر الوحدة: \${$unit} | المجموع: \${$subtotal}"
+                : "- {$name} | qty: {$qty} | unit: \${$unit} | subtotal: \${$subtotal}";
+        }
+
+        $total = number_format((float) ($order->total_amount ?? 0), 2, '.', '');
+        $lines[] = $lang === 'ar' ? "الإجمالي: \${$total}" : "Total: \${$total}";
+
+        return implode("\n", $lines);
+    }
+
+    private function buildStateMessagePart(Order $order, string $lang): string
+    {
+        if ($lang === 'ar') {
+            return match ((string) $order->status) {
+                'pending' => 'لديك طلب جديد بانتظار التأكيد.',
+                'confirmed' => 'تم تأكيد طلبك وهو قيد التجهيز.',
+                'shipped' => 'تم تسليم طلبك إلى شركة الشحن.',
+                'delivered' => 'تم تعيين طلبك لمندوب توصيل وهو في الطريق.',
+                'done' => 'اكتمل طلبك بنجاح.',
+                'canceled' => 'تم إلغاء طلبك.',
+                'rejected' => 'تم رفض طلبك.',
+                'returned' => 'تم إرجاع طلبك.',
+                default => 'تم تحديث حالة الطلب.',
+            };
+        }
+
+        return match ((string) $order->status) {
+            'pending' => 'You have a new order pending confirmation.',
+            'confirmed' => 'Your order has been confirmed and is being prepared.',
+            'shipped' => 'Your order was handed to the shipping company.',
+            'delivered' => 'Your order is assigned to a delivery person and out for delivery.',
+            'done' => 'Your order is completed successfully.',
+            'canceled' => 'Your order has been canceled.',
+            'rejected' => 'Your order has been rejected.',
+            'returned' => 'Your order has been returned.',
+            default => 'Order status has been updated.',
+        };
     }
 
     /**
@@ -358,5 +491,3 @@ class OrderController extends Controller
 }
 
 }
-
-

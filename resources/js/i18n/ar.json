@@ -329,6 +329,7 @@
         "show": {
           "title": "تفاصيل الطلب",
           "subtitle": "تفاصيل الطلب والعناصر وإجراءات الحالة.",
+          "confirmStateChange": "هل أنت متأكد من تغيير حالة الطلب؟",
           "backToOrders": "العودة إلى الطلبات",
           "orderInformation": "معلومات الطلب",
           "customer": "العميل",
@@ -366,6 +367,14 @@
           "messages": {
             "title": "رسائل جاهزة",
             "subtitle": "إرسال تحديثات سريعة عبر واتساب.",
+            "language": "اللغة",
+            "includeSuitable": "تضمين الرسالة المناسبة",
+            "includeSummary": "تضمين ملخص الطلب في الرسالة",
+            "includeDetails": "تضمين تفاصيل الطلب في الرسالة",
+            "preview": "معاينة",
+            "copy": "نسخ",
+            "copied": "تم النسخ",
+            "copyManual": "انسخ الرسالة يدويًا:",
             "forStatus": "مناسبة للحالة",
             "confirmedLabel": "تم تأكيد الطلب",
             "confirmedText": "تم تأكيد الطلب.",

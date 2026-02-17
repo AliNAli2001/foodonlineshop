@@ -329,6 +329,7 @@
         "show": {
           "title": "Order Details",
           "subtitle": "Details, items, and lifecycle actions.",
+          "confirmStateChange": "Are you sure you want to change order status?",
           "backToOrders": "Back to Orders",
           "orderInformation": "Order Information",
           "customer": "Customer",
@@ -366,6 +367,14 @@
           "messages": {
             "title": "Prepared Messages",
             "subtitle": "Quick send updates via WhatsApp.",
+            "language": "Language",
+            "includeSuitable": "Include suitable message",
+            "includeSummary": "Include order summary in message",
+            "includeDetails": "Include order details in message",
+            "preview": "Preview",
+            "copy": "Copy",
+            "copied": "Copied",
+            "copyManual": "Copy message manually:",
             "forStatus": "Suitable for status",
             "confirmedLabel": "Order Confirmed",
             "confirmedText": "Order has been confirmed.",

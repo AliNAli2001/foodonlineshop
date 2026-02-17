@@ -44,10 +44,16 @@ function formatDateTime(value?: string | null): string {
 
 export default function OrdersShow() {
     const { t } = useI18n();
-    const { order, deliveryPersons = [], availableTransitions = [] } = usePage<any>().props;
+    const { order, deliveryPersons = [], availableTransitions = [], preparedMessages = [] } = usePage<any>().props;
     const [rejectOpen, setRejectOpen] = useState(false);
     const [assignMenuOpen, setAssignMenuOpen] = useState(false);
     const [deliverySearch, setDeliverySearch] = useState('');
+    const [messageLanguage, setMessageLanguage] = useState<'en' | 'ar'>('en');
+    const [includeSuitableInMessage, setIncludeSuitableInMessage] = useState(true);
+    const [includeSummaryInMessage, setIncludeSummaryInMessage] = useState(false);
+    const [includeDetailsInMessage, setIncludeDetailsInMessage] = useState(false);
+    const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
+    const [previewByKey, setPreviewByKey] = useState<Record<string, string>>({});
 
     const rejectForm = useForm({ reason: '' });
     const assignForm = useForm({ status: 'delivered', delivery_id: '' });
@@ -73,14 +79,25 @@ export default function OrdersShow() {
         return t(`admin.pages.orders.status.${status}`, status || '-');
     };
 
+    const confirmStateChange = (targetStatus: string) => {
+        return window.confirm(
+            t('admin.pages.orders.show.confirmStateChange', `Are you sure you want to change status to ${targetStatus}?`),
+        );
+    };
+
     const submitTransition = (status: string) => {
+        if (!confirmStateChange(statusLabel(status))) return;
         router.post(`/admin/orders/${order.id}/update-status`, { status });
     };
 
-    const submitConfirm = () => router.post(`/admin/orders/${order.id}/confirm`);
+    const submitConfirm = () => {
+        if (!confirmStateChange(statusLabel('confirmed'))) return;
+        router.post(`/admin/orders/${order.id}/confirm`);
+    };
 
     const submitReject = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!confirmStateChange(statusLabel('rejected'))) return;
         rejectForm.post(`/admin/orders/${order.id}/reject`, {
             onSuccess: () => {
                 setRejectOpen(false);
@@ -91,6 +108,7 @@ export default function OrdersShow() {
 
     const submitAssignDelivered = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!confirmStateChange(statusLabel('delivered'))) return;
         assignForm.post(`/admin/orders/${order.id}/update-status`, {
             onSuccess: () => {
                 setAssignMenuOpen(false);
@@ -147,25 +165,37 @@ export default function OrdersShow() {
         });
     }, [availableTransitions, order.status, canDeliverWithAssign]);
 
-    const preparedMessages = useMemo(() => {
-        const byStatus: Record<string, Array<{ key: string; labelKey: string; textKey: string }>> = {
-            pending: [{ key: 'pending', labelKey: 'admin.pages.orders.show.messages.templates.pendingLabel', textKey: 'admin.pages.orders.show.messages.templates.pendingText' }],
-            confirmed: [{ key: 'confirmed', labelKey: 'admin.pages.orders.show.messages.templates.confirmedLabel', textKey: 'admin.pages.orders.show.messages.templates.confirmedText' }],
-            shipped: [{ key: 'shipped', labelKey: 'admin.pages.orders.show.messages.templates.shippedLabel', textKey: 'admin.pages.orders.show.messages.templates.shippedText' }],
-            delivered: [{ key: 'delivered', labelKey: 'admin.pages.orders.show.messages.templates.deliveredLabel', textKey: 'admin.pages.orders.show.messages.templates.deliveredText' }],
-            done: [{ key: 'done', labelKey: 'admin.pages.orders.show.messages.templates.doneLabel', textKey: 'admin.pages.orders.show.messages.templates.doneText' }],
-            canceled: [{ key: 'canceled', labelKey: 'admin.pages.orders.show.messages.templates.canceledLabel', textKey: 'admin.pages.orders.show.messages.templates.canceledText' }],
-            rejected: [{ key: 'rejected', labelKey: 'admin.pages.orders.show.messages.templates.rejectedLabel', textKey: 'admin.pages.orders.show.messages.templates.rejectedText' }],
-            returned: [{ key: 'returned', labelKey: 'admin.pages.orders.show.messages.templates.returnedLabel', textKey: 'admin.pages.orders.show.messages.templates.returnedText' }],
-        };
+    const getLocalizedPart = (msg: any, part: 'suitable' | 'summary' | 'details') => {
+        const value = msg?.[part];
+        if (!value) return '';
+        if (typeof value === 'string') return value;
+        return value?.[messageLanguage] || value?.en || value?.ar || '';
+    };
 
-        const rows = byStatus[order.status] || [{ key: 'generic', labelKey: 'admin.pages.orders.show.messages.templates.genericLabel', textKey: 'admin.pages.orders.show.messages.templates.genericText' }];
-        return rows.map((row) => ({
-            key: row.key,
-            label: t(row.labelKey),
-            text: t(row.textKey),
+    const buildMessageText = (msg: any) => {
+        const parts: string[] = [];
+        if (includeSuitableInMessage) parts.push(getLocalizedPart(msg, 'suitable'));
+        if (includeSummaryInMessage) parts.push(getLocalizedPart(msg, 'summary'));
+        if (includeDetailsInMessage) parts.push(getLocalizedPart(msg, 'details'));
+        return parts.filter((part) => String(part || '').trim().length > 0).join('\n\n');
+    };
+
+    const handlePreview = (msg: any) => {
+        setPreviewByKey((prev) => ({
+            ...prev,
+            [msg.key]: buildMessageText(msg),
         }));
-    }, [order.status, t]);
+    };
+
+    const copyMessage = async (key: string, text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopiedMessageKey(key);
+            window.setTimeout(() => setCopiedMessageKey((prev) => (prev === key ? null : prev)), 1600);
+        } catch {
+            window.prompt(t('admin.pages.orders.show.messages.copyManual', 'Copy message manually:'), text);
+        }
+    };
 
     return (
         <AdminLayout title={`${t('admin.pages.orders.show.title')} #${order.id}`}>
@@ -178,6 +208,35 @@ export default function OrdersShow() {
                     <Link href="/admin/orders" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-white/10">
                         {t('admin.pages.orders.show.backToOrders')}
                     </Link>
+                </section>
+
+                <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                    <h2 className="mb-4 text-lg font-semibold text-white">{t('admin.pages.orders.show.statusActions')}</h2>
+                    {availableTransitions.length === 0 ? (
+                        <p className="text-sm text-slate-400">{t('admin.pages.orders.show.noMoreActions')}</p>
+                    ) : (
+                        <div className="flex flex-wrap gap-2">{transitionButtons}</div>
+                    )}
+
+                    {canDeliverWithAssign && availableTransitions.includes('delivered') && (
+                        <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/40 p-3">
+                            <p className="mb-2 text-sm text-slate-200">{t('admin.pages.orders.show.assignBeforeDelivered')}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setAssignMenuOpen(true)}
+                                    className="rounded-lg border border-cyan-300/30 bg-cyan-500/10 px-3 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-500/20"
+                                >
+                                    {t('admin.pages.orders.show.openDeliveryMenu')}
+                                </button>
+                                {selectedDelivery && (
+                                    <p className="text-xs text-slate-300">
+                                        {t('admin.pages.orders.show.selectedDelivery')}: {selectedDelivery.first_name} {selectedDelivery.last_name} ({selectedDelivery.phone})
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </section>
 
                 <div className="grid gap-6 xl:grid-cols-3">
@@ -213,7 +272,7 @@ export default function OrdersShow() {
                                             const batches = item.batches ?? [];
                                             return (
                                                 <tr key={item.id} className="border-t border-white/10">
-                                                    <td className="py-3 pr-4 text-sm text-slate-200">{item.product?.name_en || item.product?.name_ar || '-'}</td>
+                                                    <td className="py-3 pr-4 text-sm text-slate-200">{item.product?.name_ar || item.product?.name_en || '-'}</td>
                                                     <td className="py-3 pr-4 text-sm text-slate-200">${Number(item.unit_price ?? 0).toFixed(2)}</td>
                                                     <td className="py-3 pr-4 text-sm text-slate-200">{item.quantity}</td>
                                                     <td className="py-3 pr-4 text-sm text-slate-200">${(Number(item.unit_price ?? 0) * Number(item.quantity ?? 0)).toFixed(2)}</td>
@@ -221,11 +280,18 @@ export default function OrdersShow() {
                                                         {batches.length === 0
                                                             ? '-'
                                                             : batches.map((b: any, i: number) => {
-                                                                  const inv = b.inventory_batch || b.inventoryBatch;
+                                                          const inv = b.inventory_batch;
+                                                          
                                                                   return (
-                                                                      <div key={i} className="mb-1 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs">
+                                                                      <Link
+                                                                          key={i}
+                                                                          href={inv?.id ? `/admin/inventory/${inv.id}` : '#'}
+                                                                          className={`mb-1 block rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs transition ${
+                                                                              inv?.id ? 'hover:border-cyan-300/30 hover:bg-cyan-400/10 hover:text-cyan-200' : 'pointer-events-none opacity-70'
+                                                                          }`}
+                                                                      >
                                                                           {t('admin.pages.orders.show.batch')}: {inv?.batch_number ?? '-'} | {t('admin.pages.orders.create.quantity')}: {b.quantity}
-                                                                      </div>
+                                                                      </Link>
                                                                   );
                                                               })}
                                                     </td>
@@ -235,35 +301,6 @@ export default function OrdersShow() {
                                     </tbody>
                                 </table>
                             </div>
-                        </section>
-
-                        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                            <h2 className="mb-4 text-lg font-semibold text-white">{t('admin.pages.orders.show.statusActions')}</h2>
-                            {availableTransitions.length === 0 ? (
-                                <p className="text-sm text-slate-400">{t('admin.pages.orders.show.noMoreActions')}</p>
-                            ) : (
-                                <div className="flex flex-wrap gap-2">{transitionButtons}</div>
-                            )}
-
-                            {canDeliverWithAssign && availableTransitions.includes('delivered') && (
-                                <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/40 p-3">
-                                    <p className="mb-2 text-sm text-slate-200">{t('admin.pages.orders.show.assignBeforeDelivered')}</p>
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setAssignMenuOpen(true)}
-                                            className="rounded-lg border border-cyan-300/30 bg-cyan-500/10 px-3 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-500/20"
-                                        >
-                                            {t('admin.pages.orders.show.openDeliveryMenu')}
-                                        </button>
-                                        {selectedDelivery && (
-                                            <p className="text-xs text-slate-300">
-                                                {t('admin.pages.orders.show.selectedDelivery')}: {selectedDelivery.first_name} {selectedDelivery.last_name} ({selectedDelivery.phone})
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
                         </section>
                     </div>
 
@@ -289,15 +326,66 @@ export default function OrdersShow() {
                             <p className="mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-slate-300">
                                 {t('admin.pages.orders.show.messages.forStatus')}: {statusLabel(order.status)}
                             </p>
+                            <div className="mt-3 grid gap-2 md:grid-cols-2">
+                                <div className="text-xs text-slate-300">
+                                    <span className="mb-1 block">{t('admin.pages.orders.show.messages.language', 'Language')}</span>
+                                    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/15 bg-slate-900/40 px-2.5 py-2">
+                                        <label className="inline-flex items-center gap-1.5">
+                                            <input
+                                                type="radio"
+                                                name="message_language"
+                                                value="en"
+                                                checked={messageLanguage === 'en'}
+                                                onChange={() => setMessageLanguage('en')}
+                                            />
+                                            {t('common.english')}
+                                        </label>
+                                        <label className="inline-flex items-center gap-1.5">
+                                            <input
+                                                type="radio"
+                                                name="message_language"
+                                                value="ar"
+                                                checked={messageLanguage === 'ar'}
+                                                onChange={() => setMessageLanguage('ar')}
+                                            />
+                                            {t('common.arabic')}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <label className="mt-3 flex items-center gap-2 text-xs text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    checked={includeSuitableInMessage}
+                                    onChange={(e) => setIncludeSuitableInMessage(e.target.checked)}
+                                />
+                                {t('admin.pages.orders.show.messages.includeSuitable', 'Include suitable message')}
+                            </label>
+                            <label className="mt-3 flex items-center gap-2 text-xs text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    checked={includeSummaryInMessage}
+                                    onChange={(e) => setIncludeSummaryInMessage(e.target.checked)}
+                                />
+                                {t('admin.pages.orders.show.messages.includeSummary', 'Include order summary in message')}
+                            </label>
+                            <label className="mt-2 flex items-center gap-2 text-xs text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    checked={includeDetailsInMessage}
+                                    onChange={(e) => setIncludeDetailsInMessage(e.target.checked)}
+                                />
+                                {t('admin.pages.orders.show.messages.includeDetails', 'Include order details in message')}
+                            </label>
 
                             <div className="mt-3 space-y-2">
                                 {preparedMessages.map((msg) => (
                                     <div key={msg.key} className="rounded-lg border border-white/10 bg-slate-900/40 p-3">
                                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">{msg.label}</p>
-                                        <p className="mb-3 text-xs text-slate-400">{msg.text}</p>
+                                        <p className="mb-3 text-xs text-slate-400 whitespace-pre-line">{getLocalizedPart(msg, 'suitable')}</p>
                                         <div className="flex flex-wrap gap-2">
                                             <a
-                                                href={whatsappUrl(customerPhone, msg.text)}
+                                                href={whatsappUrl(customerPhone, buildMessageText(msg))}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs ${customerPhone ? 'border-green-300/30 bg-green-500/10 text-green-200 hover:bg-green-500/20' : 'pointer-events-none border-white/10 bg-white/5 text-slate-500'}`}
@@ -306,7 +394,7 @@ export default function OrdersShow() {
                                                 {t('admin.pages.orders.show.messages.sendToCustomer')}
                                             </a>
                                             <a
-                                                href={whatsappUrl(deliveryPhone, msg.text)}
+                                                href={whatsappUrl(deliveryPhone, buildMessageText(msg))}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs ${deliveryPhone ? 'border-cyan-300/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20' : 'pointer-events-none border-white/10 bg-white/5 text-slate-500'}`}
@@ -314,7 +402,36 @@ export default function OrdersShow() {
                                                 <SendIcon />
                                                 {t('admin.pages.orders.show.messages.sendToDelivery')}
                                             </a>
+                                            <button
+                                                type="button"
+                                                onClick={() => handlePreview(msg)}
+                                                className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-slate-200 hover:bg-white/10"
+                                            >
+                                                {t('admin.pages.orders.show.messages.preview', 'Preview')}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => copyMessage(msg.key, buildMessageText(msg))}
+                                                className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-slate-200 hover:bg-white/10"
+                                            >
+                                                {copiedMessageKey === msg.key
+                                                    ? t('admin.pages.orders.show.messages.copied', 'Copied')
+                                                    : t('admin.pages.orders.show.messages.copy', 'Copy')}
+                                            </button>
                                         </div>
+                                        {previewByKey[msg.key] !== undefined && (
+                                            <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] p-2">
+                                                <p className="mb-1 text-[11px] uppercase tracking-[0.12em] text-slate-400">{t('admin.pages.orders.show.messages.preview', 'Preview')}</p>
+                                                <pre
+                                                    dir={messageLanguage === 'ar' ? 'rtl' : 'ltr'}
+                                                    className={`whitespace-pre-wrap break-words text-xs text-slate-200 ${
+                                                        messageLanguage === 'ar' ? 'text-right' : 'text-left'
+                                                    }`}
+                                                >
+                                                    {previewByKey[msg.key] || '-'}
+                                                </pre>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
