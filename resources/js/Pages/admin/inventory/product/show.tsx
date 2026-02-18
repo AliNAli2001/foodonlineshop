@@ -3,6 +3,27 @@ import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../../Layouts/AdminLayout';
 import { useI18n } from '../../../../i18n';
 
+function formatDate(value?: string | null) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('en-CA');
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
 export default function InventoryProductShow() {
   const { t } = useI18n();
   const { product, batches, movements } = usePage<any>().props;
@@ -42,7 +63,7 @@ export default function InventoryProductShow() {
                   batchRows.map((b: any) => (
                     <tr key={b.id} className="border-t border-white/10">
                       <td className="px-4 py-3 text-sm text-slate-200">{b.batch_number || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-slate-200">{b.expiry_date ? String(b.expiry_date).slice(0, 10) : '-'}</td>
+                      <td className="px-4 py-3 text-sm text-slate-200">{formatDate(b.expiry_date)}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{b.cost_price}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{b.available_quantity}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{b.is_expired ? t('admin.pages.inventory.status.expired') : t('admin.pages.inventory.status.available')}</td>
@@ -77,9 +98,9 @@ export default function InventoryProductShow() {
                       <td className="px-4 py-3 text-sm text-slate-200">{m.transaction_type_label || m.transaction_type || '-'}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{Number(m.available_change) > 0 ? '+' : ''}{m.available_change}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{m.reason || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-slate-200">{m.created_at || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-slate-200">{formatDateTime(m.created_at)}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{m.batch_number || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-slate-200">{m.expiry_date || '-'}</td>
+                      <td className="px-4 py-3 text-sm text-slate-200">{formatDate(m.expiry_date)}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{m.cost_price || '-'}</td>
                     </tr>
                   ))
