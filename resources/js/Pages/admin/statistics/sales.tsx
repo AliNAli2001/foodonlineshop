@@ -3,13 +3,48 @@ import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
-const money = (v) => Number(v ?? 0).toFixed(2);
+type PrimitiveCell = string | number;
+type Row = PrimitiveCell[];
+type TranslationFn = (key: string, fallback?: string) => string;
 
-function DateFilter({ action, startDate, endDate, t }) {
-    const submit = (e) => {
+type SalesStats = {
+    total_orders?: number;
+    total_revenue?: number;
+    average_order_value?: number;
+    total_cost?: number;
+    total_profit?: number;
+    profit_margin?: number;
+};
+
+type TopProduct = {
+    product_name: string;
+    total_quantity: number;
+    total_revenue: number;
+};
+
+type DailySale = {
+    date: string;
+    orders: number;
+    revenue: number;
+    cost: number;
+    profit: number;
+};
+
+type PageProps = {
+    salesStats?: SalesStats;
+    topProducts?: TopProduct[];
+    dailySales?: DailySale[];
+    startDate?: string;
+    endDate?: string;
+};
+
+const money = (v: unknown): string => Number(v ?? 0).toFixed(2);
+
+function DateFilter({ action, startDate, endDate, t }: { action: string; startDate?: string; endDate?: string; t: TranslationFn }) {
+    const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
-        router.get(action, Object.fromEntries(form.entries()), { preserveState: true, preserveScroll: true });
+        router.get(action, Object.fromEntries(form.entries()), { preserveState: true });
     };
     return (
         <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 md:grid-cols-3">
@@ -22,7 +57,7 @@ function DateFilter({ action, startDate, endDate, t }) {
 
 export default function StatisticsSales() {
     const { t } = useI18n();
-    const { salesStats = {}, topProducts = [], dailySales = [], startDate, endDate } = usePage().props;
+    const { salesStats = {}, topProducts = [], dailySales = [], startDate, endDate } = usePage<PageProps>().props;
 
     return (
         <AdminLayout title={t('admin.pages.statistics.sales.title')}>
@@ -46,36 +81,36 @@ export default function StatisticsSales() {
                     <Stat title={t('admin.pages.statistics.sales.cards.profitMargin')} value={`${money(salesStats.profit_margin)}%`} />
                 </section>
 
-                <Table title={t('admin.pages.statistics.sales.topSellingProducts.title')} headers={['#', t('admin.pages.statistics.common.product'), t('admin.pages.statistics.common.quantity'), t('admin.pages.statistics.common.revenue')]} rows={topProducts.map((p, i) => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
-                <Table title={t('admin.pages.statistics.sales.dailySales.title')} headers={[t('admin.pages.statistics.common.date'), t('admin.pages.statistics.common.orders'), t('admin.pages.statistics.common.revenue'), t('admin.pages.statistics.common.cost'), t('admin.pages.statistics.common.profit')]} rows={dailySales.map((d) => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
+                <Table title={t('admin.pages.statistics.sales.topSellingProducts.title')} headers={['#', t('admin.pages.statistics.common.product'), t('admin.pages.statistics.common.quantity'), t('admin.pages.statistics.common.revenue')]} rows={topProducts.map((p: TopProduct, i: number): Row => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
+                <Table title={t('admin.pages.statistics.sales.dailySales.title')} headers={[t('admin.pages.statistics.common.date'), t('admin.pages.statistics.common.orders'), t('admin.pages.statistics.common.revenue'), t('admin.pages.statistics.common.cost'), t('admin.pages.statistics.common.profit')]} rows={dailySales.map((d: DailySale): Row => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])} emptyText={t('admin.pages.statistics.common.noData')} />
                 <SimpleBarChart
                     title={t('admin.pages.statistics.sales.charts.ordersTrend', 'Orders Trend')}
-                    labels={dailySales.map((d) => d.date)}
-                    values={dailySales.map((d) => Number(d.orders || 0))}
+                    labels={dailySales.map((d: DailySale) => d.date)}
+                    values={dailySales.map((d: DailySale) => Number(d.orders || 0))}
                 />
                 <SimpleBarChart
                     title={t('admin.pages.statistics.sales.charts.revenueTrend', 'Revenue Trend')}
-                    labels={dailySales.map((d) => d.date)}
-                    values={dailySales.map((d) => Number(d.revenue || 0))}
+                    labels={dailySales.map((d: DailySale) => d.date)}
+                    values={dailySales.map((d: DailySale) => Number(d.revenue || 0))}
                 />
             </div>
         </AdminLayout>
     );
 }
 
-function Stat({ title, value }) {
+function Stat({ title, value }: { title: string; value: string | number }) {
     return <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm text-slate-400">{title}</p><p className="mt-1 text-2xl font-bold text-white">{value}</p></div>;
 }
 
-function Table({ title, headers, rows, emptyText }) {
+function Table({ title, headers, rows, emptyText }: { title: string; headers: string[]; rows: Row[]; emptyText: string }) {
     return (
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
             <h2 className="border-b border-white/10 px-4 py-3 text-lg font-semibold text-white">{title}</h2>
             <div className="overflow-x-auto">
                 <table className="min-w-full">
-                    <thead className="bg-white/[0.03]"><tr>{headers.map((h) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}</tr></thead>
+                    <thead className="bg-white/[0.03]"><tr>{headers.map((h: string) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}</tr></thead>
                     <tbody>
-                        {rows.length === 0 ? <tr><td colSpan={headers.length} className="px-4 py-8 text-center text-sm text-slate-400">{emptyText}</td></tr> : rows.map((r, idx) => <tr key={idx} className="border-t border-white/10">{r.map((c, i) => <td key={i} className="px-4 py-3 text-sm text-slate-200">{c}</td>)}</tr>)}
+                        {rows.length === 0 ? <tr><td colSpan={headers.length} className="px-4 py-8 text-center text-sm text-slate-400">{emptyText}</td></tr> : rows.map((r: Row, idx: number) => <tr key={idx} className="border-t border-white/10">{r.map((c: PrimitiveCell, i: number) => <td key={i} className="px-4 py-3 text-sm text-slate-200">{c}</td>)}</tr>)}
                     </tbody>
                 </table>
             </div>
@@ -83,8 +118,8 @@ function Table({ title, headers, rows, emptyText }) {
     );
 }
 
-function SimpleBarChart({ title, labels, values }) {
-    const maxValue = Math.max(1, ...values.map((v) => Number(v || 0)));
+function SimpleBarChart({ title, labels, values }: { title: string; labels: string[]; values: number[] }) {
+    const maxValue = Math.max(1, ...values.map((v: number) => Number(v || 0)));
     return (
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
@@ -92,7 +127,7 @@ function SimpleBarChart({ title, labels, values }) {
                 <p className="text-sm text-slate-400">No chart data.</p>
             ) : (
                 <div className="space-y-2">
-                    {values.map((value, idx) => {
+                    {values.map((value: number, idx: number) => {
                         const width = `${Math.max(2, (Number(value || 0) / maxValue) * 100)}%`;
                         return (
                             <div key={`${labels[idx]}-${idx}`} className="grid grid-cols-[150px_1fr_auto] items-center gap-2 text-xs">

@@ -1,7 +1,14 @@
 import React from 'react';
 import { useI18n } from '../../i18n';
 
-export default function GenericPage({ viewName, propsData }) {
+export type GenericPageProps = Record<string, unknown>;
+
+type Props = {
+    viewName: string;
+    propsData: GenericPageProps;
+};
+
+export default function GenericPage({ viewName, propsData }: Props) {
     const { t } = useI18n();
 
     return (

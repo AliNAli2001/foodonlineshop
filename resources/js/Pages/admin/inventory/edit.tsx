@@ -6,11 +6,19 @@ import { useI18n } from '../../../i18n';
 type Batch = { id: number; available_quantity: number; batch_number: string; cost_price: number; expiry_date?: string };
 
 type Product = { id: number; name_en?: string; name_ar?: string };
+type InventoryEditFormData = {
+  _method: 'put';
+  available_quantity: string | number;
+  batch_number: string;
+  cost_price: string | number;
+  expiry_date: string;
+  reason: string;
+};
 
 export default function InventoryEdit() {
   const { t } = useI18n();
   const { product, batch } = usePage<{ product: Product; batch: Batch }>().props;
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing, errors } = useForm<InventoryEditFormData>({
     _method: 'put',
     available_quantity: batch.available_quantity ?? 0,
     batch_number: batch.batch_number ?? '',

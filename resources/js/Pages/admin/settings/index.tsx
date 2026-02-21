@@ -3,7 +3,17 @@ import { useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
-function Field({ id, label, hint, error, children }) {
+type Settings = {
+    dollar_exchange_rate?: string | number;
+    general_minimum_alert_quantity?: string | number;
+    max_order_items?: string | number;
+};
+
+type PageProps = {
+    settings?: Settings;
+};
+
+function Field({ id, label, hint, error, children }: { id: string; label: string; hint?: string; error?: string; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5">
             <label htmlFor={id} className="block text-sm font-medium text-slate-200">
@@ -18,7 +28,7 @@ function Field({ id, label, hint, error, children }) {
 
 export default function SettingsPage() {
     const { t } = useI18n();
-    const { settings } = usePage().props;
+    const { settings } = usePage<PageProps>().props;
 
     const { data, setData, post, processing, errors } = useForm({
         dollar_exchange_rate: settings?.dollar_exchange_rate ?? '',
@@ -26,7 +36,7 @@ export default function SettingsPage() {
         max_order_items: settings?.max_order_items ?? '',
     });
 
-    const submit = (event) => {
+    const submit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         post('/admin/settings');
     };

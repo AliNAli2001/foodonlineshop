@@ -3,7 +3,28 @@ import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
-function stockState(product) {
+type ProductTag = { id: number; name_en?: string; name_ar?: string };
+type ProductImage = { id: number; full_url?: string; image_url?: string; is_primary?: boolean };
+type ProductSummary = { id: number };
+type ProductEntity = {
+    id: number;
+    name_en?: string;
+    name_ar?: string;
+    description_en?: string;
+    description_ar?: string;
+    selling_price?: number | string;
+    stock_available_quantity?: number | string;
+    minimum_alert_quantity?: number | string;
+    max_order_item?: number | string;
+    featured?: boolean;
+    company?: { name_en?: string; name_ar?: string };
+    category?: { name_en?: string; name_ar?: string };
+    tags?: ProductTag[];
+    images?: ProductImage[];
+};
+type PageProps = { product: ProductEntity; previousProduct?: ProductSummary | null; nextProduct?: ProductSummary | null };
+
+function stockState(product: ProductEntity): 'low' | 'healthy' {
     const stock = Number(product.stock_available_quantity ?? 0);
     const min = Number(product.minimum_alert_quantity ?? 0);
     return min > 0 && stock < min ? 'low' : 'healthy';
@@ -11,8 +32,10 @@ function stockState(product) {
 
 export default function ProductsShow() {
   const { t } = useI18n();
-    const { product, previousProduct, nextProduct } = usePage().props;
+    const { product, previousProduct, nextProduct } = usePage<PageProps>().props;
     const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
+    const tags = product.tags ?? [];
+    const images = product.images ?? [];
 
     useEffect(() => {
         if (!activeImageUrl) return;
@@ -68,9 +91,9 @@ export default function ProductsShow() {
                         </InfoCard>
 
                         <InfoCard title={t('admin.pages.products.show.tags')}>
-                            {(product.tags || []).length > 0 ? (
+                            {tags.length > 0 ? (
                                 <div className="flex flex-wrap gap-2">
-                                    {product.tags.map((tag) => (
+                                    {tags.map((tag: ProductTag) => (
                                         <span key={tag.id} className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-200">
                                             {tag.name_en || tag.name_ar}
                                         </span>
@@ -82,9 +105,9 @@ export default function ProductsShow() {
                         </InfoCard>
 
                         <InfoCard title={t('admin.pages.products.show.productImages')}>
-                            {(product.images || []).length > 0 ? (
+                            {images.length > 0 ? (
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                    {product.images.map((img) => {
+                                    {images.map((img: ProductImage) => {
                                         const url = img.full_url || (img.image_url ? `/storage/${img.image_url}` : '');
                                         return (
                                             <div key={img.id} className="rounded-lg border border-white/10 bg-slate-900/40 p-2">
@@ -152,7 +175,7 @@ export default function ProductsShow() {
     );
 }
 
-function Info({ label, value }) {
+function Info({ label, value }: { label: string; value: string }) {
     return (
         <p className="text-sm text-slate-200">
             <span className="text-slate-400">{label}: </span>
@@ -161,7 +184,7 @@ function Info({ label, value }) {
     );
 }
 
-function InfoCard({ title, children }) {
+function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
             <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>

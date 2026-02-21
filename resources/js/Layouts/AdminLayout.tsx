@@ -48,17 +48,34 @@ function NavIcon({ itemKey }: { itemKey: string }) {
     }
 }
 
-export default function AdminLayout({ title = 'Admin', children }) {
-    const { url, props } = usePage();
-    const { flash = {}, errors = {} } = props as any;
+type AdminLayoutProps = {
+    title?: string;
+    children: React.ReactNode;
+};
+
+type AdminPageProps = {
+    flash?: {
+        success?: string;
+        error?: string;
+    };
+    errors?: Record<string, string | undefined> & {
+        error?: string;
+    };
+};
+
+type IsActiveFn = (href: string) => boolean;
+
+export default function AdminLayout({ title = 'Admin', children }: AdminLayoutProps) {
+    const { url, props } = usePage<AdminPageProps>();
+    const { flash = {}, errors = {} } = props;
     const { t, isRtl } = useI18n();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [theme, setTheme] = useState<'dark' | 'light'>('dark');
     const lastToastRef = useRef<{ success?: string; error?: string }>({});
 
     const currentPath = useMemo(() => url.split('?')[0], [url]);
-    const isActive = useMemo(
-        () => (href) => currentPath === href || currentPath.startsWith(`${href}/`),
+    const isActive = useMemo<IsActiveFn>(
+        () => (href: string) => currentPath === href || currentPath.startsWith(`${href}/`),
         [currentPath],
     );
     const isDark = theme === 'dark';
@@ -296,7 +313,6 @@ export default function AdminLayout({ title = 'Admin', children }) {
                         ? '!rounded-2xl !border !border-white/15 !bg-slate-900/95 !text-slate-100'
                         : '!rounded-2xl !border !border-slate-200 !bg-white !text-slate-800'
                 }
-                bodyClassName="!text-sm"
             />
         </div>
     );

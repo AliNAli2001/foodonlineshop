@@ -379,7 +379,7 @@ export default function OrdersShow() {
                             </label>
 
                             <div className="mt-3 space-y-2">
-                                {preparedMessages.map((msg) => (
+                                {preparedMessages.map((msg: any) => (
                                     <div key={msg.key} className="rounded-lg border border-white/10 bg-slate-900/40 p-3">
                                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">{msg.label}</p>
                                         <p className="mb-3 text-xs text-slate-400 whitespace-pre-line">{getLocalizedPart(msg, 'suitable')}</p>

@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../Layouts/AdminLayout';
 import { useI18n } from '../../i18n';
 
-const statusBadge = {
+const statusBadge: Record<string, string> = {
     pending: 'bg-amber-400/20 text-amber-200 ring-amber-300/30',
     confirmed: 'bg-sky-400/20 text-sky-200 ring-sky-300/30',
     shipped: 'bg-blue-400/20 text-blue-200 ring-blue-300/30',
@@ -13,9 +13,9 @@ const statusBadge = {
     returned: 'bg-slate-300/20 text-slate-200 ring-slate-300/30',
 };
 
-function statusLabel(status, t) {
+function statusLabel(status: string | null | undefined, t: (key: string, fallback?: string) => string): string {
     if (!status) return '-';
-    const map = {
+    const map: Record<string, string> = {
         pending: 'admin.pages.dashboard.status.pending',
         confirmed: 'admin.pages.dashboard.status.confirmed',
         shipped: 'admin.pages.dashboard.status.shipped',
@@ -33,7 +33,14 @@ interface CardProps {
   children: ReactNode;
 }
 
-function StatCard({ title, value, hint, tone }) {
+type StatCardProps = {
+    title: string;
+    value: number | string;
+    hint: string;
+    tone: string;
+};
+
+function StatCard({ title, value, hint, tone }: StatCardProps) {
     return (
         <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
             <div className="mb-4 flex items-start justify-between gap-3">
@@ -58,7 +65,13 @@ function Card({ title, action, children } : CardProps) {
     );
 }
 
-function TableHead({ children, end = false, isRtl = false }) {
+type TableCellProps = {
+    children: ReactNode;
+    end?: boolean;
+    isRtl?: boolean;
+};
+
+function TableHead({ children, end = false, isRtl = false }: TableCellProps) {
     return (
         <th
             className={`pb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400 ${
@@ -70,7 +83,7 @@ function TableHead({ children, end = false, isRtl = false }) {
     );
 }
 
-function TableCell({ children, end = false, isRtl = false }) {
+function TableCell({ children, end = false, isRtl = false }: TableCellProps) {
     return (
         <td className={`py-3 text-sm text-slate-200 ${isRtl ? 'text-right' : 'text-left'} ${end ? '' : isRtl ? 'pl-4' : 'pr-4'}`}>
             {children}
@@ -80,6 +93,37 @@ function TableCell({ children, end = false, isRtl = false }) {
 
 export default function Dashboard() {
     const { t, isRtl } = useI18n();
+    type LowStockProduct = {
+        id: number;
+        name_en: string;
+        stock_available_quantity: number;
+        minimum_alert_quantity: number;
+    };
+    type ExpiringBatch = {
+        id: number;
+        product_id: number;
+        batch_number: string;
+        available_quantity: number;
+        expiry_date: string;
+        product?: { name_en?: string };
+    };
+    type RecentOrder = {
+        id: number;
+        client_id?: number | null;
+        client_name?: string;
+        total_amount?: number | string;
+        status: string;
+        client?: { first_name?: string; last_name?: string };
+    };
+    type DashboardPageProps = {
+        pendingOrders?: number;
+        confirmedOrders?: number;
+        lowStockProductsCount?: number;
+        totalClients?: number;
+        lowStockProducts?: LowStockProduct[];
+        recentOrders?: RecentOrder[];
+        expiredSoonInventories?: ExpiringBatch[];
+    };
     const {
         pendingOrders = 0,
         confirmedOrders = 0,
@@ -88,7 +132,7 @@ export default function Dashboard() {
         lowStockProducts = [],
         recentOrders = [],
         expiredSoonInventories = [],
-    } = usePage().props;
+    } = usePage<DashboardPageProps>().props;
 
     return (
         <AdminLayout title={t('admin.pages.dashboard.title')}>

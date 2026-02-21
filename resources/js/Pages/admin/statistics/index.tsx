@@ -3,15 +3,60 @@ import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
-function money(value) {
+type TranslationFn = (key: string, fallback?: string) => string;
+type PrimitiveCell = string | number;
+type Row = PrimitiveCell[];
+
+type DailySale = {
+    date: string;
+    orders: number;
+    revenue: number;
+    cost: number;
+    profit: number;
+};
+
+type TopProduct = {
+    product_name: string;
+    total_quantity: number;
+    total_revenue: number;
+};
+
+type StatisticsData = {
+    summary?: {
+        total_revenue?: number;
+        total_cost?: number;
+        gross_profit?: number;
+        net_profit?: number;
+    };
+    sales?: {
+        total_orders?: number;
+        average_order_value?: number;
+        profit_margin?: number;
+    };
+    adjustments?: {
+        total_gains?: number;
+        total_losses?: number;
+        net_adjustment?: number;
+    };
+};
+
+type PageProps = {
+    statistics?: StatisticsData;
+    topProducts?: TopProduct[];
+    dailySales?: DailySale[];
+    startDate?: string;
+    endDate?: string;
+};
+
+function money(value: unknown): string {
     return Number(value ?? 0).toFixed(2);
 }
 
-function DateFilter({ action, startDate, endDate, t }) {
-    const submit = (e) => {
+function DateFilter({ action, startDate, endDate, t }: { action: string; startDate?: string; endDate?: string; t: TranslationFn }) {
+    const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
-        router.get(action, Object.fromEntries(form.entries()), { preserveState: true, preserveScroll: true });
+        router.get(action, Object.fromEntries(form.entries()), { preserveState: true });
     };
 
     return (
@@ -23,7 +68,7 @@ function DateFilter({ action, startDate, endDate, t }) {
     );
 }
 
-function StatCard({ label, value }) {
+function StatCard({ label, value }: { label: string; value: string | number }) {
     return (
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <p className="text-sm text-slate-400">{label}</p>
@@ -34,16 +79,16 @@ function StatCard({ label, value }) {
 
 export default function StatisticsIndex() {
     const { t } = useI18n();
-    const { statistics = {}, topProducts = [], dailySales = [], startDate, endDate } = usePage().props;
+    const { statistics = {}, topProducts = [], dailySales = [], startDate, endDate } = usePage<PageProps>().props;
     const summary = statistics.summary || {};
     const sales = statistics.sales || {};
     const adjustments = statistics.adjustments || {};
 
     const totals = {
-        orders: dailySales.reduce((sum, d) => sum + Number(d.orders || 0), 0),
-        revenue: dailySales.reduce((sum, d) => sum + Number(d.revenue || 0), 0),
-        cost: dailySales.reduce((sum, d) => sum + Number(d.cost || 0), 0),
-        profit: dailySales.reduce((sum, d) => sum + Number(d.profit || 0), 0),
+        orders: dailySales.reduce((sum: number, d: DailySale) => sum + Number(d.orders || 0), 0),
+        revenue: dailySales.reduce((sum: number, d: DailySale) => sum + Number(d.revenue || 0), 0),
+        cost: dailySales.reduce((sum: number, d: DailySale) => sum + Number(d.cost || 0), 0),
+        profit: dailySales.reduce((sum: number, d: DailySale) => sum + Number(d.profit || 0), 0),
     };
 
     return (
@@ -71,7 +116,7 @@ export default function StatisticsIndex() {
 
                 <section className="grid gap-4 lg:grid-cols-2">
                     <InfoTable title={t('admin.pages.statistics.index.salesStats.title')} rows={[
-                        [t('admin.pages.statistics.index.salesStats.completedOrders'), sales.total_orders],
+                        [t('admin.pages.statistics.index.salesStats.completedOrders'), sales.total_orders ?? 0],
                         [t('admin.pages.statistics.index.salesStats.averageOrderValue'), `$${money(sales.average_order_value)}`],
                         [t('admin.pages.statistics.index.salesStats.profitMargin'), `${money(sales.profit_margin)}%`],
                     ]} />
@@ -86,39 +131,39 @@ export default function StatisticsIndex() {
                 <DataTable
                     title={t('admin.pages.statistics.index.topSellingProducts.title')}
                     headers={['#', t('admin.pages.statistics.common.product'), t('admin.pages.statistics.common.quantity'), t('admin.pages.statistics.common.revenue')]}
-                    rows={topProducts.map((p, i) => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])}
+                    rows={topProducts.map((p: TopProduct, i: number): Row => [i + 1, p.product_name, p.total_quantity, `$${money(p.total_revenue)}`])}
                     emptyText={t('admin.pages.statistics.common.noData')}
                 />
 
                 <DataTable
                     title={t('admin.pages.statistics.index.dailySales.title')}
                     headers={[t('admin.pages.statistics.common.date'), t('admin.pages.statistics.common.orders'), t('admin.pages.statistics.common.revenue'), t('admin.pages.statistics.common.cost'), t('admin.pages.statistics.common.profit')]}
-                    rows={dailySales.map((d) => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])}
+                    rows={dailySales.map((d: DailySale): Row => [d.date, d.orders, `$${money(d.revenue)}`, `$${money(d.cost)}`, `$${money(d.profit)}`])}
                     footer={[t('admin.pages.statistics.common.total'), totals.orders, `$${money(totals.revenue)}`, `$${money(totals.cost)}`, `$${money(totals.profit)}`]}
                     emptyText={t('admin.pages.statistics.common.noData')}
                 />
 
                 <SimpleBarChart
                     title={t('admin.pages.statistics.index.charts.revenueTrend', 'Revenue Trend')}
-                    labels={dailySales.map((d) => d.date)}
-                    values={dailySales.map((d) => Number(d.revenue || 0))}
+                    labels={dailySales.map((d: DailySale) => d.date)}
+                    values={dailySales.map((d: DailySale) => Number(d.revenue || 0))}
                 />
                 <SimpleBarChart
                     title={t('admin.pages.statistics.index.charts.profitTrend', 'Profit Trend')}
-                    labels={dailySales.map((d) => d.date)}
-                    values={dailySales.map((d) => Number(d.profit || 0))}
+                    labels={dailySales.map((d: DailySale) => d.date)}
+                    values={dailySales.map((d: DailySale) => Number(d.profit || 0))}
                 />
             </div>
         </AdminLayout>
     );
 }
 
-function InfoTable({ title, rows }) {
+function InfoTable({ title, rows }: { title: string; rows: [PrimitiveCell, PrimitiveCell][] }) {
     return (
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
             <div className="space-y-2">
-                {rows.map(([k, v]) => (
+                {rows.map(([k, v]: [PrimitiveCell, PrimitiveCell]) => (
                     <div key={k} className="flex items-center justify-between text-sm">
                         <span className="text-slate-400">{k}</span>
                         <span className="text-slate-100">{v}</span>
@@ -129,7 +174,7 @@ function InfoTable({ title, rows }) {
     );
 }
 
-function DataTable({ title, headers, rows, footer, emptyText }) {
+function DataTable({ title, headers, rows, footer, emptyText }: { title: string; headers: string[]; rows: Row[]; footer?: Row; emptyText: string }) {
     return (
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
             <h2 className="border-b border-white/10 px-4 py-3 text-lg font-semibold text-white">{title}</h2>
@@ -137,21 +182,21 @@ function DataTable({ title, headers, rows, footer, emptyText }) {
                 <table className="min-w-full">
                     <thead className="bg-white/[0.03]">
                         <tr>
-                            {headers.map((h) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}
+                            {headers.map((h: string) => <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">{h}</th>)}
                         </tr>
                     </thead>
                     <tbody>
                         {rows.length === 0 ? (
                             <tr><td colSpan={headers.length} className="px-4 py-8 text-center text-sm text-slate-400">{emptyText}</td></tr>
-                        ) : rows.map((r, idx) => (
+                        ) : rows.map((r: Row, idx: number) => (
                             <tr key={idx} className="border-t border-white/10">
-                                {r.map((cell, i) => <td key={i} className="px-4 py-3 text-sm text-slate-200">{cell}</td>)}
+                                {r.map((cell: PrimitiveCell, i: number) => <td key={i} className="px-4 py-3 text-sm text-slate-200">{cell}</td>)}
                             </tr>
                         ))}
                     </tbody>
                     {footer ? (
                         <tfoot className="border-t border-white/10 bg-white/[0.03]">
-                            <tr>{footer.map((cell, i) => <td key={i} className="px-4 py-3 text-sm font-semibold text-slate-100">{cell}</td>)}</tr>
+                            <tr>{footer.map((cell: PrimitiveCell, i: number) => <td key={i} className="px-4 py-3 text-sm font-semibold text-slate-100">{cell}</td>)}</tr>
                         </tfoot>
                     ) : null}
                 </table>
@@ -160,8 +205,8 @@ function DataTable({ title, headers, rows, footer, emptyText }) {
     );
 }
 
-function SimpleBarChart({ title, labels, values }) {
-    const maxValue = Math.max(1, ...values.map((v) => Number(v || 0)));
+function SimpleBarChart({ title, labels, values }: { title: string; labels: string[]; values: number[] }) {
+    const maxValue = Math.max(1, ...values.map((v: number) => Number(v || 0)));
     return (
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
@@ -169,7 +214,7 @@ function SimpleBarChart({ title, labels, values }) {
                 <p className="text-sm text-slate-400">No chart data.</p>
             ) : (
                 <div className="space-y-2">
-                    {values.map((value, idx) => {
+                    {values.map((value: number, idx: number) => {
                         const width = `${Math.max(2, (Number(value || 0) / maxValue) * 100)}%`;
                         return (
                             <div key={`${labels[idx]}-${idx}`} className="grid grid-cols-[150px_1fr_auto] items-center gap-2 text-xs">

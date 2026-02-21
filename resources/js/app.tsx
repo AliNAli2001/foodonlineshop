@@ -7,7 +7,16 @@ import { I18nProvider } from './i18n';
 import GlobalLanguageSwitcher from './components/GlobalLanguageSwitcher';
 import 'react-toastify/dist/ReactToastify.css';
 
-const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
+type AppPageProps = {
+    locale?: string;
+    [key: string]: unknown;
+};
+
+type PageModule = {
+    default: React.ComponentType<AppPageProps>;
+};
+
+const pages = import.meta.glob<PageModule>('./Pages/**/*.tsx', { eager: true });
 
 createInertiaApp({
     resolve: (name) => {
@@ -21,7 +30,7 @@ createInertiaApp({
         return pages['./Pages/Shared/MissingPage.tsx'].default;
     },
     setup({ el, App, props }) {
-        const initialLocale = props?.initialPage?.props?.locale ?? 'en';
+        const initialLocale = String((props.initialPage.props as AppPageProps).locale ?? 'en');
 
         createRoot(el).render(
             <I18nProvider initialLocale={initialLocale}>

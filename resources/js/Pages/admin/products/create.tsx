@@ -4,16 +4,43 @@ import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
 type MetaType = 'company' | 'category' | 'tag';
+type MetaOption = { id: number; name_ar?: string; name_en?: string };
+type CreateProductFormData = {
+    name_ar: string;
+    name_en: string;
+    description_ar: string;
+    description_en: string;
+    selling_price: string;
+    max_order_item: string | number;
+    minimum_alert_quantity: string | number;
+    featured: boolean;
+    category_id: string;
+    company_id: string;
+    tags: number[];
+    enable_initial_stock: boolean;
+    initial_stock_quantity: string;
+    initial_batch_number: string;
+    initial_expiry_date: string;
+    initial_cost_price: string;
+    primary_image_index: number | '';
+    images: File[];
+};
 
 const STEP_TOTAL = 4;
 
 export default function ProductsCreate() {
     const { t } = useI18n();
-    const { categories = [], tags = [], companies = [], maxOrderItems = null, generalMinimumAlertQuantity = null } = usePage<any>().props;
+    const { categories = [], tags = [], companies = [], maxOrderItems = null, generalMinimumAlertQuantity = null } = usePage<{
+        categories?: MetaOption[];
+        tags?: MetaOption[];
+        companies?: MetaOption[];
+        maxOrderItems?: number | null;
+        generalMinimumAlertQuantity?: number | null;
+    }>().props;
     const [step, setStep] = useState(1);
-    const [companyOptions, setCompanyOptions] = useState<any[]>(companies);
-    const [categoryOptions, setCategoryOptions] = useState<any[]>(categories);
-    const [tagOptions, setTagOptions] = useState<any[]>(tags);
+    const [companyOptions, setCompanyOptions] = useState<MetaOption[]>(companies);
+    const [categoryOptions, setCategoryOptions] = useState<MetaOption[]>(categories);
+    const [tagOptions, setTagOptions] = useState<MetaOption[]>(tags);
     const [companySearch, setCompanySearch] = useState('');
     const [categorySearch, setCategorySearch] = useState('');
     const [tagSearch, setTagSearch] = useState('');
@@ -27,7 +54,7 @@ export default function ProductsCreate() {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const submitIntentRef = useRef(false);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<CreateProductFormData>({
         name_ar: '',
         name_en: '',
         description_ar: '',
@@ -384,7 +411,7 @@ export default function ProductsCreate() {
                                             </div>
                                         )}
                                         <div className="max-h-44 space-y-1 overflow-auto rounded-lg border border-white/10 bg-slate-900/40 p-2">
-                                            {filteredCompanies.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCompanies.slice(0, 30).map((c) => {
+                                            {filteredCompanies.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCompanies.slice(0, 30).map((c: MetaOption) => {
                                                 const active = Number(data.company_id) === Number(c.id);
                                                 return (
                                                     <button key={c.id} type="button" onClick={() => setData('company_id', String(c.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
@@ -412,7 +439,7 @@ export default function ProductsCreate() {
                                             </div>
                                         )}
                                         <div className="max-h-44 space-y-1 overflow-auto rounded-lg border border-white/10 bg-slate-900/40 p-2">
-                                            {filteredCategories.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCategories.slice(0, 30).map((c) => {
+                                            {filteredCategories.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCategories.slice(0, 30).map((c: MetaOption) => {
                                                 const active = Number(data.category_id) === Number(c.id);
                                                 return (
                                                     <button key={c.id} type="button" onClick={() => setData('category_id', String(c.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
@@ -435,7 +462,7 @@ export default function ProductsCreate() {
                                 </div>
                                 <div className="mb-2 text-xs text-slate-400">{t('admin.pages.products.create.selectedTags', 'Selected tags')}: {selectedTagsCount}</div>
                                 <div className="grid max-h-48 gap-2 overflow-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
-                                    {filteredTags.length === 0 ? <p className="col-span-full px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredTags.map((tag) => (
+                                    {filteredTags.length === 0 ? <p className="col-span-full px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredTags.map((tag: MetaOption) => (
                                         <label key={tag.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200">
                                             <input type="checkbox" checked={data.tags.includes(Number(tag.id))} onChange={() => toggleTag(tag.id)} />
                                             {tag.name_en || tag.name_ar}

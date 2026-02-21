@@ -3,13 +3,46 @@ import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
-const money = (v) => Number(v ?? 0).toFixed(2);
+type TranslationFn = (key: string, fallback?: string) => string;
 
-function DateFilter({ action, startDate, endDate, t }) {
-    const submit = (e) => {
+type EarningsStats = {
+    profit_from_sales?: number;
+    gains_from_adjustments?: number;
+    losses_from_adjustments?: number;
+    net_earnings?: number;
+};
+
+type AdjustmentsStats = {
+    gains_count?: number;
+    total_gains?: number;
+    losses_count?: number;
+    total_losses?: number;
+    net_adjustment?: number;
+};
+
+type SalesStats = {
+    total_orders?: number;
+    total_revenue?: number;
+    total_cost?: number;
+    total_profit?: number;
+    profit_margin?: number;
+};
+
+type PageProps = {
+    earningsStats?: EarningsStats;
+    adjustmentsStats?: AdjustmentsStats;
+    salesStats?: SalesStats;
+    startDate?: string;
+    endDate?: string;
+};
+
+const money = (v: unknown): string => Number(v ?? 0).toFixed(2);
+
+function DateFilter({ action, startDate, endDate, t }: { action: string; startDate?: string; endDate?: string; t: TranslationFn }) {
+    const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
-        router.get(action, Object.fromEntries(form.entries()), { preserveState: true, preserveScroll: true });
+        router.get(action, Object.fromEntries(form.entries()), { preserveState: true });
     };
     return (
         <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 md:grid-cols-3">
@@ -20,13 +53,13 @@ function DateFilter({ action, startDate, endDate, t }) {
     );
 }
 
-function Row({ label, value, className = 'text-slate-100' }) {
+function Row({ label, value, className = 'text-slate-100' }: { label: string; value: string | number; className?: string }) {
     return <div className="flex items-center justify-between text-sm"><span className="text-slate-400">{label}</span><span className={className}>{value}</span></div>;
 }
 
 export default function StatisticsEarnings() {
     const { t } = useI18n();
-    const { earningsStats = {}, adjustmentsStats = {}, salesStats = {}, startDate, endDate } = usePage().props;
+    const { earningsStats = {}, adjustmentsStats = {}, salesStats = {}, startDate, endDate } = usePage<PageProps>().props;
 
     return (
         <AdminLayout title={t('admin.pages.statistics.earnings.title')}>
@@ -93,17 +126,17 @@ export default function StatisticsEarnings() {
     );
 }
 
-function Card({ label, value, tone }) {
+function Card({ label, value, tone }: { label: string; value: string | number; tone: string }) {
     return <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-sm text-slate-400">{label}</p><p className={`mt-1 text-2xl font-bold ${tone}`}>{value}</p></div>;
 }
 
-function SimpleComparisonChart({ title, rows }) {
+function SimpleComparisonChart({ title, rows }: { title: string; rows: Array<{ label: string; value: number; tone: string }> }) {
     const maxValue = Math.max(1, ...rows.map((r) => Math.abs(Number(r.value || 0))));
     return (
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
             <div className="space-y-2">
-                {rows.map((row, idx) => {
+                {rows.map((row: { label: string; value: number; tone: string }, idx: number) => {
                     const width = `${Math.max(2, (Math.abs(Number(row.value || 0)) / maxValue) * 100)}%`;
                     return (
                         <div key={`${row.label}-${idx}`} className="grid grid-cols-[220px_1fr_auto] items-center gap-2 text-xs">

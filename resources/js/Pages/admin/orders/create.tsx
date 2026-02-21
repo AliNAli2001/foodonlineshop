@@ -30,6 +30,20 @@ type OrderLine = {
     search: string;
 };
 
+type OrderCreateFormData = {
+    client_id: string;
+    client_name: string;
+    client_phone_number: string;
+    order_source: string;
+    delivery_method: string;
+    address_details: string;
+    latitude: string;
+    longitude: string;
+    shipping_notes: string;
+    admin_order_client_notes: string;
+    products: OrderLine[];
+};
+
 const deliveryMethodOptions: Record<string, { value: string; labelKey: string }[]> = {
     inside_city: [
         { value: 'delivery', labelKey: 'admin.pages.orders.deliveryMethods.delivery' },
@@ -129,7 +143,7 @@ export default function OrdersCreate() {
     const [stepError, setStepError] = useState('');
     const [productSubmitError, setProductSubmitError] = useState('');
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<OrderCreateFormData>({
         client_id: '',
         client_name: '',
         client_phone_number: '',
@@ -332,6 +346,8 @@ export default function OrdersCreate() {
     };
 
     const hasSelectedItems = data.products.some((line: OrderLine) => line.product_id && Number(line.quantity) > 0);
+    const formErrors = errors as Record<string, string | undefined>;
+    const serverError = formErrors.error;
 
     const isStepValid = (currentStep: 1 | 2 | 3) => {
         if (currentStep === 1) {
@@ -401,10 +417,10 @@ export default function OrdersCreate() {
                     </Link>
                 </section>
 
-                {(errors.error || Object.keys(errors).length > 0) && (
+                {(serverError || Object.keys(errors).length > 0) && (
                     <div className="rounded-xl border border-rose-300/30 bg-rose-500/10 p-4 text-sm text-rose-200">
                         <p className="font-semibold">{t('admin.pages.orders.create.validationTitle')}</p>
-                        {errors.error && <p className="mt-1">{errors.error}</p>}
+                        {serverError && <p className="mt-1">{serverError}</p>}
                     </div>
                 )}
 

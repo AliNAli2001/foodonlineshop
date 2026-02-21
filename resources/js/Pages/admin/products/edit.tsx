@@ -4,23 +4,64 @@ import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
 
 const STEP_TOTAL = 3;
+type MetaOption = { id: number; name_ar?: string; name_en?: string };
+type ProductImage = { id: number; is_primary?: boolean; full_url?: string; image_url?: string };
+type ProductTag = { id: number };
+type ProductEntity = {
+    id: number;
+    name_ar?: string;
+    name_en?: string;
+    description_ar?: string;
+    description_en?: string;
+    selling_price?: string | number;
+    max_order_item?: string | number;
+    minimum_alert_quantity?: string | number;
+    featured?: boolean;
+    category_id?: string | number;
+    company_id?: string | number;
+    tags?: ProductTag[];
+    images?: ProductImage[];
+};
+type EditProductFormData = {
+    _method: 'put';
+    name_ar: string;
+    name_en: string;
+    description_ar: string;
+    description_en: string;
+    selling_price: string | number;
+    max_order_item: string | number;
+    minimum_alert_quantity: string | number;
+    featured: boolean;
+    category_id: string | number;
+    company_id: string | number;
+    tags: number[];
+    images: File[];
+    image_ids_to_delete: number[];
+    primary_image_id: string | number;
+};
 
 export default function ProductsEdit() {
     const { t } = useI18n();
-    const { product, categories = [], tags = [], companies = [] } = usePage<any>().props;
+    const { product, categories = [], tags = [], companies = [] } = usePage<{
+        product: ProductEntity;
+        categories?: MetaOption[];
+        tags?: MetaOption[];
+        companies?: MetaOption[];
+    }>().props;
     const [step, setStep] = useState(1);
-    const [companyOptions] = useState<any[]>(companies);
-    const [categoryOptions] = useState<any[]>(categories);
-    const [tagOptions] = useState<any[]>(tags);
+    const [companyOptions] = useState<MetaOption[]>(companies);
+    const [categoryOptions] = useState<MetaOption[]>(categories);
+    const [tagOptions] = useState<MetaOption[]>(tags);
     const [companySearch, setCompanySearch] = useState('');
     const [categorySearch, setCategorySearch] = useState('');
     const [tagSearch, setTagSearch] = useState('');
     const [stepError, setStepError] = useState('');
     const [newImagePreviewUrls, setNewImagePreviewUrls] = useState<string[]>([]);
+    const currentImages = product.images ?? [];
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const submitIntentRef = useRef(false);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm<EditProductFormData>({
         _method: 'put',
         name_ar: product.name_ar ?? '',
         name_en: product.name_en ?? '',
@@ -32,10 +73,10 @@ export default function ProductsEdit() {
         featured: !!product.featured,
         category_id: product.category_id ?? '',
         company_id: product.company_id ?? '',
-        tags: (product.tags || []).map((tag: any) => tag.id),
+        tags: (product.tags || []).map((tag: ProductTag) => tag.id),
         images: [],
         image_ids_to_delete: [],
-        primary_image_id: (product.images || []).find((img: any) => img.is_primary)?.id || '',
+        primary_image_id: (product.images || []).find((img: ProductImage) => img.is_primary)?.id || '',
     });
 
     const fieldStepMap: Record<string, number> = {
@@ -250,7 +291,7 @@ export default function ProductsEdit() {
                                             </div>
                                         )}
                                         <div className="max-h-44 space-y-1 overflow-auto rounded-lg border border-white/10 bg-slate-900/40 p-2">
-                                            {filteredCompanies.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCompanies.slice(0, 30).map((company) => {
+                                            {filteredCompanies.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCompanies.slice(0, 30).map((company: MetaOption) => {
                                                 const active = Number(data.company_id) === Number(company.id);
                                                 return (
                                                     <button key={company.id} type="button" onClick={() => setData('company_id', String(company.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
@@ -273,7 +314,7 @@ export default function ProductsEdit() {
                                             </div>
                                         )}
                                         <div className="max-h-44 space-y-1 overflow-auto rounded-lg border border-white/10 bg-slate-900/40 p-2">
-                                            {filteredCategories.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCategories.slice(0, 30).map((category) => {
+                                            {filteredCategories.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCategories.slice(0, 30).map((category: MetaOption) => {
                                                 const active = Number(data.category_id) === Number(category.id);
                                                 return (
                                                     <button key={category.id} type="button" onClick={() => setData('category_id', String(category.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
@@ -293,7 +334,7 @@ export default function ProductsEdit() {
                                 </div>
                                 <div className="mb-2 text-xs text-slate-400">{t('admin.pages.products.create.selectedTags', 'Selected tags')}: {selectedTagsCount}</div>
                                 <div className="grid max-h-48 gap-2 overflow-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
-                                    {filteredTags.length === 0 ? <p className="col-span-full px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredTags.map((tag) => (
+                                    {filteredTags.length === 0 ? <p className="col-span-full px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredTags.map((tag: MetaOption) => (
                                         <label key={tag.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200">
                                             <input type="checkbox" checked={data.tags.includes(Number(tag.id))} onChange={() => toggleTag(tag.id)} />
                                             {tag.name_en || tag.name_ar}
@@ -311,11 +352,11 @@ export default function ProductsEdit() {
                         <div className="space-y-4">
                             <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                                 <h3 className="mb-3 text-sm font-semibold text-white">{t('admin.pages.products.edit.currentImages')}</h3>
-                                {(product.images || []).length === 0 ? (
+                                {currentImages.length === 0 ? (
                                     <p className="text-sm text-slate-400">{t('admin.pages.products.edit.noImages')}</p>
                                 ) : (
                                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                        {product.images.map((img: any) => {
+                                        {currentImages.map((img: ProductImage) => {
                                             const url = img.full_url || (img.image_url ? `/storage/${img.image_url}` : '');
                                             return (
                                                 <div key={img.id} className="rounded-lg border border-white/10 bg-slate-900/40 p-2">

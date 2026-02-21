@@ -97,7 +97,7 @@ export default function OrdersIndex() {
                 start_date: startDate || undefined,
                 end_date: endDate || undefined,
             },
-            { preserveState: true, preserveScroll: true, replace: true },
+            { preserveState: true, replace: true },
         );
     };
 
@@ -108,7 +108,7 @@ export default function OrdersIndex() {
         setTotalPrice('');
         setStartDate('');
         setEndDate('');
-        router.get('/admin/orders', {}, { preserveState: true, preserveScroll: true, replace: true });
+        router.get('/admin/orders', {}, { preserveState: true, replace: true });
     };
 
     return (
@@ -130,7 +130,6 @@ export default function OrdersIndex() {
                             type="button"
                             onClick={() =>
                                 router.reload({
-                                    preserveScroll: true,
                                     only: ['orders', 'statusSummary', 'filters'],
                                 })
                             }

@@ -32,7 +32,6 @@ export default function OrdersWork() {
     useEffect(() => {
         const interval = window.setInterval(() => {
             router.reload({
-                preserveScroll: true,
                 only: ['ordersByStatus', 'statusCounts', 'lastUpdatedAt'],
             });
         }, 10000);
@@ -57,13 +56,13 @@ export default function OrdersWork() {
     };
 
     const confirmOrder = (orderId: number) => {
-        router.post(`/admin/orders/${orderId}/confirm`, {}, { preserveScroll: true });
+        router.post(`/admin/orders/${orderId}/confirm`);
     };
 
     const rejectOrder = (orderId: number) => {
         const reason = window.prompt(t('admin.pages.orders.show.reason'), '');
         if (!reason || reason.trim().length === 0) return;
-        router.post(`/admin/orders/${orderId}/reject`, { reason }, { preserveScroll: true });
+        router.post(`/admin/orders/${orderId}/reject`, { reason });
     };
 
     return (
@@ -84,7 +83,6 @@ export default function OrdersWork() {
                             type="button"
                             onClick={() =>
                                 router.reload({
-                                    preserveScroll: true,
                                     only: ['ordersByStatus', 'statusCounts', 'lastUpdatedAt'],
                                 })
                             }

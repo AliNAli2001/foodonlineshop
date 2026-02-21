@@ -1,7 +1,8 @@
 import React from 'react';
 import { useI18n } from '../../i18n';
+import type { GenericPageProps } from './GenericPage';
 
-export default function MissingPage(props) {
+export default function MissingPage(props: GenericPageProps) {
     const { t } = useI18n();
 
     return (
