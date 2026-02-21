@@ -1,4 +1,4 @@
-import React from 'react';
+import {ReactNode } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AdminLayout from '../../Layouts/AdminLayout';
 import { useI18n } from '../../i18n';
@@ -27,6 +27,12 @@ function statusLabel(status, t) {
     return t(map[status] || '', status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()));
 }
 
+interface CardProps {
+  title: string;
+  action?: ReactNode;   // optional
+  children: ReactNode;
+}
+
 function StatCard({ title, value, hint, tone }) {
     return (
         <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
@@ -40,7 +46,7 @@ function StatCard({ title, value, hint, tone }) {
     );
 }
 
-function Card({ title, action, children }) {
+function Card({ title, action, children } : CardProps) {
     return (
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl">
             <div className="mb-4 flex items-center justify-between gap-3">

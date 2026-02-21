@@ -9,6 +9,8 @@
     "devDependencies": {
         "@inertiajs/react": "^1.1.0",
         "@tailwindcss/vite": "^4.0.0",
+        "@types/react": "^19.2.14",
+        "@types/react-dom": "^19.2.3",
         "autoprefixer": "^10.4.24",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
@@ -17,6 +19,7 @@
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "tailwindcss": "^4.1.18",
+        "typescript": "^5.9.3",
         "vite": "^7.0.7"
     },
     "dependencies": {
