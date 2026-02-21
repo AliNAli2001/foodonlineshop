@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Setting;
@@ -51,7 +52,9 @@ class InventoryController extends Controller
             $this->inventoryService->createBatch($productId, $validated);
 
             return redirect()->route('admin.inventory.product', $product->id)
-                ->with('success', 'تمت إضافة دفعة مستودع جديدة للمنتج.');
+                ->with('success', __('admin.inventory.batch_created'));
+        } catch (InsufficientStockException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -142,7 +145,9 @@ class InventoryController extends Controller
             $batch = $this->inventoryService->updateBatch($batchId, $validated);
 
             return redirect()->route('admin.inventory.show', $batch->id)
-                ->with('success', 'تم تحديث بيانات دفعة المستودع.');
+                ->with('success', __('admin.inventory.batch_updated'));
+        } catch (InsufficientStockException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -175,7 +180,7 @@ class InventoryController extends Controller
             }
         });
 
-        return redirect()->route('admin.inventory.index')->with('success', 'Inventory batches created successfully.');
+        return redirect()->route('admin.inventory.index')->with('success', __('admin.inventory.bulk_created'));
     }
 
     /**

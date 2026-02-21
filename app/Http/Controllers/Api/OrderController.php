@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\EmptyCartException;
+use App\Exceptions\InsufficientStockException;
+use App\Exceptions\InvalidOrderStatusTransitionException;
+use App\Exceptions\OrderItemBatchNotFoundException;
+use App\Exceptions\OrderStateException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Client\OrderResource;
 use App\Services\OrderService;
@@ -63,8 +68,10 @@ class OrderController extends Controller
                 'message' => 'Order created successfully. Awaiting admin confirmation.',
                 'order' => new OrderResource($order),
             ], 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+        } catch (InsufficientStockException|EmptyCartException|OrderItemBatchNotFoundException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        } catch (OrderStateException|InvalidOrderStatusTransitionException $e) {
+            return response()->json(['message' => $e->getMessage()], 409);
         }
     }
 }

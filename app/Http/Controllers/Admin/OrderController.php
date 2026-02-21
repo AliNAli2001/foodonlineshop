@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\InsufficientStockException;
+use App\Exceptions\InvalidOrderStatusTransitionException;
+use App\Exceptions\OrderItemBatchNotFoundException;
+use App\Exceptions\OrderStateException;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Delivery;
@@ -196,7 +200,9 @@ class OrderController extends Controller
             $order = $this->orderService->createAdminOrder($validated, auth('admin')->id());
 
             return redirect()->route('admin.orders.show', $order->id)
-                ->with('success', 'تم إنشاء طلب يدوي بنجاح.');
+                ->with('success', __('admin.orders.created'));
+        } catch (InsufficientStockException|OrderStateException|InvalidOrderStatusTransitionException|OrderItemBatchNotFoundException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -356,7 +362,9 @@ class OrderController extends Controller
     {
         try {
             $this->orderService->confirmOrder($orderId);
-            return back()->with('success', 'تم تأكيد الطلب و إنقاص الكمية من المستودع.');
+            return back()->with('success', __('admin.orders.confirmed'));
+        } catch (InsufficientStockException|OrderStateException|InvalidOrderStatusTransitionException|OrderItemBatchNotFoundException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -371,7 +379,9 @@ class OrderController extends Controller
 
         try {
             $this->orderService->rejectOrder($orderId, $validated['reason']);
-            return back()->with('success', 'تم رفض الطلب و تحرير البضاعة المحجوزة.');
+            return back()->with('success', __('admin.orders.rejected'));
+        } catch (InsufficientStockException|OrderStateException|InvalidOrderStatusTransitionException|OrderItemBatchNotFoundException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -397,7 +407,11 @@ class OrderController extends Controller
                 $validated['delivery_id'] ?? null
             );
 
-            return back()->with('success', "تم تحديث حالة الطلب إلى {$validated['status']}.");
+            return back()->with('success', __('admin.orders.status_updated', [
+                'status' => __('admin.order_statuses.' . $validated['status']),
+            ]));
+        } catch (InsufficientStockException|OrderStateException|InvalidOrderStatusTransitionException|OrderItemBatchNotFoundException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -412,7 +426,9 @@ class OrderController extends Controller
 
         try {
             $this->orderService->assignDelivery($orderId, $validated['delivery_id']);
-            return back()->with('success', 'تم إسناد الطلب لعامل التوصيل بنجاح.');
+            return back()->with('success', __('admin.orders.delivery_assigned'));
+        } catch (InsufficientStockException|OrderStateException|InvalidOrderStatusTransitionException|OrderItemBatchNotFoundException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -431,7 +447,9 @@ class OrderController extends Controller
 
         try {
             $this->orderService->updateDeliveryMethod($orderId, $validated);
-            return back()->with('success', 'تم تحديث طريقة التوصيل بنجاح');
+            return back()->with('success', __('admin.orders.delivery_method_updated'));
+        } catch (InsufficientStockException|OrderStateException|InvalidOrderStatusTransitionException|OrderItemBatchNotFoundException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

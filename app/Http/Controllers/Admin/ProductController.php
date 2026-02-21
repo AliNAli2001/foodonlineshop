@@ -91,7 +91,7 @@ class ProductController extends Controller
             $q->latest();
         });
 
-        $products = $query->paginate(15)->withQueryString();
+        $products = $query->paginate(8)->withQueryString();
         $tags = Tag::query()
             ->select('id', 'name_ar', 'name_en')
             ->orderBy('name_en')

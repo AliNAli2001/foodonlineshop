@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\InsufficientStockException;
 use App\Models\DamagedGoods;
 use App\Models\InventoryBatch;
 use App\Models\Product;
@@ -33,9 +34,12 @@ class DamagedGoodsService
         $batch = InventoryBatch::findOrFail($data['inventory_batch_id']);
 
         if ($batch->available_quantity < $data['quantity']) {
-            throw new \Exception(
-                "Insufficient available quantity in the selected batch. " .
-                    "Available: {$batch->available_quantity}, Requested: {$data['quantity']}"
+            throw new InsufficientStockException(
+                productId: (int) $data['product_id'],
+                productName: null,
+                available: (int) $batch->available_quantity,
+                requested: (int) $data['quantity'],
+                message: "Insufficient available quantity in the selected batch. Available: {$batch->available_quantity}, requested: {$data['quantity']}."
             );
         }
 

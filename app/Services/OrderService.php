@@ -2,15 +2,17 @@
 
 namespace App\Services;
 
+use App\Exceptions\EmptyCartException;
+use App\Exceptions\InsufficientStockException;
+use App\Exceptions\InvalidOrderStatusTransitionException;
+use App\Exceptions\OrderItemBatchNotFoundException;
+use App\Exceptions\OrderStateException;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\OrderItemBatch;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 use Brick\Math\BigDecimal;
-use Exception;
-use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -38,11 +40,12 @@ class OrderService
             $product = Product::findOrFail($item['product_id']);
 
             if ($product->stock_available_quantity < $item['quantity']) {
-                throw ValidationException::withMessages([
-                    'products' => "الكمية المطلوبة غير متوفرة للمنتج {$product->name_ar} ذو الرقم {$item['product_id']}. " .
-                        "المتاح: {$product->stock_available_quantity}, " .
-                        "المطلوب: {$item['quantity']}",
-                ]);
+                throw new InsufficientStockException(
+                    productId: (int) $item['product_id'],
+                    productName: (string) ($product->name_en ?? $product->name_ar ?? 'product'),
+                    available: (int) $product->stock_available_quantity,
+                    requested: (int) $item['quantity']
+                );
             }
 
             $totalAmount = $totalAmount->plus(BigDecimal::of($product->selling_price)->multipliedBy($item['quantity']));
@@ -154,8 +157,11 @@ class OrderService
 
                 // 3.6️⃣ Safety check
                 if ($quantityToSell > 0) {
-                    throw new Exception(
-                        "الكمية المطلوبة من المنتج {$product->name_ar} ذو الرقم {$product->id} غير متوفرة."
+                    throw new InsufficientStockException(
+                        productId: (int) $product->id,
+                        productName: (string) ($product->name_en ?? $product->name_ar ?? 'product'),
+                        available: (int) ($item['quantity'] - $quantityToSell),
+                        requested: (int) $item['quantity']
                     );
                 }
 
@@ -179,7 +185,7 @@ class OrderService
         // Parse cart data
         $cartData = json_decode($validated['cart_data'], true);
         if (empty($cartData)) {
-            throw new Exception('Cart is empty.');
+            throw new EmptyCartException();
         }
 
         $cart = [];
@@ -194,10 +200,11 @@ class OrderService
             $product = Product::findOrFail($productId);
 
             if ($product->stock_available_quantity < $cartItem['quantity']) {
-                throw new Exception(
-                    "الكمية المطلوبة غير متوفرة للمنتج {$product->name_ar} ذو الرقم {$productId}. " .
-                        "المتاح: {$product->stock_available_quantity}, " .
-                        "المطلوب: {$cartItem['quantity']}"
+                throw new InsufficientStockException(
+                    productId: (int) $productId,
+                    productName: (string) ($product->name_en ?? $product->name_ar ?? 'product'),
+                    available: (int) $product->stock_available_quantity,
+                    requested: (int) $cartItem['quantity']
                 );
             }
         }
@@ -257,7 +264,7 @@ class OrderService
         $order = Order::with(['items.product'])->findOrFail($orderId);
 
         if ($order->status !== 'pending') {
-            throw new Exception('Only pending orders can be confirmed.');
+            throw new OrderStateException('Only pending orders can be confirmed.');
         }
 
         DB::transaction(function () use ($order) {
@@ -323,8 +330,11 @@ class OrderService
 
                 // Safety check
                 if ($quantityToDeduct > 0) {
-                    throw new Exception(
-                        "Insufficient stock to confirm order for product {$product->name_ar} ({$product->id})."
+                    throw new InsufficientStockException(
+                        productId: (int) $product->id,
+                        productName: (string) ($product->name_en ?? $product->name_ar ?? 'product'),
+                        available: (int) ($item->quantity - $quantityToDeduct),
+                        requested: (int) $item->quantity
                     );
                 }
 
@@ -351,7 +361,7 @@ class OrderService
         $order = Order::with(['items.product'])->findOrFail($orderId);
 
         if ($order->status !== 'pending') {
-            throw new Exception('الرفض فقط للطلبات المعلقة.');
+            throw new OrderStateException('Only pending orders can be rejected.');
         }
 
         $order->update([
@@ -377,7 +387,7 @@ class OrderService
         foreach ($order->items as $item) {
 
             if ($item->batches->isEmpty()) {
-                throw new Exception("No inventory batches linked for order item {$item->id}.");
+                throw new OrderItemBatchNotFoundException((int) $item->id);
             }
 
             foreach ($item->batches as $itemBatch) {
@@ -424,7 +434,7 @@ class OrderService
 
         $validTransitions = $this->getValidStatusTransitions($previousStatus, $order);
         if (!in_array($newStatus, $validTransitions)) {
-            throw new Exception("Cannot change status from {$previousStatus} to {$newStatus} for this order.");
+            throw new InvalidOrderStatusTransitionException($previousStatus, $newStatus);
         }
 
 
@@ -573,3 +583,4 @@ class OrderService
         return $this->getValidStatusTransitions($order->status, $order);
     }
 }
+
