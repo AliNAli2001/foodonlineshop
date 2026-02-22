@@ -95,15 +95,15 @@ export default function InventoryIndex() {
             <p className="text-sm text-slate-300">{t('admin.pages.inventory.index.subtitle')}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href="/admin/inventory/bulk/create" className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-400/20">
+            <Link href="/admin/inventory/bulk/create" className="rounded-xl border border-cyan-400/40 bg-cyan-50 px-4 py-2 text-sm font-medium text-cyan-700 hover:bg-cyan-100 dark:border-cyan-300/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">
               {t('admin.pages.inventory.index.bulk.title')}
             </Link>
             {isLowStockRoute ? (
               <Link href="/admin/inventory" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.inventory.index.allProducts')}</Link>
             ) : (
-              <Link href="/admin/inventory/low-stock" className="rounded-xl border border-amber-300/30 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-200 hover:bg-amber-400/20">{t('admin.pages.inventory.index.lowStockProducts')}</Link>
+              <Link href="/admin/inventory/low-stock" className="rounded-xl border border-amber-400/40 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100 dark:border-amber-300/30 dark:bg-amber-400/10 dark:text-amber-200 dark:hover:bg-amber-400/20">{t('admin.pages.inventory.index.lowStockProducts')}</Link>
             )}
-            <Link href="/admin/dashboard" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('admin.nav.dashboard')}</Link>
+            <Link href="/admin/dashboard" className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">{t('admin.nav.dashboard')}</Link>
           </div>
         </section>
 
@@ -188,7 +188,7 @@ export default function InventoryIndex() {
                 <h3 className="font-semibold text-white">{product.name_en || '-'}</h3>
                 <p className="mt-0.5 text-sm text-slate-300">{product.name_ar || '-'}</p>
                 <p className="mt-1 text-sm text-slate-300">{t('admin.pages.inventory.index.stock')}: {stockAmount(product)}</p>
-                <Link href={`/admin/inventory/${product.id}/batches`} className="mt-3 inline-flex rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('admin.pages.inventory.index.viewDetails')}</Link>
+                <Link href={`/admin/inventory/${product.id}/batches`} className="mt-3 inline-flex rounded-lg border border-cyan-400/40 bg-cyan-50 px-3 py-1.5 text-xs text-cyan-700 hover:bg-cyan-100 dark:border-cyan-300/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">{t('admin.pages.inventory.index.viewDetails')}</Link>
               </article>
             ))
           )}

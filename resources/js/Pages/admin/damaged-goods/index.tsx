@@ -62,7 +62,7 @@ export default function DamagedGoodsIndex() {
             <Link href="/admin/damaged-goods/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
               {t('admin.pages.damagedGoods.index.addRecord')}
             </Link>
-            <Link href="/admin/dashboard" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">
+            <Link href="/admin/dashboard" className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">
               {t('common.back')}
             </Link>
           </div>
@@ -134,8 +134,8 @@ export default function DamagedGoodsIndex() {
                       <td className="px-4 py-3 text-sm text-slate-200">{formatDate(r.created_at)}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
-                          <Link href={`/admin/damaged-goods/${r.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
-                          <button onClick={() => removeRow(r.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button>
+                          <Link href={`/admin/damaged-goods/${r.id}`} className="rounded-lg border border-cyan-400/40 bg-cyan-50 px-2.5 py-1 text-xs text-cyan-700 hover:bg-cyan-100 dark:border-cyan-300/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">{t('common.view')}</Link>
+                          <button onClick={() => removeRow(r.id)} className="rounded-lg border border-rose-400/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-300/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">{t('common.delete')}</button>
                         </div>
                       </td>
                     </tr>

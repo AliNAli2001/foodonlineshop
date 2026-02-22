@@ -56,7 +56,7 @@ export default function DamagedGoodsShow() {
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href={`/admin/inventory/${damagedGoods.product_id}`} className="inline-flex rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20">
+            <Link href={`/admin/inventory/${damagedGoods.product_id}`} className="inline-flex rounded-lg border border-cyan-300/40 bg-cyan-50 px-3 py-1.5 text-xs text-cyan-700 hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">
               {t('admin.pages.damagedGoods.show.openProductInventory')}
             </Link>
             {adjustment ? (

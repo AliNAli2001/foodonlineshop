@@ -44,8 +44,8 @@ export default function SettingsPage() {
     return (
         <AdminLayout title={t('admin.pages.settings.index.title')}>
             <div className="mx-auto max-w-4xl space-y-6">
-                <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/70 via-slate-900/40 to-cyan-950/30 p-6 md:p-8">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">{t('admin.pages.settings.index.administration')}</p>
+                <section className="rounded-3xl border border-white/10 dark:bg-gradient-to-br from-slate-900/70 via-slate-900/40 to-cyan-950/30 p-6 md:p-8">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-600 dark:text-cyan-200">{t('admin.pages.settings.index.administration')}</p>
                     <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">{t('admin.pages.settings.index.heading')}</h1>
                     <p className="mt-2 text-sm text-slate-300">
                         {t('admin.pages.settings.index.subtitle')}

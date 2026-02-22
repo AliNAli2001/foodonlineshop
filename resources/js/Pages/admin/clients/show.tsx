@@ -34,7 +34,7 @@ export default function ClientsShow() {
             <p className="text-sm text-slate-300">Client account details and actions.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={resetPassword} className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-400/20">
+            <button onClick={resetPassword} className="rounded-xl border border-cyan-300/40 bg-cyan-50 px-4 py-2 text-sm text-cyan-700 hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">
               Reset Password
             </button>
             {client.suspended_at ? (
@@ -109,7 +109,7 @@ export default function ClientsShow() {
                         {order.order_date ? new Date(order.order_date).toLocaleString() : (order.created_at ? new Date(order.created_at).toLocaleString() : '-')}
                       </td>
                       <td className="px-4 py-3">
-                        <Link href={`/admin/orders/${order.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">
+                        <Link href={`/admin/orders/${order.id}`} className="rounded-lg  border border-cyan-300/40 bg-cyan-50 px-2.5 py-1 text-xs text-cyan-700 hover:bg-cyan-200 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">
                           View
                         </Link>
                       </td>

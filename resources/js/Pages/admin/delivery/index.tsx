@@ -113,9 +113,9 @@ export default function DeliveryIndex() {
                       <WhatsappIcon />
                       {t('admin.pages.delivery.actions.whatsapp')}
                     </a>
-                    <Link href={`/admin/delivery/${delivery.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
-                    <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link>
-                    <button onClick={() => removeDelivery(delivery.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button>
+                    <Link href={`/admin/delivery/${delivery.id}`} className="rounded-lg  border border-cyan-300/40 bg-cyan-50 px-2.5 py-1 text-xs text-cyan-700 hover:bg-cyan-200 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">{t('common.view')}</Link>
+                    <Link href={`/admin/delivery/${delivery.id}/edit`} className="rounded-lg border border-amber-300/40 bg-amber-50 px-2.5 py-1 text-xs text-amber-700 hover:bg-amber-100  dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200 dark:hover:bg-amber-400/20">{t('common.edit')}</Link>
+                    <button onClick={() => removeDelivery(delivery.id)} className="rounded-lg border border-rose-300/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">{t('common.delete')}</button>
                   </div>
                 </article>
               ))

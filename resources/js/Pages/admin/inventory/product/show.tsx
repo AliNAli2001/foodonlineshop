@@ -67,7 +67,7 @@ export default function InventoryProductShow() {
                       <td className="px-4 py-3 text-sm text-slate-200">{b.cost_price}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{b.available_quantity}</td>
                       <td className="px-4 py-3 text-sm text-slate-200">{b.is_expired ? t('admin.pages.inventory.status.expired') : t('admin.pages.inventory.status.available')}</td>
-                      <td className="px-4 py-3"><div className="flex gap-2"><Link href={`/admin/inventory/${b.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link><Link href={`/admin/inventory/${b.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link></div></td>
+                      <td className="px-4 py-3"><div className="flex gap-2"><Link href={`/admin/inventory/${b.id}`} className="rounded-lg  border border-cyan-300/40 bg-cyan-50 px-2.5 py-1 text-xs text-cyan-700 hover:bg-cyan-200 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">{t('common.view')}</Link><Link href={`/admin/inventory/${b.id}/edit`} className="rounded-lg border border-amber-300/40 bg-amber-50 px-2.5 py-1 text-xs text-amber-700 hover:bg-amber-100  dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200 dark:hover:bg-amber-400/20">{t('common.edit')}</Link></div></td>
                     </tr>
                   ))
                 )}

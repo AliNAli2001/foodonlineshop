@@ -99,7 +99,7 @@ export default function OrdersWork() {
                     </div>
                 </section>
 
-                <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <section className="rounded-2xl border border-slate-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.04]">
                     <div className={`flex flex-wrap gap-2 ${isRtl ? 'justify-end' : 'justify-start'}`}>
                         {workStatuses.map((status) => {
                             const active = status === activeTab;
@@ -110,12 +110,12 @@ export default function OrdersWork() {
                                     onClick={() => setActiveTab(status)}
                                     className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition ${
                                         active
-                                            ? 'border-cyan-300/40 bg-cyan-500/15 text-cyan-100'
-                                            : 'border-white/10 bg-white/5 text-slate-200 hover:bg-white/10'
+                                            ? 'border-cyan-400/40 bg-cyan-50 text-cyan-800 dark:border-cyan-300/40 dark:bg-cyan-500/15 dark:text-cyan-100'
+                                            : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10'
                                     }`}
                                 >
                                     <span>{tabLabel(status)}</span>
-                                    <span className={`rounded-full px-2 py-0.5 text-xs ${active ? 'bg-cyan-300 text-slate-950' : 'bg-slate-700 text-slate-200'}`}>
+                                    <span className={`rounded-full px-2 py-0.5 text-xs ${active ? 'bg-cyan-300 text-slate-950 dark:bg-cyan-300 dark:text-slate-950' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
                                         {statusCounts?.[status] ?? 0}
                                     </span>
                                 </button>

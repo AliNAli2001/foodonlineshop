@@ -397,7 +397,7 @@ export default function ProductsEdit() {
                                     {(data.images || []).length > 0 && (
                                         <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
                                             <p className="text-xs text-slate-300">{(data.images || []).length} {t('admin.pages.products.create.filesSelected')}</p>
-                                            <button type="button" onClick={() => onNewImagesChange([])} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">
+                                            <button type="button" onClick={() => onNewImagesChange([])} className="rounded-lg border border-rose-300/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">
                                                 {t('admin.pages.products.create.clearSelection', 'Clear')}
                                             </button>
                                         </div>

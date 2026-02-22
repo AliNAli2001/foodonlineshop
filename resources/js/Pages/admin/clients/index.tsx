@@ -105,7 +105,7 @@ export default function ClientsIndex() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-2">
-                          <Link href={`/admin/clients/${client.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">
+                          <Link href={`/admin/clients/${client.id}`} className="rounded-lg  border border-cyan-300/40 bg-cyan-50 px-2.5 py-1 text-xs text-cyan-700 hover:bg-cyan-200 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">
                             {t('common.view')}
                           </Link>
                           <button
@@ -118,7 +118,7 @@ export default function ClientsIndex() {
                           >
                             {client.suspended_at ? t('admin.pages.clients.index.actions.activate') : t('admin.pages.clients.index.actions.suspend')}
                           </button>
-                          <button onClick={() => removeClient(client.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">
+                          <button onClick={() => removeClient(client.id)} className="rounded-lg border border-rose-300/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">
                             {t('common.delete')}
                           </button>
                         </div>

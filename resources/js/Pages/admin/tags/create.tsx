@@ -33,7 +33,7 @@ export default function TagsCreate() {
             <div key={index} className="rounded-xl border border-white/10 bg-white/[0.03] p-3 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-200">{t('admin.pages.tags.create.heading')} #{index + 1}</p>
-                <button type="button" onClick={() => removeRow(index)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">
+                <button type="button" onClick={() => removeRow(index)} className="rounded-lg border border-rose-300/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">
                   {t('common.delete')}
                 </button>
               </div>
@@ -41,7 +41,7 @@ export default function TagsCreate() {
               <Field label={t('admin.pages.tags.form.englishName')} error={(errors as any)[`entries.${index}.name_en`]}><input value={entry.name_en} onChange={(e) => updateEntry(index, 'name_en', e.target.value)} className={inputClass} required /></Field>
             </div>
           ))}
-          <button type="button" onClick={addRow} className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-400/20">
+          <button type="button" onClick={addRow} className="rounded-xl border border-cyan-300/40 bg-cyan-50 px-4 py-2 text-sm text-cyan-700 hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">
             + {t('common.create', 'Create')} Row
           </button>
           <div className="flex gap-3"><button disabled={processing} className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300 disabled:opacity-70">{processing ? t('admin.pages.tags.form.saving') : t('admin.pages.tags.create.submit')}</button><Link href="/admin/tags" className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-slate-200 hover:bg-white/10">{t('common.cancel')}</Link></div>

@@ -345,7 +345,7 @@ export default function ProductsCreate() {
                     <Link href="/admin/products" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">{t('common.back')}</Link>
                 </section>
 
-                <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <section className="rounded-2xl border border-slate-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.04]">
                     <div className="grid gap-2 sm:grid-cols-4">
                         {stepTitles.map((title, idx) => {
                             const itemStep = idx + 1;
@@ -356,9 +356,15 @@ export default function ProductsCreate() {
                                     key={title}
                                     type="button"
                                     onClick={() => goToStep(itemStep)}
-                                    className={`rounded-xl border px-3 py-2 text-left text-xs ${active ? 'border-cyan-300/40 bg-cyan-400/20 text-cyan-100' : done ? 'border-emerald-300/30 bg-emerald-400/10 text-emerald-100' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]'}`}
+                                    className={`rounded-xl border px-3 py-2 text-left text-xs ${
+                                        active
+                                            ? 'border-cyan-400/40 bg-cyan-50 text-cyan-800 dark:border-cyan-300/40 dark:bg-cyan-400/20 dark:text-cyan-100'
+                                            : done
+                                                ? 'border-emerald-400/40 bg-emerald-50 text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-400/10 dark:text-emerald-100'
+                                                : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-300 dark:hover:bg-white/[0.06]'
+                                    }`}
                                 >
-                                    <span className="block text-[10px] uppercase tracking-[0.12em]">{t('admin.pages.products.create.step', 'Step')} {itemStep}</span>
+                                    <span className="block text-[10px] uppercase tracking-[0.12em] opacity-80">{t('admin.pages.products.create.step', 'Step')} {itemStep}</span>
                                     <span className="block truncate">{title}</span>
                                 </button>
                             );
@@ -501,7 +507,7 @@ export default function ProductsCreate() {
                                         <button
                                             type="button"
                                             onClick={() => onImagesChange([])}
-                                            className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20"
+                                            className="rounded-lg border border-rose-300/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20"
                                         >
                                             {t('admin.pages.products.create.clearSelection', 'Clear')}
                                         </button>

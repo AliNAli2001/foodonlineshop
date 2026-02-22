@@ -137,22 +137,22 @@ export default function AdjustmentsIndex() {
                           {a.adjustment_type === 'gain' ? (
                             <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-xs text-emerald-200 ring-1 ring-emerald-300/30">{t('admin.pages.adjustments.form.gain')}</span>
                           ) : (
-                            <span className="rounded-full bg-rose-400/20 px-2 py-0.5 text-xs text-rose-200 ring-1 ring-rose-300/30">{t('admin.pages.adjustments.form.loss')}</span>
+                            <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs text-rose-700 ring-1 ring-rose-300/40 dark:bg-rose-500/20 dark:text-rose-200 dark:ring-rose-400/30">{t('admin.pages.adjustments.form.loss')}</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-200">{a.reason}</td>
                         <td className="px-4 py-3 text-sm text-slate-200">{formatDate(a.date || a.created_at)}</td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Link href={`/admin/adjustments/${a.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link>
+                            <Link href={`/admin/adjustments/${a.id}`} className="rounded-lg border border-cyan-400/40 bg-cyan-50 px-2.5 py-1 text-xs text-cyan-700 hover:bg-cyan-100 dark:border-cyan-300/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">{t('common.view')}</Link>
                             {isDamagedGoodsLinked ? (
                               a.adjustable_id ? (
-                                <Link href={`/admin/damaged-goods/${a.adjustable_id}`} className="rounded-lg border border-indigo-300/30 bg-indigo-500/10 px-2.5 py-1 text-xs text-indigo-200 hover:bg-indigo-500/20">{t('admin.pages.adjustments.index.damagedGoods')}</Link>
+                                <Link href={`/admin/damaged-goods/${a.adjustable_id}`} className="rounded-lg border border-indigo-400/40 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 hover:bg-indigo-100 dark:border-indigo-300/30 dark:bg-indigo-500/10 dark:text-indigo-200 dark:hover:bg-indigo-500/20">{t('admin.pages.adjustments.index.damagedGoods')}</Link>
                               ) : null
                             ) : (
                               <>
-                                <Link href={`/admin/adjustments/${a.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link>
-                                <button onClick={() => removeRow(a.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button>
+                                <Link href={`/admin/adjustments/${a.id}/edit`} className="rounded-lg border border-amber-400/40 bg-amber-50 px-2.5 py-1 text-xs text-amber-700 hover:bg-amber-100 dark:border-amber-300/30 dark:bg-amber-400/10 dark:text-amber-200 dark:hover:bg-amber-400/20">{t('common.edit')}</Link>
+                                <button onClick={() => removeRow(a.id)} className="rounded-lg border border-rose-400/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-300/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">{t('common.delete')}</button>
                               </>
                             )}
                           </div>

@@ -145,7 +145,7 @@ export default function InventoryBulkCreate() {
                   className="w-32 rounded-lg border border-white/15 bg-slate-900/70 px-2.5 py-1.5 text-sm text-white"
                 />
               </label>
-              <button type="button" onClick={applyRowsCount} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-400/20">
+              <button type="button" onClick={applyRowsCount} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-xs dark:text-cyan-200 hover:bg-cyan-400/20">
                 {t('admin.pages.inventory.index.bulk.applyRows')}
               </button>
             </div>

@@ -32,7 +32,7 @@ export default function CategoriesEdit() {
           {currentImage && (
             <div className="space-y-2">
               <img src={currentImage} alt={category.name_en} className="h-36 rounded-xl object-cover" />
-              <label className="flex items-center gap-2 text-sm text-rose-200">
+              <label className="flex items-center gap-2 text-sm text-rose-600 dark:text-rose-200">
                 <input
                   type="checkbox"
                   checked={Boolean(data.remove_category_image)}
