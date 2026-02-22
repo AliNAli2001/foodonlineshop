@@ -23,6 +23,7 @@ class Client extends Authenticatable
         'address_details',
         'promo_consent',
         'language_preference',
+        'suspended_at',
     ];
 
     protected $hidden = [
@@ -33,6 +34,7 @@ class Client extends Authenticatable
         'email_verified' => 'boolean',
         'phone_verified' => 'boolean',
         'promo_consent' => 'boolean',
+        'suspended_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -77,4 +79,3 @@ class Client extends Authenticatable
         return $this->password_hash;
     }
 }
-

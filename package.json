@@ -25,6 +25,8 @@
     },
     "dependencies": {
         "leaflet": "^1.9.4",
-        "react-toastify": "^11.0.5"
+        "lucide-react": "^0.575.0",
+        "react-toastify": "^11.0.5",
+        "recharts": "^3.7.0"
     }
 }

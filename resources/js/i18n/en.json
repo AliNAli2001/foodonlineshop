@@ -32,6 +32,7 @@
       "dashboard": "Dashboard",
       "statistics": "Statistics",
       "orders": "Orders",
+      "clients": "Clients",
       "products": "Products",
       "inventory": "Inventory",
       "categories": "Categories",
@@ -880,6 +881,7 @@
       "statistics": {
         "common": {
           "filter": "Filter",
+          "amount": "Amount",
           "sales": "Sales",
           "earnings": "Earnings",
           "product": "Product",

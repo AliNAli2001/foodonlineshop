@@ -32,6 +32,7 @@
       "dashboard": "لوحة المعلومات",
       "statistics": "الإحصائيات",
       "orders": "الطلبات",
+      "clients": "العملاء",
       "products": "المنتجات",
       "inventory": "المخزون",
       "categories": "التصنيفات",
@@ -880,6 +881,7 @@
       "statistics": {
         "common": {
           "filter": "تصفية",
+          "amount": "المبلغ",
           "sales": "المبيعات",
           "earnings": "الأرباح",
           "product": "المنتج",

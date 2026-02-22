@@ -153,7 +153,7 @@ class StatisticsService
 
         return $dailySales->map(function ($day) {
             return [
-                'date' => $day->date,
+                'date' => (new Carbon($day->date))->format('Y-m-d'),
                 'revenue' => round($day->revenue, 2),
                 'cost' => round($day->cost, 2),
                 'profit' => round($day->revenue - $day->cost, 2),

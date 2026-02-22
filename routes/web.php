@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CompanyController as AdminCompanyController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ClientController as AdminClientController;
 use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\MessageTemplateController;
@@ -104,6 +105,14 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     // Autocomplete routes for order creation
     Route::get('/orders/autocomplete/clients', [AdminOrderController::class, 'searchClients'])->name('orders.autocomplete.clients');
     Route::get('/orders/autocomplete/products', [AdminOrderController::class, 'searchProducts'])->name('orders.autocomplete.products');
+
+    // Clients
+    Route::get('/clients', [AdminClientController::class, 'index'])->name('clients.index');
+    Route::get('/clients/{client}', [AdminClientController::class, 'show'])->name('clients.show');
+    Route::post('/clients/{client}/reset-password', [AdminClientController::class, 'resetPassword'])->name('clients.reset-password');
+    Route::patch('/clients/{client}/suspend', [AdminClientController::class, 'suspend'])->name('clients.suspend');
+    Route::patch('/clients/{client}/activate', [AdminClientController::class, 'activate'])->name('clients.activate');
+    Route::delete('/clients/{client}', [AdminClientController::class, 'destroy'])->name('clients.destroy');
 
     // Delivery
     Route::resource('delivery', DeliveryController::class);

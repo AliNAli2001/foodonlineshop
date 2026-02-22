@@ -2,6 +2,21 @@ import React from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis } from 'recharts';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '../../../components/ui/card';
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+    type ChartConfig,
+} from '../../../components/ui/chart';
 
 type TranslationFn = (key: string, fallback?: string) => string;
 type PrimitiveCell = string | number;
@@ -143,15 +158,15 @@ export default function StatisticsIndex() {
                     emptyText={t('admin.pages.statistics.common.noData')}
                 />
 
-                <SimpleBarChart
+                <ChartBarInteractive
                     title={t('admin.pages.statistics.index.charts.revenueTrend', 'Revenue Trend')}
-                    labels={dailySales.map((d: DailySale) => d.date)}
-                    values={dailySales.map((d: DailySale) => Number(d.revenue || 0))}
-                />
-                <SimpleBarChart
-                    title={t('admin.pages.statistics.index.charts.profitTrend', 'Profit Trend')}
-                    labels={dailySales.map((d: DailySale) => d.date)}
-                    values={dailySales.map((d: DailySale) => Number(d.profit || 0))}
+                    subtitle={t('admin.pages.statistics.index.dailySales.title')}
+                    data={dailySales}
+                    labels={{
+                        amount: t('admin.pages.statistics.common.amount', 'Amount'),
+                        revenue: t('admin.pages.statistics.common.revenue', 'Revenue'),
+                        profit: t('admin.pages.statistics.common.profit', 'Profit'),
+                    }}
                 />
             </div>
         </AdminLayout>
@@ -205,29 +220,133 @@ function DataTable({ title, headers, rows, footer, emptyText }: { title: string;
     );
 }
 
-function SimpleBarChart({ title, labels, values }: { title: string; labels: string[]; values: number[] }) {
-    const maxValue = Math.max(1, ...values.map((v: number) => Number(v || 0)));
+function ChartBarInteractive({
+    title,
+    subtitle,
+    data,
+    labels,
+}: {
+    title: string;
+    subtitle: string;
+    data: DailySale[];
+    labels: {
+        amount: string;
+        revenue: string;
+        profit: string;
+    };
+}) {
+    const chartData = data.map((row) => ({
+        date: row.date,
+        revenue: Number(row.revenue || 0),
+        profit: Number(row.profit || 0),
+    }));
+    const [activeChart, setActiveChart] = React.useState<'revenue' | 'profit'>('revenue');
+
+    const total = React.useMemo(
+        () => ({
+            revenue: chartData.reduce((acc, curr) => acc + curr.revenue, 0),
+            profit: chartData.reduce((acc, curr) => acc + curr.profit, 0),
+        }),
+        [chartData],
+    );
+
+    const chartConfig = {
+        views: {
+            label: labels.amount,
+        },
+        revenue: {
+            label: labels.revenue,
+            color: 'var(--chart-2, #22d3ee)',
+        },
+        profit: {
+            label: labels.profit,
+            color: 'var(--chart-1, #38bdf8)',
+        },
+    } satisfies ChartConfig;
+
     return (
-        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <h2 className="mb-3 text-lg font-semibold text-white">{title}</h2>
-            {values.length === 0 ? (
-                <p className="text-sm text-slate-400">No chart data.</p>
-            ) : (
-                <div className="space-y-2">
-                    {values.map((value: number, idx: number) => {
-                        const width = `${Math.max(2, (Number(value || 0) / maxValue) * 100)}%`;
-                        return (
-                            <div key={`${labels[idx]}-${idx}`} className="grid grid-cols-[150px_1fr_auto] items-center gap-2 text-xs">
-                                <span className="truncate text-slate-400">{labels[idx]}</span>
-                                <div className="h-2.5 rounded bg-slate-800">
-                                    <div className="h-2.5 rounded bg-cyan-400" style={{ width }} />
-                                </div>
-                                <span className="text-slate-200">{money(value)}</span>
-                            </div>
-                        );
-                    })}
+        <Card className="py-0">
+            <CardHeader className="flex flex-col items-stretch border-b border-slate-200 dark:border-white/10 !p-0 sm:flex-row">
+                <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 pt-4 sm:!py-0">
+                    <CardTitle>{title}</CardTitle>
+                    <CardDescription>{subtitle}</CardDescription>
                 </div>
-            )}
-        </section>
+                <div className="flex">
+                    {(['revenue', 'profit'] as const).map((key) => (
+                       <button
+  key={key}
+  data-active={activeChart === key}
+  className="
+    relative z-30 flex flex-1 flex-col justify-center gap-1
+    px-6 py-4 text-left
+    border-t border-slate-200
+    even:border-l even:border-slate-200
+    sm:border-l sm:border-t-0 sm:px-8 sm:py-6
+
+    /* Dark mode borders */
+    dark:border-white/10
+    dark:even:border-white/10
+
+    /* Dark mode backgrounds */
+    dark:bg-slate-900
+    dark:bg-slate-800
+  "
+  onClick={() => setActiveChart(key)}
+>
+                            <span className="text-xs dark:text-slate-400">{chartConfig[key].label}</span>
+                            <span className="text-lg font-bold leading-none dark:text-slate-100 sm:text-3xl">
+                                {money(total[key])}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+            </CardHeader>
+            <CardContent className="px-2 sm:p-6">
+                {chartData.length === 0 ? (
+                    <p className="text-sm dark:text-slate-400">No chart data.</p>
+                ) : (
+                    <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full text-slate-400 dark:text-slate-500">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                accessibilityLayer
+                                data={chartData}
+                                margin={{
+                                    left: 12,
+                                    right: 12,
+                                }}
+                            >
+                                <CartesianGrid vertical={false} stroke="currentColor" strokeOpacity={0.3} />
+                                <XAxis
+                                    dataKey="date"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    minTickGap={32}
+                                    tick={{ fill: 'currentColor', fontSize: 12 }}
+                                    tickFormatter={(value: string) => {
+                                        const date = new Date(value);
+                                        return date.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                        });
+                                    }}
+                                />
+                                <ChartTooltip
+                                    content={
+                                        <ChartTooltipContent
+                                            className="w-[150px]"
+                                            nameKey="views"
+                                            dataKey="date"
+                                            labelFormatter={(data: any) => String(data?.date ?? '')}
+                                        />
+                                    }
+                                />
+                                <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} radius={4} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                )}
+            </CardContent>
+        </Card>
     );
 }

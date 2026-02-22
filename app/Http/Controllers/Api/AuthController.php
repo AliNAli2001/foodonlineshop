@@ -64,6 +64,10 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
 
+        if ($client->suspended_at) {
+            return response()->json(['message' => 'Account is suspended. Please contact support.'], 403);
+        }
+
         // Issue API token
         $token = $client->createToken($validated['device_name'])->plainTextToken;
 

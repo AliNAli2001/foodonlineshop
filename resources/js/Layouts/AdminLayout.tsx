@@ -7,6 +7,7 @@ const navItems = [
     { key: 'dashboard', href: '/admin/dashboard' },
     { key: 'statistics', href: '/admin/statistics' },
     { key: 'orders', href: '/admin/orders' },
+    { key: 'clients', href: '/admin/clients' },
     { key: 'products', href: '/admin/products' },
     { key: 'inventory', href: '/admin/inventory' },
     { key: 'categories', href: '/admin/categories' },
@@ -27,6 +28,8 @@ function NavIcon({ itemKey }: { itemKey: string }) {
             return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={cls}><path d="M4 20V10m6 10V4m6 16v-7m6 7v-4" /><path d="M3 20h18" /></svg>;
         case 'orders':
             return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={cls}><path d="M4 6h16v12H4z" /><path d="M4 10h16M8 14h3" /></svg>;
+        case 'clients':
+            return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={cls}><path d="M16 21v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 19.5V21" /><circle cx="10" cy="8" r="4" /><path d="M17 11h4m-2-2v4" /></svg>;
         case 'products':
             return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={cls}><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z" /><path d="M4 7.5V16.5L12 21l8-4.5V7.5" /></svg>;
         case 'inventory':
@@ -126,7 +129,7 @@ export default function AdminLayout({ title = 'Admin', children }: AdminLayoutPr
     return (
         <div
             data-admin-theme={isDark ? 'dark' : 'light'}
-            className={`min-h-screen ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}
+            className={`min-h-screen ${isDark ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}
         >
             <Head title={title} />
 
