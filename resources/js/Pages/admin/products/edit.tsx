@@ -243,7 +243,7 @@ export default function ProductsEdit() {
                                     key={title}
                                     type="button"
                                     onClick={() => goToStep(itemStep)}
-                                    className={`rounded-xl border px-3 py-2 text-left text-xs ${active ? 'border-cyan-300/40 bg-cyan-400/20 text-cyan-100' : done ? 'border-emerald-300/30 bg-emerald-400/10 text-emerald-100' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]'}`}
+                                    className={`rounded-xl border px-3 py-2 text-left text-xs ${active ? 'border-cyan-300/40 bg-cyan-400/20 dark:text-cyan-100' : done ? 'border-emerald-300/30 bg-emerald-400/10 dark:text-emerald-100' : 'border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]'}`}
                                 >
                                     <span className="block text-[10px] uppercase tracking-[0.12em]">{t('admin.pages.products.create.step', 'Step')} {itemStep}</span>
                                     <span className="block truncate">{title}</span>
@@ -285,16 +285,16 @@ export default function ProductsEdit() {
                                     <div className="space-y-2">
                                         <input value={companySearch} onChange={(e) => setCompanySearch(e.target.value)} placeholder={t('admin.pages.products.create.searchCompany', 'Search company...')} className={inputClass} />
                                         {selectedCompany && (
-                                            <div className="flex items-center justify-between rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-sm text-cyan-100">
+                                            <div className="flex items-center justify-between rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-sm dark:text-cyan-100">
                                                 <span>{selectedCompany.name_en || selectedCompany.name_ar}</span>
-                                                <button type="button" onClick={() => setData('company_id', '')} className="text-xs text-cyan-200 underline">{t('admin.pages.products.create.clearSelection', 'Clear')}</button>
+                                                <button type="button" onClick={() => setData('company_id', '')} className="text-xs dark:text-cyan-200 underline">{t('admin.pages.products.create.clearSelection', 'Clear')}</button>
                                             </div>
                                         )}
                                         <div className="max-h-44 space-y-1 overflow-auto rounded-lg border border-white/10 bg-slate-900/40 p-2">
                                             {filteredCompanies.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCompanies.slice(0, 30).map((company: MetaOption) => {
                                                 const active = Number(data.company_id) === Number(company.id);
                                                 return (
-                                                    <button key={company.id} type="button" onClick={() => setData('company_id', String(company.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
+                                                    <button key={company.id} type="button" onClick={() => setData('company_id', String(company.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 dark:text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
                                                         {company.name_en || company.name_ar}
                                                         {company.name_ar && company.name_en ? ` (${company.name_ar})` : ''}
                                                     </button>
@@ -308,16 +308,16 @@ export default function ProductsEdit() {
                                     <div className="space-y-2">
                                         <input value={categorySearch} onChange={(e) => setCategorySearch(e.target.value)} placeholder={t('admin.pages.products.create.searchCategory', 'Search category...')} className={inputClass} />
                                         {selectedCategory && (
-                                            <div className="flex items-center justify-between rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-sm text-cyan-100">
+                                            <div className="flex items-center justify-between rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-3 py-2 text-sm dark:text-cyan-100">
                                                 <span>{selectedCategory.name_en || selectedCategory.name_ar}</span>
-                                                <button type="button" onClick={() => setData('category_id', '')} className="text-xs text-cyan-200 underline">{t('admin.pages.products.create.clearSelection', 'Clear')}</button>
+                                                <button type="button" onClick={() => setData('category_id', '')} className="text-xs dark:text-cyan-200 underline">{t('admin.pages.products.create.clearSelection', 'Clear')}</button>
                                             </div>
                                         )}
                                         <div className="max-h-44 space-y-1 overflow-auto rounded-lg border border-white/10 bg-slate-900/40 p-2">
                                             {filteredCategories.length === 0 ? <p className="px-2 py-1 text-xs text-slate-400">{t('admin.pages.products.create.noResults', 'No results')}</p> : filteredCategories.slice(0, 30).map((category: MetaOption) => {
                                                 const active = Number(data.category_id) === Number(category.id);
                                                 return (
-                                                    <button key={category.id} type="button" onClick={() => setData('category_id', String(category.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
+                                                    <button key={category.id} type="button" onClick={() => setData('category_id', String(category.id))} className={`w-full rounded-md px-2 py-1.5 text-left text-sm ${active ? 'bg-cyan-400/20 dark:text-cyan-100' : 'text-slate-200 hover:bg-white/10'}`}>
                                                         {category.name_en || category.name_ar}
                                                         {category.name_ar && category.name_en ? ` (${category.name_ar})` : ''}
                                                     </button>

@@ -13,8 +13,8 @@ function statusPill(product: any) {
     const min = Number(product.minimum_alert_quantity ?? 0);
     const low = min > 0 && stock < min;
     return low
-        ? 'inline-flex rounded-full bg-rose-400/20 px-2 py-0.5 text-xs font-semibold text-rose-200 ring-1 ring-rose-300/30'
-        : 'inline-flex rounded-full bg-emerald-400/20 px-2 py-0.5 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-300/30';
+        ? 'inline-flex rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800 ring-1 ring-rose-300 dark:bg-rose-400/20 dark:text-rose-200 dark:ring-rose-300/30'
+        : 'inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-300 dark:bg-emerald-400/20 dark:text-emerald-200 dark:ring-emerald-300/30';
 }
 
 const PHOTO_PLACEHOLDER =
@@ -87,10 +87,10 @@ export default function ProductsIndex() {
     return (
         <AdminLayout title={t('admin.pages.products.index.title')}>
             <div className="mx-auto max-w-7xl space-y-6">
-                <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white/80 p-5 dark:border-white/10 dark:bg-white/[0.04]">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">{t('admin.pages.products.index.title')}</h1>
-                        <p className="text-sm text-slate-300">{t('admin.pages.products.index.subtitle')}</p>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('admin.pages.products.index.title')}</h1>
+                        <p className="text-sm text-slate-600 dark:text-slate-300">{t('admin.pages.products.index.subtitle')}</p>
                     </div>
                     <Link href="/admin/products/create" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
                         + {t('admin.pages.products.index.addProduct')}
@@ -102,7 +102,7 @@ export default function ProductsIndex() {
                         <button
                             type="button"
                             onClick={() => setFiltersOpen((prev) => !prev)}
-                            className="rounded-full border border-cyan-300/30 bg-slate-900/95 p-3 text-cyan-200 shadow-lg backdrop-blur transition hover:bg-slate-800"
+                            className="rounded-full border border-cyan-300/60 bg-white/95 p-3 text-cyan-700 shadow-lg backdrop-blur transition hover:bg-cyan-50 dark:border-cyan-300/30 dark:bg-slate-900/95 dark:text-cyan-200 dark:hover:bg-slate-800"
                             aria-label={filtersOpen ? t('admin.pages.products.index.filters.hideFilters') : t('admin.pages.products.index.filters.showFilters')}
                             title={filtersOpen ? t('admin.pages.products.index.filters.hideFilters') : t('admin.pages.products.index.filters.showFilters')}
                         >
@@ -120,7 +120,7 @@ export default function ProductsIndex() {
                         {hasActiveFilters && (
                             <Link
                                 href="/admin/products"
-                                className="rounded-xl border border-rose-300/30 bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-200 shadow-lg transition hover:bg-rose-500/20"
+                                className="rounded-xl border border-rose-300/50 bg-white/95 px-3 py-2 text-xs font-medium text-rose-700 shadow-lg transition hover:bg-rose-50 dark:border-rose-300/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20"
                             >
                                 {t('admin.pages.products.index.filters.clearActive')}
                             </Link>
@@ -129,61 +129,61 @@ export default function ProductsIndex() {
                 </div>
 
                 <div
-                    className={`fixed inset-0 z-40 bg-slate-950/65 transition-opacity duration-300 ${
+                    className={`fixed inset-0 z-40 bg-slate-950/40 transition-opacity duration-300 dark:bg-slate-950/65 ${
                         filtersOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
                     }`}
                     onClick={() => setFiltersOpen(false)}
                 />
 
                 <aside
-                    className={`fixed inset-y-0 z-50 w-full max-w-md border-white/10 bg-slate-900/95 p-5 shadow-2xl backdrop-blur transition-transform duration-300 sm:w-[28rem] ${
+                    className={`fixed inset-y-0 z-50 w-full max-w-md border-slate-200/90 bg-white/95 p-5 shadow-2xl backdrop-blur transition-transform duration-300 dark:border-white/10 dark:bg-slate-900/95 sm:w-[28rem] ${
                         isRtl ? 'left-0 border-r' : 'right-0 border-l'
                     } ${filtersOpen ? 'translate-x-0' : isRtl ? '-translate-x-full' : 'translate-x-full'}`}
                 >
                     <form onSubmit={applyFilters} className="flex h-full flex-col">
-                        <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+                        <div className="flex items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-white/10">
                             <div>
-                                <h3 className="text-base font-semibold text-white">{t('admin.pages.products.index.filters.showFilters')}</h3>
-                                <p className="text-xs text-slate-400">{t('admin.pages.products.index.subtitle')}</p>
+                                <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('admin.pages.products.index.filters.showFilters')}</h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('admin.pages.products.index.subtitle')}</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setFiltersOpen(false)}
-                                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-white/10"
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
                             >
                                 {t('common.close', 'Close')}
                             </button>
                         </div>
 
                         <div className="mt-4 grid gap-3 overflow-y-auto pr-1">
-                            <input name="search" defaultValue={params.get('search') || ''} placeholder={t('admin.pages.products.index.filters.searchPlaceholder')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                            <select name="sort" defaultValue={params.get('sort') || ''} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white">
+                            <input name="search" defaultValue={params.get('search') || ''} placeholder={t('admin.pages.products.index.filters.searchPlaceholder')} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40" />
+                            <select name="sort" defaultValue={params.get('sort') || ''} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40">
                                 <option value="">{t('admin.pages.products.index.filters.sortBy')}</option>
                                 <option value="stock">{t('admin.pages.products.index.filters.stock')}</option>
                                 <option value="price">{t('admin.pages.products.index.filters.price')}</option>
                                 <option value="created_at">{t('admin.pages.products.index.filters.createdDate')}</option>
                             </select>
-                            <select name="order" defaultValue={params.get('order') || 'desc'} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white">
+                            <select name="order" defaultValue={params.get('order') || 'desc'} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40">
                                 <option value="desc">{t('admin.pages.products.index.filters.descending')}</option>
                                 <option value="asc">{t('admin.pages.products.index.filters.ascending')}</option>
                             </select>
-                            <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-900/40 px-3 py-2 text-sm text-slate-200">
+                            <label className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-200">
                                 <input type="checkbox" name="low_stock" value="1" defaultChecked={params.has('low_stock')} />
                                 {t('admin.pages.products.index.filters.lowStockOnly')}
                             </label>
-                            <input name="min_price" type="number" step="0.01" defaultValue={params.get('min_price') || ''} placeholder={t('admin.pages.products.index.filters.minPrice')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                            <input name="max_price" type="number" step="0.01" defaultValue={params.get('max_price') || ''} placeholder={t('admin.pages.products.index.filters.maxPrice')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                            <input name="min_stock" type="number" defaultValue={params.get('min_stock') || ''} placeholder={t('admin.pages.products.index.filters.minStock')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
-                            <input name="max_stock" type="number" defaultValue={params.get('max_stock') || ''} placeholder={t('admin.pages.products.index.filters.maxStock')} className="rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white" />
+                            <input name="min_price" type="number" step="0.01" defaultValue={params.get('min_price') || ''} placeholder={t('admin.pages.products.index.filters.minPrice')} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40" />
+                            <input name="max_price" type="number" step="0.01" defaultValue={params.get('max_price') || ''} placeholder={t('admin.pages.products.index.filters.maxPrice')} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40" />
+                            <input name="min_stock" type="number" defaultValue={params.get('min_stock') || ''} placeholder={t('admin.pages.products.index.filters.minStock')} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40" />
+                            <input name="max_stock" type="number" defaultValue={params.get('max_stock') || ''} placeholder={t('admin.pages.products.index.filters.maxStock')} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40" />
 
-                            <section className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                                <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">{t('admin.pages.products.index.filters.tags')}</h4>
+                            <section className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.03]">
+                                <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-700 dark:text-slate-300">{t('admin.pages.products.index.filters.tags')}</h4>
                                 <div className="mt-2 max-h-44 space-y-2 overflow-y-auto pr-1">
                                     {tags.length === 0 ? (
                                         <p className="text-xs text-slate-500">-</p>
                                     ) : (
                                         tags.map((tag: any) => (
-                                            <label key={tag.id} className="flex items-center gap-2 text-sm text-slate-200">
+                                            <label key={tag.id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
                                                 <input type="checkbox" name="tags" value={tag.id} defaultChecked={params.getAll('tags').includes(String(tag.id))} />
                                                 <span>{tag.name_ar || tag.name_en || `#${tag.id}`}</span>
                                             </label>
@@ -193,32 +193,32 @@ export default function ProductsIndex() {
                             </section>
                         </div>
 
-                        <div className={`mt-4 flex gap-2 border-t border-white/10 pt-4 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                        <div className={`mt-4 flex gap-2 border-t border-slate-200 pt-4 dark:border-white/10 ${isRtl ? 'flex-row-reverse' : ''}`}>
                             <button className="w-full rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">{t('admin.pages.products.index.filters.apply')}</button>
-                            <Link href="/admin/products" className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-center text-sm text-slate-200 hover:bg-white/10">{t('admin.pages.products.index.filters.reset')}</Link>
+                            <Link href="/admin/products" className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-center text-sm text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">{t('admin.pages.products.index.filters.reset')}</Link>
                         </div>
                     </form>
                 </aside>
 
-                <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
+                <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]">
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
-                            <thead className="bg-white/[0.03]"><tr>{[t('admin.pages.products.index.columns.id'), t('admin.pages.products.index.columns.image'), t('admin.pages.products.index.columns.name'), t('admin.pages.products.index.columns.price'), t('admin.pages.products.index.columns.stock'), t('common.actions')].map((h) => <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{h}</th>)}</tr></thead>
+                            <thead className="bg-slate-100/80 dark:bg-white/[0.03]"><tr>{[t('admin.pages.products.index.columns.id'), t('admin.pages.products.index.columns.image'), t('admin.pages.products.index.columns.name'), t('admin.pages.products.index.columns.price'), t('admin.pages.products.index.columns.stock'), t('common.actions')].map((h) => <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{h}</th>)}</tr></thead>
                             <tbody>
                                 {productRows.length === 0 ? (
-                                    <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-400">{t('admin.pages.products.index.empty')}</td></tr>
+                                    <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">{t('admin.pages.products.index.empty')}</td></tr>
                                 ) : (
                                     productRows.map((product: any) => {
                                         const img = resolveProductImage(product);
                                         const stock = Number(product.stock_available_quantity ?? product.stock?.available_quantity ?? 0);
                                         return (
-                                            <tr key={product.id} className="border-t border-white/10">
-                                                <td className="px-4 py-3 text-sm text-slate-200">{product.id}</td>
-                                                <td className="px-4 py-3"><img src={img} alt={product.name_ar || product.name_en || 'product'} onError={(e) => { (e.currentTarget as HTMLImageElement).src = PHOTO_PLACEHOLDER; }} className="h-14 w-14 rounded-lg object-cover ring-1 ring-white/10" /></td>
-                                                <td className="px-4 py-3 text-sm text-slate-100">{product.name_ar || product.name_en || '-'}</td>
-                                                <td className="px-4 py-3 text-sm text-slate-200">${Number(product.selling_price).toFixed(2)}</td>
+                                            <tr key={product.id} className="border-t border-slate-200 dark:border-white/10">
+                                                <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-200">{product.id}</td>
+                                                <td className="px-4 py-3"><img src={img} alt={product.name_ar || product.name_en || 'product'} onError={(e) => { (e.currentTarget as HTMLImageElement).src = PHOTO_PLACEHOLDER; }} className="h-14 w-14 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-white/10" /></td>
+                                                <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-100">{product.name_ar || product.name_en || '-'}</td>
+                                                <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-200">${Number(product.selling_price).toFixed(2)}</td>
                                                 <td className="px-4 py-3 text-sm"><span className={statusPill(product)}>{stock}</span></td>
-                                                <td className="px-4 py-3"><div className="flex flex-wrap gap-2"><Link href={`/admin/products/${product.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">{t('common.view')}</Link><Link href={`/admin/products/${product.id}/edit`} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-400/20">{t('common.edit')}</Link><button onClick={() => removeProduct(product.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">{t('common.delete')}</button></div></td>
+                                                <td className="px-4 py-3"><div className="flex flex-wrap gap-2"><Link href={`/admin/products/${product.id}`} className="rounded-lg border border-cyan-400/40 bg-cyan-50 px-2.5 py-1 text-xs text-cyan-700 hover:bg-cyan-100 dark:border-cyan-300/30 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20">{t('common.view')}</Link><Link href={`/admin/products/${product.id}/edit`} className="rounded-lg border border-amber-400/40 bg-amber-50 px-2.5 py-1 text-xs text-amber-700 hover:bg-amber-100 dark:border-amber-300/30 dark:bg-amber-400/10 dark:text-amber-200 dark:hover:bg-amber-400/20">{t('common.edit')}</Link><button onClick={() => removeProduct(product.id)} className="rounded-lg border border-rose-400/40 bg-rose-50 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-100 dark:border-rose-300/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">{t('common.delete')}</button></div></td>
                                             </tr>
                                         );
                                     })
@@ -226,7 +226,7 @@ export default function ProductsIndex() {
                             </tbody>
                         </table>
                     </div>
-                    {products?.links && (<div className="flex flex-wrap gap-2 border-t border-white/10 p-4">{products.links.map((link: any, idx: number) => (<Link key={`${link.label}-${idx}`} href={link.url || '#'} preserveScroll className={`rounded-lg px-3 py-1.5 text-sm ${link.active ? 'bg-cyan-400 text-slate-950' : link.url ? 'bg-white/5 text-slate-200 hover:bg-white/10' : 'cursor-not-allowed bg-white/5 text-slate-500'}`} dangerouslySetInnerHTML={{ __html: link.label }} />))}</div>)}
+                    {products?.links && (<div className="flex flex-wrap gap-2 border-t border-slate-200 p-4 dark:border-white/10">{products.links.map((link: any, idx: number) => (<Link key={`${link.label}-${idx}`} href={link.url || '#'} preserveScroll className={`rounded-lg px-3 py-1.5 text-sm ${link.active ? 'bg-cyan-400 text-slate-950' : link.url ? 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-500'}`} dangerouslySetInnerHTML={{ __html: link.label }} />))}</div>)}
                 </section>
             </div>
         </AdminLayout>

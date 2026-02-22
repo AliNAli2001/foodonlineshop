@@ -2,17 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
-
-const statusClass: Record<string, string> = {
-    pending: 'bg-amber-400/20 text-amber-200 ring-amber-300/30',
-    confirmed: 'bg-sky-400/20 text-sky-200 ring-sky-300/30',
-    shipped: 'bg-blue-400/20 text-blue-200 ring-blue-300/30',
-    delivered: 'bg-indigo-400/20 text-indigo-200 ring-indigo-300/30',
-    done: 'bg-emerald-400/20 text-emerald-200 ring-emerald-300/30',
-    canceled: 'bg-rose-400/20 text-rose-200 ring-rose-300/30',
-    returned: 'bg-slate-300/20 text-slate-200 ring-slate-300/30',
-    rejected: 'bg-rose-400/20 text-rose-200 ring-rose-300/30',
-};
+import { statusBadge } from '../../../constants/statusBadge';
 
 function normalizePhone(value?: string | null): string {
     if (!value) return '';
@@ -249,7 +239,7 @@ export default function OrdersShow() {
                                 <p><span className="text-slate-400">{t('admin.pages.orders.show.date')}: </span>{formatDateTime(order.order_date || order.created_at)}</p>
                                 <p><span className="text-slate-400">{t('admin.pages.orders.show.source')}: </span>{sourceLabel(order.order_source)}</p>
                                 <p><span className="text-slate-400">{t('admin.pages.orders.show.deliveryMethod')}: </span>{deliveryLabel(order.delivery_method)}</p>
-                                <p><span className="text-slate-400">{t('common.status')}: </span><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${statusClass[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'}`}>{statusLabel(order.status)}</span></p>
+                                <p><span className="text-slate-400">{t('common.status')}: </span><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${statusBadge[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'}`}>{statusLabel(order.status)}</span></p>
                                 <p className="md:col-span-2"><span className="text-slate-400">{t('admin.pages.orders.show.address')}: </span>{order.address_details || '-'}</p>
                                 {order.shipping_notes && <p className="md:col-span-2"><span className="text-slate-400">{t('admin.pages.orders.show.shippingNotes')}: </span>{order.shipping_notes}</p>}
                                 {order.admin_order_client_notes && <p className="md:col-span-2"><span className="text-slate-400">{t('admin.pages.orders.show.adminNotes')}: </span>{order.admin_order_client_notes}</p>}
@@ -287,7 +277,7 @@ export default function OrdersShow() {
                                                                           key={i}
                                                                           href={inv?.id ? `/admin/inventory/${inv.id}` : '#'}
                                                                           className={`mb-1 block rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs transition ${
-                                                                              inv?.id ? 'hover:border-cyan-300/30 hover:bg-cyan-400/10 hover:text-cyan-200' : 'pointer-events-none opacity-70'
+                                                                              inv?.id ? 'hover:border-cyan-600 dark:hover:border-cyan-300/30 hover:bg-cyan-400/10 hover:text-cyan-600 dark:hover:text-cyan-200' : 'pointer-events-none opacity-70'
                                                                           }`}
                                                                       >
                                                                           {t('admin.pages.orders.show.batch')}: {inv?.batch_number ?? '-'} | {t('admin.pages.orders.create.quantity')}: {b.quantity}
@@ -388,7 +378,7 @@ export default function OrdersShow() {
                                                 href={whatsappUrl(customerPhone, buildMessageText(msg))}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs ${customerPhone ? 'border-green-300/30 bg-green-500/10 text-green-200 hover:bg-green-500/20' : 'pointer-events-none border-white/10 bg-white/5 text-slate-500'}`}
+                                                className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs ${customerPhone ? 'border-green-300/30 bg-green-500/10 dark:text-green-200 hover:bg-green-500/20' : 'pointer-events-none border-white/10 bg-white/5 text-slate-500'}`}
                                             >
                                                 <SendIcon />
                                                 {t('admin.pages.orders.show.messages.sendToCustomer')}

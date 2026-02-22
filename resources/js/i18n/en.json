@@ -120,6 +120,33 @@
           "hidePassword": "Hide"
         }
       },
+      "clients": {
+        "index": {
+          "title": "Clients",
+          "heading": "Clients",
+          "subtitle": "Search and manage client accounts.",
+          "searchPlaceholder": "Search by name, email, or phone",
+          "clear": "Clear",
+          "empty": "No clients found.",
+          "deleteConfirm": "Delete this client account? This action cannot be undone.",
+          "suspendConfirm": "Suspend this client account? Active sessions will be revoked.",
+          "columns": {
+            "id": "ID",
+            "name": "Name",
+            "email": "Email",
+            "phone": "Phone",
+            "orders": "Orders"
+          },
+          "status": {
+            "active": "Active",
+            "suspended": "Suspended"
+          },
+          "actions": {
+            "activate": "Activate",
+            "suspend": "Suspend"
+          }
+        }
+      },
       "products": {
         "index": {
           "title": "Products",

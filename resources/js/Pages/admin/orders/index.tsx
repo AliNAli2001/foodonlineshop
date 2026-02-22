@@ -2,17 +2,7 @@ import React, { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
 import { useI18n } from '../../../i18n';
-
-const statusClass: Record<string, string> = {
-    pending: 'bg-amber-400/20 text-amber-200 ring-amber-300/30',
-    confirmed: 'bg-sky-400/20 text-sky-200 ring-sky-300/30',
-    shipped: 'bg-blue-400/20 text-blue-200 ring-blue-300/30',
-    delivered: 'bg-indigo-400/20 text-indigo-200 ring-indigo-300/30',
-    done: 'bg-emerald-400/20 text-emerald-200 ring-emerald-300/30',
-    canceled: 'bg-rose-400/20 text-rose-200 ring-rose-300/30',
-    returned: 'bg-slate-300/20 text-slate-200 ring-slate-300/30',
-    rejected: 'bg-rose-400/20 text-rose-200 ring-rose-300/30',
-};
+import { statusBadge } from '../../../constants/statusBadge';
 
 const orderStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'done', 'canceled', 'returned', 'rejected'] as const;
 
@@ -182,7 +172,7 @@ export default function OrdersIndex() {
                 <button
                     type="button"
                     onClick={() => setFiltersOpen((prev) => !prev)}
-                    className={`fixed top-1/2 z-[60] -translate-y-1/2 rounded-full border border-cyan-300/30 bg-slate-900/95 p-3 text-cyan-200 shadow-lg backdrop-blur transition hover:bg-slate-800 ${
+                    className={`fixed top-1/2 z-[60] -translate-y-1/2 rounded-full border border-cyan-300/60 bg-white/95 p-3 text-cyan-700 shadow-lg backdrop-blur transition hover:bg-cyan-50 dark:border-cyan-300/30 dark:bg-slate-900/95 dark:text-cyan-200 dark:hover:bg-slate-800 ${
                         isRtl ? 'left-3' : 'right-3'
                     }`}
                     aria-label={filtersOpen ? t('admin.pages.orders.index.filters.collapse') : t('admin.pages.orders.index.filters.expand')}
@@ -203,7 +193,7 @@ export default function OrdersIndex() {
                     <button
                         type="button"
                         onClick={clearFilters}
-                        className={`fixed top-[calc(50%+3.75rem)] z-[60] rounded-xl border border-rose-300/30 bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-200 shadow-lg transition hover:bg-rose-500/20 ${
+                        className={`fixed top-[calc(50%+3.75rem)] z-[60] rounded-xl border border-rose-300/50 bg-white/95 px-3 py-2 text-xs font-medium text-rose-700 shadow-lg transition hover:bg-rose-50 dark:border-rose-300/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 ${
                             isRtl ? 'left-3' : 'right-3'
                         }`}
                     >
@@ -212,26 +202,26 @@ export default function OrdersIndex() {
                 )}
 
                 <div
-                    className={`fixed inset-0 z-40 bg-slate-950/65 transition-opacity duration-300 ${
+                    className={`fixed inset-0 z-40 bg-slate-950/40 transition-opacity duration-300 dark:bg-slate-950/65 ${
                         filtersOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
                     }`}
                     onClick={() => setFiltersOpen(false)}
                 />
                 <aside
-                    className={`fixed inset-y-0 z-50 w-full max-w-md border-white/10 bg-slate-900/95 p-5 shadow-2xl backdrop-blur transition-transform duration-300 sm:w-[28rem] ${
+                    className={`fixed inset-y-0 z-50 w-full max-w-md border-slate-200/90 bg-white/95 p-5 shadow-2xl backdrop-blur transition-transform duration-300 dark:border-white/10 dark:bg-slate-900/95 sm:w-[28rem] ${
                         isRtl ? 'left-0 border-r' : 'right-0 border-l'
                     } ${filtersOpen ? 'translate-x-0' : isRtl ? '-translate-x-full' : 'translate-x-full'}`}
                 >
                     <form onSubmit={applyFilters} className="flex h-full flex-col">
-                        <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+                        <div className="flex items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-white/10">
                             <div>
-                                <h3 className="text-base font-semibold text-white">{t('admin.pages.orders.index.filters.title')}</h3>
-                                <p className="text-xs text-slate-400">{t('admin.pages.orders.index.filters.subtitle')}</p>
+                                <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('admin.pages.orders.index.filters.title')}</h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('admin.pages.orders.index.filters.subtitle')}</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setFiltersOpen(false)}
-                                className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-white/10"
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
                             >
                                 {t('common.close', 'Close')}
                             </button>
@@ -239,11 +229,11 @@ export default function OrdersIndex() {
 
                         <div className="mt-4 grid gap-3">
                             <label className="block">
-                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('common.status')}</span>
+                                <span className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">{t('common.status')}</span>
                                 <select
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value)}
-                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40"
                                 >
                                     <option value="">{t('admin.pages.orders.index.filters.allStatuses')}</option>
                                     {orderStatuses.map((s) => (
@@ -255,64 +245,64 @@ export default function OrdersIndex() {
                             </label>
 
                             <label className="block">
-                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('admin.pages.orders.index.filters.startDate')}</span>
+                                <span className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">{t('admin.pages.orders.index.filters.startDate')}</span>
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40"
                                 />
                             </label>
 
                             <label className="block">
-                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('admin.pages.orders.index.filters.endDate')}</span>
+                                <span className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">{t('admin.pages.orders.index.filters.endDate')}</span>
                                 <input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40"
                                 />
                             </label>
 
                             <label className="block">
-                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('admin.pages.orders.index.filters.minPrice')}</span>
+                                <span className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">{t('admin.pages.orders.index.filters.minPrice')}</span>
                                 <input
                                     type="number"
                                     step="0.01"
                                     value={minPrice}
                                     onChange={(e) => setMinPrice(e.target.value)}
-                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40"
                                 />
                             </label>
 
                             <label className="block">
-                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('admin.pages.orders.index.filters.maxPrice')}</span>
+                                <span className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">{t('admin.pages.orders.index.filters.maxPrice')}</span>
                                 <input
                                     type="number"
                                     step="0.01"
                                     value={maxPrice}
                                     onChange={(e) => setMaxPrice(e.target.value)}
-                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40"
                                 />
                             </label>
 
                             <label className="block">
-                                <span className="mb-1 block text-xs font-medium text-slate-300">{t('admin.pages.orders.index.filters.totalPrice')}</span>
+                                <span className="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-300">{t('admin.pages.orders.index.filters.totalPrice')}</span>
                                 <input
                                     type="number"
                                     step="0.01"
                                     value={totalPrice}
                                     onChange={(e) => setTotalPrice(e.target.value)}
-                                    className="w-full rounded-xl border border-white/15 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/40"
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-400/60 dark:border-white/15 dark:bg-slate-900/70 dark:text-white dark:focus:border-cyan-300/40"
                                 />
                             </label>
                         </div>
 
-                        <div className={`mt-auto flex gap-2 border-t border-white/10 pt-4 ${isRtl ? 'flex-row-reverse' : ''}`}>
+                        <div className={`mt-auto flex gap-2 border-t border-slate-200 pt-4 dark:border-white/10 ${isRtl ? 'flex-row-reverse' : ''}`}>
                             <button
                                 type="button"
                                 onClick={clearFilters}
-                                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
+                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/10"
                             >
                                 {t('admin.pages.orders.index.filters.clear')}
                             </button>
@@ -360,7 +350,7 @@ export default function OrdersIndex() {
                                             <td className="px-4 py-3 text-sm text-slate-200">{customerName(order)}</td>
                                             <td className="px-4 py-3 text-sm text-slate-200">${Number(order.total_amount ?? 0).toFixed(2)}</td>
                                             <td className="px-4 py-3 text-sm">
-                                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${statusClass[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'}`}>
+                                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${statusBadge[order.status] ?? 'bg-slate-300/20 text-slate-200 ring-slate-300/30'}`}>
                                                     {statusLabel(order.status)}
                                                 </span>
                                             </td>
@@ -368,7 +358,7 @@ export default function OrdersIndex() {
                                             <td className="px-4 py-3 text-sm">
                                                 <Link
                                                     href={`/admin/orders/${order.id}`}
-                                                    className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
+                                                    className="rounded-lg border  dark:border-cyan-300/30 border-cyan-400/40 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium dark:text-cyan-200 transition hover:bg-cyan-400/20"
                                                 >
                                                     {t('common.view')}
                                                 </Link>

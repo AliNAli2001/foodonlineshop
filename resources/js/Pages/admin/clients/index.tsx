@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AdminLayout from '../../../Layouts/AdminLayout';
+import { useI18n } from '../../../i18n';
 
 export default function ClientsIndex() {
+  const { t } = useI18n();
   const page = usePage<any>();
   const clients = page.props.clients;
   const filters = page.props.filters ?? {};
@@ -20,7 +22,7 @@ export default function ClientsIndex() {
   };
 
   const removeClient = (id: number) => {
-    if (!window.confirm('Delete this client account? This action cannot be undone.')) return;
+    if (!window.confirm(t('admin.pages.clients.index.deleteConfirm'))) return;
     router.delete(`/admin/clients/${id}`);
   };
 
@@ -30,31 +32,31 @@ export default function ClientsIndex() {
       return;
     }
 
-    if (!window.confirm('Suspend this client account? Active sessions will be revoked.')) return;
+    if (!window.confirm(t('admin.pages.clients.index.suspendConfirm'))) return;
     router.patch(`/admin/clients/${client.id}/suspend`);
   };
 
   return (
-    <AdminLayout title="Clients">
+    <AdminLayout title={t('admin.pages.clients.index.title')}>
       <div className="mx-auto max-w-7xl space-y-6">
         <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
           <div className="mb-4">
-            <h1 className="text-2xl font-bold text-white">Clients</h1>
-            <p className="text-sm text-slate-300">Search and manage client accounts.</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.pages.clients.index.heading')}</h1>
+            <p className="text-sm text-slate-300">{t('admin.pages.clients.index.subtitle')}</p>
           </div>
 
           <form onSubmit={submitSearch} className="flex flex-wrap items-center gap-2">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, email, or phone"
+              placeholder={t('admin.pages.clients.index.searchPlaceholder')}
               className="min-w-[260px] flex-1 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-400"
             />
             <button type="submit" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
-              Search
+              {t('common.search')}
             </button>
             <button type="button" onClick={clearSearch} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">
-              Clear
+              {t('admin.pages.clients.index.clear')}
             </button>
           </form>
         </section>
@@ -64,7 +66,15 @@ export default function ClientsIndex() {
             <table className="min-w-full">
               <thead className="bg-white/[0.03]">
                 <tr>
-                  {['ID', 'Name', 'Email', 'Phone', 'Orders', 'Status', 'Actions'].map((h) => (
+                  {[
+                    t('admin.pages.clients.index.columns.id'),
+                    t('admin.pages.clients.index.columns.name'),
+                    t('admin.pages.clients.index.columns.email'),
+                    t('admin.pages.clients.index.columns.phone'),
+                    t('admin.pages.clients.index.columns.orders'),
+                    t('common.status'),
+                    t('common.actions'),
+                  ].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                       {h}
                     </th>
@@ -75,7 +85,7 @@ export default function ClientsIndex() {
                 {rows.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-400">
-                      No clients found.
+                      {t('admin.pages.clients.index.empty')}
                     </td>
                   </tr>
                 ) : (
@@ -88,15 +98,15 @@ export default function ClientsIndex() {
                       <td className="px-4 py-3 text-sm text-slate-200">{client.orders_count ?? 0}</td>
                       <td className="px-4 py-3 text-sm">
                         {client.suspended_at ? (
-                          <span className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2 py-1 text-xs text-rose-200">Suspended</span>
+                          <span className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2 py-1 text-xs text-rose-200">{t('admin.pages.clients.index.status.suspended')}</span>
                         ) : (
-                          <span className="rounded-lg border border-emerald-300/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">Active</span>
+                          <span className="rounded-lg border border-emerald-300/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">{t('admin.pages.clients.index.status.active')}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-2">
                           <Link href={`/admin/clients/${client.id}`} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200 hover:bg-cyan-400/20">
-                            View
+                            {t('common.view')}
                           </Link>
                           <button
                             onClick={() => toggleSuspend(client)}
@@ -106,10 +116,10 @@ export default function ClientsIndex() {
                                 : 'border border-amber-300/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20'
                             }`}
                           >
-                            {client.suspended_at ? 'Activate' : 'Suspend'}
+                            {client.suspended_at ? t('admin.pages.clients.index.actions.activate') : t('admin.pages.clients.index.actions.suspend')}
                           </button>
                           <button onClick={() => removeClient(client.id)} className="rounded-lg border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-xs text-rose-200 hover:bg-rose-500/20">
-                            Delete
+                            {t('common.delete')}
                           </button>
                         </div>
                       </td>
